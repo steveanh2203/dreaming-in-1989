@@ -1,0 +1,66 @@
+@import '@fontsource/abril-fatface';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/libre-baskerville/400.css';
+@import '@fontsource/libre-baskerville/700.css';
+@import '@fontsource/special-elite';
+
+:root {
+  --display: 'Abril Fatface', Georgia, serif;
+  --serif: 'Libre Baskerville', Georgia, serif;
+  --sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'Special Elite', 'Courier New', monospace;
+  --paper: #f3dfb9;
+  --ink: #1f120d;
+  --muted: #6d442c;
+  --red: #c52230;
+  --cyan: #16d8f2;
+  --amber: #f0a63b;
+  --green: #32bf7b;
+
+  font-family: var(--sans);
+  color: var(--paper);
+  background: #0a1d23;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+body,
+input,
+button {
+  letter-spacing: 0;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+
+img,
+svg {
+  display: block;
+}
+
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
