@@ -26,15 +26,19 @@ import arenaDunkImage from './assets/news/arena-dunk.png'
 import movieMarqueeImage from './assets/news/movie-marquee.png'
 import musicStudioImage from './assets/news/music-studio.png'
 import sidewalkPlayerImage from './assets/news/sidewalk-player.png'
+import mallFoodCourtImage from './assets/collections/mall-food-court-run.png'
+import saturdayMorningImage from './assets/collections/saturday-morning-shelf.png'
+import videoStoreImage from './assets/collections/video-store-night.png'
 import './App.css'
 
 const navItems = [
-  { label: 'Home', asset: 'crt' },
-  { label: 'News', asset: 'news' },
-  { label: 'Games', asset: 'handheld' },
-  { label: 'Shop', asset: 'bag' },
-  { label: 'Photos', asset: 'photos' },
-  { label: 'Community', asset: 'community' },
+  { number: '01', label: 'Home', asset: 'crt' },
+  { number: '02', label: 'Era', asset: 'news' },
+  { number: '03', label: 'News', asset: 'news' },
+  { number: '04', label: 'Games', asset: 'handheld' },
+  { number: '05', label: 'Shop', asset: 'bag' },
+  { number: '06', label: 'Photos', asset: 'photos' },
+  { number: '07', label: 'Community', asset: 'community' },
 ]
 
 const tabs = [
@@ -62,6 +66,13 @@ const newsItems = [
 
 const years = [1985, 1987, 1989, 1991, 1993]
 
+const eras = [
+  { year: 1985, title: 'Arcade After School', copy: 'Coin slots, neon carpet, and a pocket full of quarters.', scene: 'arcade-fighter' },
+  { year: 1989, title: 'Mall Weekend', copy: 'Food court runs, photo booths, high-tops, and a new tape in the bag.', scene: 'strip-mall' },
+  { year: 1991, title: 'Video Rental Night', copy: 'One new release, one backup pick, and snacks for the whole couch.', scene: 'movie-marquee' },
+  { year: 1993, title: 'Bedroom Radio Era', copy: 'Late-night dedications, stickered boom boxes, and mixtapes by request.', scene: 'album-shelf' },
+]
+
 const products = [
   { id: 1, name: 'Pocket Game', detail: 'DMG-style handheld', price: 49.99, tag: 'Just added', art: 'handheld' },
   { id: 2, name: 'Tape Player', detail: 'Belt clip stereo', price: 59.99, tag: 'Mall pick', art: 'player' },
@@ -79,6 +90,19 @@ const trends = [
   'Transforming robot toys',
 ]
 
+const quizOptions = [
+  { id: 'mall', label: 'Mall crawl', result: 'Mall Regular', detail: 'You know every store, snack counter, and photo booth shortcut.' },
+  { id: 'arcade', label: 'Arcade run', result: 'Quarter Keeper', detail: 'You save your best reflexes for blinking cabinets and crowded scoreboards.' },
+  { id: 'radio', label: 'Radio night', result: 'Mixtape Maker', detail: 'You remember the songs by the exact second you hit record.' },
+  { id: 'video', label: 'VHS weekend', result: 'Rental Counter Pro', detail: 'You never returned the tape without rewinding it first.' },
+]
+
+const collections = [
+  { title: 'Video Store Night', tag: 'Weekend kit', copy: 'VHS case, tape player, and pins for the jacket.', productIds: [2, 3, 5], image: videoStoreImage },
+  { title: 'Saturday Morning Shelf', tag: 'Cartoon pack', copy: 'Cereal-box art, handheld fun, and button-pin color.', productIds: [1, 3, 4], image: saturdayMorningImage },
+  { title: 'Mall Food Court Run', tag: 'Staff pick', copy: 'A small bundle for neon halls, music stops, and arcade breaks.', productIds: [1, 2, 4], image: mallFoodCourtImage },
+]
+
 const memories = [
   { title: 'My first summer 87', icon: Camera },
   { title: 'Video rental weekend', icon: Tv },
@@ -89,6 +113,8 @@ const memories = [
 function App() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [activeYear, setActiveYear] = useState(1989)
+  const [activeEra, setActiveEra] = useState(1989)
+  const [quizChoice, setQuizChoice] = useState('mall')
   const [query, setQuery] = useState('')
   const [cart, setCart] = useState([])
   const [isCartOpen, setIsCartOpen] = useState(false)
@@ -103,6 +129,8 @@ function App() {
     return byCategory.filter((item) => item.title.toLowerCase().includes(term) || item.category.toLowerCase().includes(term))
   }, [activeCategory, query])
 
+  const selectedEra = eras.find((era) => era.year === activeEra) ?? eras[1]
+  const quizResult = quizOptions.find((option) => option.id === quizChoice) ?? quizOptions[0]
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal > 0 ? 6.99 : 0
@@ -113,6 +141,24 @@ function App() {
       const existing = items.find((item) => item.id === product.id)
       if (existing) return items.map((item) => (item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item))
       return [...items, { ...product, quantity: 1 }]
+    })
+    setIsCartOpen(true)
+  }
+
+  const addCollection = (productIds) => {
+    setCart((items) => {
+      const nextItems = [...items]
+      productIds.forEach((id) => {
+        const product = products.find((item) => item.id === id)
+        if (!product) return
+        const existing = nextItems.find((item) => item.id === product.id)
+        if (existing) {
+          existing.quantity += 1
+          return
+        }
+        nextItems.push({ ...product, quantity: 1 })
+      })
+      return nextItems
     })
     setIsCartOpen(true)
   }
@@ -151,8 +197,9 @@ function App() {
           <b>08:45 PM</b>
         </div>
         <nav className="drawer-nav">
-          {navItems.map(({ label, asset }) => (
+          {navItems.map(({ number, label, asset }) => (
             <a key={label} href={`#${label.toLowerCase()}`} className="drawer-link">
+              <b>{number}</b>
               <span className={`drawer-photo sprite ${asset}`} />
               <span>{label}</span>
             </a>
@@ -213,6 +260,29 @@ function App() {
           </div>
         </section>
 
+        <section className="era-section" id="era">
+          <div className="era-heading">
+            <span>Pick Your Era</span>
+            <h2>Choose the shelf you want to walk through.</h2>
+          </div>
+          <div className="era-grid">
+            {eras.map((era) => (
+              <button key={era.year} className={activeEra === era.year ? 'active' : ''} onClick={() => setActiveEra(era.year)}>
+                <strong>{era.year}</strong>
+                <span>{era.title}</span>
+              </button>
+            ))}
+          </div>
+          <article className="era-feature paper">
+            <div className={`era-scene scene ${selectedEra.scene}`} />
+            <div>
+              <span>{selectedEra.year} rewind</span>
+              <h3>{selectedEra.title}</h3>
+              <p>{selectedEra.copy}</p>
+            </div>
+          </article>
+        </section>
+
         <section className="content-grid">
           <article className="news-panel paper" id="news">
             <div className="panel-heading">
@@ -269,6 +339,38 @@ function App() {
           </div>
         </section>
 
+        <section className="memory-week-grid">
+          <article className="memory-week paper">
+            <div className="panel-heading">
+              <div><h2>Memory of the Week</h2><p>A community note pulled from the front of the memory board.</p></div>
+              <span className="stamp">Pinned</span>
+            </div>
+            <div className="memory-week-body">
+              <div className="scene film-memories" />
+              <blockquote>
+                <p>We would split fries at the food court, check the music store wall, then spend the last dollar in the arcade before pickup.</p>
+                <cite>Kelly R., summer 1989</cite>
+              </blockquote>
+            </div>
+          </article>
+
+          <article className="quiz-card">
+            <span className="quiz-kicker">Quick Quiz</span>
+            <h2>What kind of memory-lane kid are you?</h2>
+            <div className="quiz-options">
+              {quizOptions.map((option) => (
+                <button key={option.id} className={quizChoice === option.id ? 'active' : ''} onClick={() => setQuizChoice(option.id)}>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <div className="quiz-result">
+              <strong>{quizResult.result}</strong>
+              <p>{quizResult.detail}</p>
+            </div>
+          </article>
+        </section>
+
         <section className="shop-section" id="shop">
           <div className="section-sign">
             <span>TenOverage</span>
@@ -293,6 +395,33 @@ function App() {
             <h2>Trending Now in 89</h2>
             <ol>{trends.map((trend) => <li key={trend}>{trend}</li>)}</ol>
           </article>
+        </section>
+
+        <section className="collections-section" id="collections">
+          <div className="section-sign">
+            <span>Curated Shelves</span>
+            <h2>Bundles built like old weekend plans.</h2>
+            <a href="#collections">Add a bundle <ChevronRight size={16} /></a>
+          </div>
+          <div className="collection-grid">
+            {collections.map((collection) => (
+              <article key={collection.title} className="collection-card paper">
+                <img className="collection-scene" src={collection.image} alt="" />
+                <span>{collection.tag}</span>
+                <h3>{collection.title}</h3>
+                <p>{collection.copy}</p>
+                <div className="collection-items">
+                  {collection.productIds.map((id) => {
+                    const product = products.find((item) => item.id === id)
+                    return product ? <i key={id} className={`sprite ${product.art}`} aria-label={product.name} /> : null
+                  })}
+                </div>
+                <button className="red-button" onClick={() => addCollection(collection.productIds)}>
+                  <ShoppingCart size={16} /> Add Bundle
+                </button>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="bottom-grid">
@@ -322,19 +451,32 @@ function App() {
             </div>
             <button><Headphones size={16} /> Listen Now</button>
           </article>
-          <article className="poll-card paper" id="community">
-            <h2>What was your favorite Saturday morning cartoon?</h2>
-            {['Hero Squad', 'Storm Cats', 'Joe Force', 'Teen Turtle Team', 'Other'].map((option) => (
-              <label key={option}><input type="radio" name="poll" />{option}</label>
-            ))}
-            <button className="red-button">Vote</button>
+          <article className="memory-receipt paper" id="community">
+            <span>Memory Receipt</span>
+            <h2>Your trip so far</h2>
+            <div className="receipt-lines">
+              <p><b>Era</b><strong>{activeEra}</strong></p>
+              <p><b>Shelf</b><strong>{selectedEra.title}</strong></p>
+              <p><b>Persona</b><strong>{quizResult.result}</strong></p>
+              <p><b>Cart</b><strong>{itemCount} items</strong></p>
+            </div>
+            <div className="receipt-total-line">
+              <b>Next stop</b>
+              <strong>{collections[0].title}</strong>
+            </div>
+            <a className="red-button" href="#collections">View Curated Shelves <ChevronRight size={16} /></a>
           </article>
         </section>
 
-        <section className="street-footer" id="photos">
-          <p>Good Times. Great Memories. Always in Stock.</p>
-          <div className="storefronts"><span>Video Rental</span><span>Toy Galaxy</span><span>Radio Hut</span><span>Pizza Plaza</span></div>
-        </section>
+        <footer className="site-footer-lite" id="photos">
+          <strong>Good Times. Great Memories. Always in Stock.</strong>
+          <nav aria-label="Footer navigation">
+            <a href="#news">News</a>
+            <a href="#shop">Shop</a>
+            <a href="#collections">Collections</a>
+            <button type="button" onClick={() => setIsCartOpen(true)}>Cart ({itemCount})</button>
+          </nav>
+        </footer>
       </main>
 
       <aside className={`cart-drawer ${isCartOpen ? 'open' : ''}`}>
