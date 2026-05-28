@@ -19,8 +19,13 @@ import {
   Tv,
   X,
 } from 'lucide-react'
-import assetSheet from './assets/retro-asset-sheet.png'
-import heroImage from './assets/memory-lane-hero.png'
+import assetSheet from './assets/retro-asset-sheet-v2.png'
+import contentSheet from './assets/retro-content-sheet-v2.png'
+import heroImage from './assets/memory-lane-hero-v2.png'
+import arenaDunkImage from './assets/news/arena-dunk.png'
+import movieMarqueeImage from './assets/news/movie-marquee.png'
+import musicStudioImage from './assets/news/music-studio.png'
+import sidewalkPlayerImage from './assets/news/sidewalk-player.png'
 import './App.css'
 
 const navItems = [
@@ -40,27 +45,27 @@ const tabs = [
 ]
 
 const memoryCards = [
-  { label: 'Event', title: 'Saturday Cartoon First Episode', date: 'May 12, 1989', art: 'tv-card', asset: 'crt' },
-  { label: 'Trend', title: 'Acid Wash Jeans Hit Every Mall', date: 'Spring 1989', art: 'jeans', asset: 'acid' },
-  { label: 'Toy', title: 'Pocket Game Arrives in Stores', date: 'May 1989', art: 'game', asset: 'handheld' },
-  { label: 'Music', title: 'Soft Rock Cassette Single Tops Radio', date: 'Friday Night', art: 'cassette', asset: 'mixtape' },
+  { label: 'Event', title: 'Saturday Cartoon First Episode', date: 'May 12, 1989', scene: 'cartoon-night' },
+  { label: 'Trend', title: 'Acid Wash Jeans Hit Every Mall', date: 'Spring 1989', scene: 'denim-display' },
+  { label: 'Toy', title: 'Pocket Game Arrives in Stores', date: 'May 1989', scene: 'handheld-pack' },
+  { label: 'Music', title: 'Soft Rock Cassette Single Tops Radio', date: 'Friday Night', scene: 'cassette-single' },
 ]
 
 const categories = ['All', 'Pop Culture', 'Music', 'Tech', 'TV & Movies', 'Lifestyle']
 
 const newsItems = [
-  { category: 'Pop Culture', title: 'Air Jump Sneakers Take Over the Playoffs', date: 'May 11, 1989', score: 128, comments: 97, asset: 'basketball' },
-  { category: 'Music', title: 'Cable Music Channel Unplugs a New Era', date: 'May 9, 1990', score: 86, comments: 41, asset: 'mixtape' },
-  { category: 'Tech', title: 'Portable Player Becomes the Walk Home Soundtrack', date: 'April 24, 1988', score: 74, comments: 35, asset: 'player' },
-  { category: 'TV & Movies', title: 'Time-Travel Sequel Packs Weekend Theaters', date: 'July 3, 1990', score: 69, comments: 28, asset: 'vhs' },
+  { category: 'Pop Culture', title: 'Air Jump Sneakers Take Over the Playoffs', date: 'May 11, 1989', likes: 128, comments: 97, image: arenaDunkImage },
+  { category: 'Music', title: 'Cable Music Channel Unplugs a New Era', date: 'May 9, 1990', likes: 86, comments: 41, image: musicStudioImage },
+  { category: 'Tech', title: 'Portable Player Becomes the Walk Home Soundtrack', date: 'April 24, 1988', likes: 74, comments: 35, image: sidewalkPlayerImage },
+  { category: 'TV & Movies', title: 'Time-Travel Sequel Packs Weekend Theaters', date: 'July 3, 1990', likes: 69, comments: 28, image: movieMarqueeImage },
 ]
 
 const years = [1985, 1987, 1989, 1991, 1993]
 
 const products = [
   { id: 1, name: 'Pocket Game', detail: 'DMG-style handheld', price: 49.99, tag: 'Just added', art: 'handheld' },
-  { id: 2, name: 'Walkman', detail: 'Belt clip stereo', price: 59.99, tag: 'Mall pick', art: 'player' },
-  { id: 3, name: 'MTV Logo Tee', detail: 'Vintage cotton', price: 24.99, tag: 'New drop', art: 'bag' },
+  { id: 2, name: 'Tape Player', detail: 'Belt clip stereo', price: 59.99, tag: 'Mall pick', art: 'player' },
+  { id: 3, name: 'Button Pin Set', detail: 'Denim-jacket flair', price: 24.99, tag: 'New drop', art: 'pins' },
   { id: 4, name: 'Cereal Box', detail: 'Saturday shelf art', price: 18.99, tag: 'Collector', art: 'cereal' },
   { id: 5, name: 'VHS Tape', detail: 'Classic movie case', price: 14.99, tag: 'Staff fav', art: 'vhs' },
 ]
@@ -134,7 +139,7 @@ function App() {
   }
 
   return (
-    <div className="memory-app" style={{ '--asset-sheet': `url(${assetSheet})` }}>
+    <div className="memory-app" style={{ '--asset-sheet': `url(${assetSheet})`, '--content-sheet': `url(${contentSheet})` }}>
       <aside className="side-rail" aria-label="Primary navigation">
         <div className="plaque">
           <span>D:1989</span>
@@ -200,7 +205,7 @@ function App() {
             {memoryCards.map((card, index) => (
               <article key={card.title} className={`polaroid rotate-${index}`}>
                 <span className="clip" />
-                <div className={`memory-art sprite ${card.asset}`}><span>{card.label}</span></div>
+                <div className={`memory-art scene ${card.scene}`}><span>{card.label}</span></div>
                 <h3>{card.title}</h3>
                 <p>{card.date}</p>
               </article>
@@ -223,14 +228,23 @@ function App() {
             </div>
             <div className="news-layout">
               <article className="lead-story">
-                <div className="lead-image sprite basketball"><span>Playoffs</span></div>
+                <div className="lead-image">
+                  {filteredNews[0]?.image && <img src={filteredNews[0].image} alt="" />}
+                  <span>{filteredNews[0]?.category ?? 'Archive'}</span>
+                </div>
                 <h3>{filteredNews[0]?.title ?? 'No memories matched this search'}</h3>
                 <p>{filteredNews[0]?.date ?? 'Try another search'}</p>
-                <div className="story-stats"><span><Star size={15} /> {filteredNews[0]?.score ?? 0}</span><span><Radio size={15} /> {filteredNews[0]?.comments ?? 0}</span></div>
+                <div className="story-stats">
+                  <span>{filteredNews[0]?.likes ?? 0} likes</span>
+                  <span>{filteredNews[0]?.comments ?? 0} comments</span>
+                </div>
               </article>
               <div className="story-list">
                 {filteredNews.slice(1).map((item) => (
-                  <article key={item.title}><div className={`story-thumb sprite ${item.asset}`} /><div><h4>{item.title}</h4><p>{item.date}</p></div></article>
+                  <article key={item.title}>
+                    <div className="story-thumb"><img src={item.image} alt="" /></div>
+                    <div><h4>{item.title}</h4><p>{item.date}</p></div>
+                  </article>
                 ))}
               </div>
             </div>
@@ -251,10 +265,6 @@ function App() {
               <div className="arcade-screen"><span>STREET HERO II</span><small>High Score 9600</small></div>
               <div className="arcade-controls"><i /><i /><i /></div>
               <button><Play size={16} /> Play classic games</button>
-            </article>
-            <article className="trend-card paper">
-              <h2>Trending Now in 89</h2>
-              <ol>{trends.map((trend) => <li key={trend}>{trend}</li>)}</ol>
             </article>
           </div>
         </section>
@@ -279,12 +289,20 @@ function App() {
               </article>
             ))}
           </div>
+          <article className="trend-card shop-trend paper">
+            <h2>Trending Now in 89</h2>
+            <ol>{trends.map((trend) => <li key={trend}>{trend}</li>)}</ol>
+          </article>
         </section>
 
         <section className="bottom-grid">
           <article className="mini-arcade">
             <h2>Play Some Games</h2>
-            <div className="game-screens"><span className="game-tetris">Tetris</span><span className="game-pac">Pac-Man</span><span className="game-contra">Contra</span></div>
+            <div className="game-screens">
+              <span className="scene arcade-trio">Block Drop</span>
+              <span className="scene arcade-trio">Maze Run</span>
+              <span className="scene arcade-trio">Side Quest</span>
+            </div>
             <button>More games <ChevronRight size={16} /></button>
           </article>
           <article className="time-capsule paper">
@@ -297,12 +315,16 @@ function App() {
           </article>
           <article className="listen-panel">
             <h2>Listen to the 80s/90s</h2>
-            <div className="album-row"><span className="sprite mixtape">Power Ballads</span><span className="sprite player">Dance Mix</span><span className="sprite vhs">Road Tape</span></div>
+            <div className="album-row">
+              <span className="scene album-shelf">Power Ballads</span>
+              <span className="scene album-shelf">Dance Mix</span>
+              <span className="scene album-shelf">Road Tape</span>
+            </div>
             <button><Headphones size={16} /> Listen Now</button>
           </article>
           <article className="poll-card paper" id="community">
             <h2>What was your favorite Saturday morning cartoon?</h2>
-            {['Hero Squad', 'Thunder Cats', 'Joe Force', 'Teen Turtle Team', 'Other'].map((option) => (
+            {['Hero Squad', 'Storm Cats', 'Joe Force', 'Teen Turtle Team', 'Other'].map((option) => (
               <label key={option}><input type="radio" name="poll" />{option}</label>
             ))}
             <button className="red-button">Vote</button>
@@ -311,7 +333,7 @@ function App() {
 
         <section className="street-footer" id="photos">
           <p>Good Times. Great Memories. Always in Stock.</p>
-          <div className="storefronts"><span>Video Rental</span><span>Toys & Us</span><span>Radio Hut</span><span>Pizza Plaza</span></div>
+          <div className="storefronts"><span>Video Rental</span><span>Toy Galaxy</span><span>Radio Hut</span><span>Pizza Plaza</span></div>
         </section>
       </main>
 

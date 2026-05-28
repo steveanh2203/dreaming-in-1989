@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .vite/
+.tools/
 .env
 .env.*
 !.env.example
@@ -11,5 +12,8 @@ coverage/
 Thumbs.db
 test-results/
 playwright-report/
+mockup/
+mockup 1/desktop-ui*.png
+mockup 1/featured-stories-fix*.png
 **/.git/
 **/.git-local-backup/
