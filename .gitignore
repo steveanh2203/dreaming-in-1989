@@ -12,6 +12,7 @@ coverage/
 Thumbs.db
 test-results/
 playwright-report/
+**/browser-check/
 mockup/
 mockup 1/desktop-ui*.png
 mockup 1/featured-stories-fix*.png
