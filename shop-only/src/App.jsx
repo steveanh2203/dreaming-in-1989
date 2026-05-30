@@ -4,7 +4,9 @@ import {
   ChevronRight,
   CreditCard,
   Gift,
+  Heart,
   Headphones,
+  Home,
   Image,
   Minus,
   Package,
@@ -24,16 +26,21 @@ import heroMemoryLaneImage from './assets/hero-memory-lane.png'
 import heroProductSheetImage from './assets/hero-product-sheet.png'
 import heroSupermarketImage from './assets/hero-supermarket.png'
 import heroSupermarketV2Image from './assets/hero-supermarket-v2.png'
+import dreaming1989LogoImage from './assets/header/dreaming-1989-logo-alpha.png'
+import vhsCassetteHeaderImage from './assets/header/vhs-cassette-header.png'
 import mallWeekendImage from './assets/mall-weekend.png'
-import saturdayShelfImage from './assets/saturday-shelf.png'
 import videoStoreImage from './assets/video-store-night.png'
 import arcadeDepartmentImage from './assets/departments/arcade-department.png'
 import audioDepartmentImage from './assets/departments/audio-department.png'
 import kitchenDepartmentImage from './assets/departments/kitchen-department.png'
 import wallArtDepartmentImage from './assets/departments/wall-art-department.png'
-import albumWallPrintFeatureImage from './assets/featured/album-wall-print-feature.png'
-import boomboxFeatureImage from './assets/featured/boombox-feature.png'
+import cassettePlayerFeatureImage from './assets/featured/cassette-player-feature.png'
 import snackBowlSetFeatureImage from './assets/featured/snack-bowl-set-feature.png'
+import arcadeEssentialsSetImage from './assets/sets/arcade-essentials.png'
+import audioShelfSetImage from './assets/sets/audio-shelf-set.png'
+import deskSetupPackSetImage from './assets/sets/desk-setup-pack.png'
+import kitchenDinnerKitSetImage from './assets/sets/kitchen-dinner-kit.png'
+import wallArtStarterSetImage from './assets/sets/wall-art-starter.png'
 import albumWallPrintImage from './assets/products/album-wall-print.png'
 import arcadePosterImage from './assets/products/arcade-poster.png'
 import arcadeTokenCupImage from './assets/products/arcade-token-cup.png'
@@ -71,12 +78,6 @@ const productImages = {
   albumWallPrint: albumWallPrintImage,
   snackBowlSet: snackBowlSetImage,
   pinballKeychain: pinballKeychainImage,
-}
-
-const featuredImages = {
-  'boombox-speaker': boomboxFeatureImage,
-  'album-wall-print': albumWallPrintFeatureImage,
-  'snack-bowl-set': snackBowlSetFeatureImage,
 }
 
 const products = [
@@ -266,14 +267,16 @@ const bundles = [
     price: 82,
     value: 96,
     image: videoStoreImage,
+    items: ['Video Store Desk Sign', 'Soft Rock Cassette Set', 'Movie Snack Bowl Set'],
   },
   {
     id: 'bundle-shelf',
-    name: 'Saturday Morning Shelf',
+    name: 'Diner Counter Set',
     shortDetail: 'Pin pack, counter mug, and shelf display art.',
     price: 68,
     value: 78,
-    image: saturdayShelfImage,
+    image: snackBowlSetFeatureImage,
+    items: ['Diner Counter Mug', 'Diner Counter Tray', 'Saturday Pin Pack'],
   },
   {
     id: 'bundle-mall',
@@ -282,16 +285,95 @@ const bundles = [
     price: 99,
     value: 115,
     image: mallWeekendImage,
+    items: ['Mall Weekend Tote', 'Arcade Lights Poster', 'Pocket Game Console'],
   },
 ]
 
 const heroSlides = [
-  { image: heroImage, label: 'Retro den counter' },
-  { image: heroSupermarketV2Image, label: 'Checkout lane' },
-  { image: heroSupermarketImage, label: 'Aisle storefront' },
-  { image: heroMemoryLaneImage, label: 'Memory lane room' },
-  { image: heroProductSheetImage, label: 'Product shelf sheet' },
-  { image: heroContentSheetImage, label: 'Retro content wall' },
+  {
+    image: heroImage,
+    label: 'Retro den counter',
+    receipt: {
+      code: 'RCPT-1989-01',
+      items: [
+        ['Audio', 29],
+        ['Arcade', 24],
+        ['Kitchen', 19],
+        ['Wall art', 38],
+        ['Bundles', 49],
+      ],
+    },
+  },
+  {
+    image: heroSupermarketV2Image,
+    label: 'Checkout lane',
+    receipt: {
+      code: 'RCPT-1989-02',
+      items: [
+        ['Counter mug', 18],
+        ['Mall tote', 24],
+        ['Snack bowls', 42],
+        ['Desk calendar', 34],
+        ['Gift wrap', 6],
+      ],
+    },
+  },
+  {
+    image: heroSupermarketImage,
+    label: 'Aisle storefront',
+    receipt: {
+      code: 'RCPT-1989-03',
+      items: [
+        ['Pocket game', 49],
+        ['Token cup', 20],
+        ['Pin pack', 22],
+        ['Neon clock', 64],
+        ['Poster', 32],
+      ],
+    },
+  },
+  {
+    image: heroMemoryLaneImage,
+    label: 'Memory lane room',
+    receipt: {
+      code: 'RCPT-1989-04',
+      items: [
+        ['Cassette set', 28],
+        ['Shelf speaker', 72],
+        ['Album print', 38],
+        ['Rewind tee', 30],
+        ['Late fee', 0],
+      ],
+    },
+  },
+  {
+    image: heroProductSheetImage,
+    label: 'Product shelf sheet',
+    receipt: {
+      code: 'RCPT-1989-05',
+      items: [
+        ['VHS calendar', 34],
+        ['Desk sign', 36],
+        ['Diner tray', 26],
+        ['Pinball key', 14],
+        ['Bundle save', -12],
+      ],
+    },
+  },
+  {
+    image: heroContentSheetImage,
+    label: 'Retro content wall',
+    receipt: {
+      code: 'RCPT-1989-06',
+      items: [
+        ['Wall print', 38],
+        ['Arcade poster', 32],
+        ['Mix tape', 28],
+        ['Gift note', 5],
+        ['Shipping', 0],
+      ],
+    },
+  },
 ]
 
 const departmentCards = [
@@ -301,10 +383,35 @@ const departmentCards = [
   { name: 'Wall Art', copy: 'Prints and signs for shelves, studios, and dens.', image: wallArtDepartmentImage },
 ]
 
-const giftGuides = [
-  { title: 'Desk Setup Gifts', copy: 'Small pieces that make a workspace feel collected.', category: 'Collectibles', budget: '$14-$64' },
-  { title: 'Couch Night Gear', copy: 'Bowls, tapes, and video-store pieces for movie nights.', category: 'Kitchen', budget: '$18-$82' },
-  { title: 'Music Corner Finds', copy: 'Audio objects, prints, and cassette display goods.', category: 'Audio', budget: '$28-$72' },
+const giftCounterItems = [
+  {
+    title: 'Under $25',
+    copy: 'Pins, mugs, cups, and small counter goods.',
+    category: 'Collectibles',
+    budget: '$14-$24',
+    image: pinballKeychainImage,
+  },
+  {
+    title: 'Desk Gifts',
+    copy: 'Calendar flips, clocks, and desktop shelf pieces.',
+    category: 'Collectibles',
+    budget: '$34-$64',
+    image: vhsCalendarImage,
+  },
+  {
+    title: 'Shelf Decor',
+    copy: 'Signs, prints, and display pieces for rooms.',
+    category: 'Wall Art',
+    budget: '$32-$38',
+    image: albumWallPrintImage,
+  },
+  {
+    title: 'Party Night',
+    copy: 'Snack bowls, trays, and couch-night add-ons.',
+    category: 'Kitchen',
+    budget: '$26-$42',
+    image: snackBowlSetImage,
+  },
 ]
 
 const quickFilters = [
@@ -315,8 +422,60 @@ const quickFilters = [
 ]
 
 const newArrivalIds = ['diner-tray', 'rewind-tee', 'boombox-speaker', 'vhs-calendar']
-const dealProductIds = ['pinball-keychain', 'diner-mug', 'arcade-token-cup', 'mall-tote']
-const spotlightProductIds = ['boombox-speaker', 'album-wall-print', 'snack-bowl-set']
+const featuredDropProduct = {
+  id: 'cassette-player-wm36',
+  name: 'Cassette Player WM-36',
+  shortDetail: 'Clear blue edition for pocket playlists and shelf display.',
+  price: 79,
+  category: 'Audio',
+  tag: "Today's Spotlight",
+  image: cassettePlayerFeatureImage,
+  sku: 'SKU-1989-198',
+  stockState: 'in-stock',
+}
+
+const shelfReadySets = [
+  {
+    id: 'set-counter',
+    name: 'Audio Shelf Set',
+    copy: 'Speaker, tapes, and wall-ready sound.',
+    price: 119,
+    image: audioShelfSetImage,
+    imageMode: 'scene',
+  },
+  {
+    id: 'set-arcade',
+    name: 'Arcade Essentials',
+    copy: 'Poster, token cup, pin pack.',
+    price: 99,
+    image: arcadeEssentialsSetImage,
+    imageMode: 'scene',
+  },
+  {
+    id: 'set-kitchen',
+    name: 'Kitchen Dinner Kit',
+    copy: 'Tray, mugs, and snack bowls.',
+    price: 90,
+    image: kitchenDinnerKitSetImage,
+    imageMode: 'scene',
+  },
+  {
+    id: 'set-wall-art',
+    name: 'Wall Art Starter',
+    copy: 'Prints to style your walls.',
+    price: 90,
+    image: wallArtStarterSetImage,
+    imageMode: 'scene',
+  },
+  {
+    id: 'set-desk',
+    name: 'Desk Setup Pack',
+    copy: 'Clock, organizer, and calendar.',
+    price: 79,
+    image: deskSetupPackSetImage,
+    imageMode: 'scene',
+  },
+]
 
 const productOptionGroups = {
   Audio: [
@@ -488,8 +647,11 @@ function App() {
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
   const freeShippingRemaining = Math.max(75 - subtotal + discount, 0)
   const newArrivals = products.filter((product) => newArrivalIds.includes(product.id))
-  const dealProducts = products.filter((product) => dealProductIds.includes(product.id))
-  const spotlightProducts = products.filter((product) => spotlightProductIds.includes(product.id))
+  const featuredDrop = featuredDropProduct
+  const shelfSets = shelfReadySets
+  const activeHeroSlide = heroSlides[heroSlideIndex]
+  const hasActiveProductFilter = activeCategory !== 'All' || query.trim().length > 0
+  const visibleProducts = hasActiveProductFilter ? filteredProducts : filteredProducts.slice(0, 8)
   const selectedOptionGroups = useMemo(() => getOptionGroups(selectedProduct), [selectedProduct])
   const selectedVariantOptions = useMemo(
     () => getSelectedOptions(selectedOptionGroups, selectedOptions),
@@ -500,6 +662,7 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+  const featuredDropImage = featuredDrop.image
 
   const openProductDetail = (product) => {
     setSelectedProduct(product)
@@ -582,42 +745,62 @@ function App() {
   return (
     <div className="shop-app">
       <header className="site-header">
-        <div className="header-receipt-line" aria-label="Store notices">
-          <span><Truck size={15} /> Free shipping over $75</span>
-          <span><Sparkles size={15} /> Use REWIND10</span>
-          <span><Package size={15} /> Packed like a shelf find</span>
-        </div>
         <div className="header-main">
-          <a className="brand" href="#top" aria-label="Deaming in 1989 home">
-            <ShoppingBag size={25} />
-            <span>Deaming in 1989</span>
-            <small>Retro goods counter</small>
+          <a className="brand" href="#top" aria-label="Dreaming in 1989 home">
+            <img src={dreaming1989LogoImage} alt="Dreaming in 1989 Nostalgia News & Market" />
           </a>
-          <nav className="primary-nav" aria-label="Primary navigation">
-            <a href="#new-arrivals">New Arrivals</a>
-            <a href="#collections">Collections</a>
-            <a href="#deals">Deals</a>
-            <a href="#gift-guide">Gift Guide</a>
-            <a href="#products">Best Sellers</a>
-          </nav>
-          <div className="header-checkout">
+          <div className="header-center">
             <label className="header-search">
               <Search size={18} />
               <input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search goods..."
+                placeholder="Search memories, news, items..."
                 aria-label="Search products"
               />
             </label>
+            <p className="header-tagline">
+              Good Times. Great Memories.
+              <span>Always in Stock.</span>
+            </p>
+            <span className="header-ticket">
+              <Package size={15} />
+              Visitors today: 1989
+            </span>
+          </div>
+          <div className="header-vhs" aria-label="Featured tape">
+            <img className="vhs-art" src={vhsCassetteHeaderImage} alt="" aria-hidden="true" />
+            <div className="vhs-label">
+              <span>E-180</span>
+              <strong>Dreaming in 1989</strong>
+              <em>1989</em>
+            </div>
+            <span>VHS</span>
+          </div>
+          <div className="header-checkout">
             <button className="cart-button" type="button" onClick={() => setCartOpen(true)}>
               <ShoppingCart size={20} />
-              <span>Cart</span>
-              <strong>{itemCount}</strong>
+              <span>Cart ({itemCount})</span>
+              <strong>{formatPrice(total)}</strong>
+              <small>Day 19</small>
             </button>
           </div>
         </div>
+        <nav className="primary-nav" aria-label="Primary navigation">
+          <a className="home-tab" href="#top" aria-label="Home">
+            <Home size={18} />
+          </a>
+          <a href="#products">Explore</a>
+          <a href="#new-arrivals">News</a>
+          <a href="#collections">Stories</a>
+          <a href="#featured">Photos</a>
+          <a href="#products">Videos</a>
+          <a href="#deals">Games</a>
+          <a href="#gift-guide">Community</a>
+          <a href="#products">Shop</a>
+          <a href="#footer">About</a>
+        </nav>
       </header>
 
       <main id="top">
@@ -645,10 +828,32 @@ function App() {
               </a>
             </div>
           </div>
-          <aside className="offer-ticket" aria-label="Current offer">
-            <span>Free shipping</span>
-            <strong>Orders over $75</strong>
-            <small>Use REWIND10 for 10% off</small>
+          <aside className="hero-receipt" aria-label={`${activeHeroSlide.label} receipt`}>
+            <div className="receipt-pin" aria-hidden="true" />
+            <div className="receipt-head">
+              <strong>1989 Supply Co.</strong>
+              <span>Good Times. Guaranteed.</span>
+            </div>
+            <div className="receipt-dash" aria-hidden="true" />
+            <div className="receipt-meta">
+              <span>{activeHeroSlide.receipt.code}</span>
+              <span>{activeHeroSlide.label}</span>
+            </div>
+            <div className="receipt-lines">
+              {activeHeroSlide.receipt.items.map(([name, price]) => (
+                <div className="receipt-line" key={`${activeHeroSlide.label}-${name}`}>
+                  <span>{name}</span>
+                  <strong>{price < 0 ? `-${formatPrice(Math.abs(price))}` : formatPrice(price)}</strong>
+                </div>
+              ))}
+            </div>
+            <div className="receipt-dash" aria-hidden="true" />
+            <div className="receipt-total">
+              <span>Slide total</span>
+              <strong>{formatPrice(activeHeroSlide.receipt.items.reduce((sum, [, price]) => sum + price, 0))}</strong>
+            </div>
+            <p>Thank you! Come again.</p>
+            <div className="receipt-barcode" aria-hidden="true" />
           </aside>
           <div className="hero-dots" aria-label="Hero slideshow">
             {heroSlides.map((slide, index) => (
@@ -843,9 +1048,9 @@ function App() {
             ))}
           </div>
 
-          {filteredProducts.length ? (
+          {visibleProducts.length ? (
             <div className="product-grid">
-              {filteredProducts.map((product) => (
+              {visibleProducts.map((product) => (
                 <article className="product-card" key={product.id}>
                   <button
                     className="product-image product-image-button product-image--cutout"
@@ -904,100 +1109,13 @@ function App() {
           )}
         </section>
 
-        <section id="deals" className="store-section deal-section">
-          <div className="deal-banner">
-            <div>
-              <p className="receipt-label">Counter deals</p>
-              <h2>Small Gifts Under $30</h2>
-              <p>Quick add-ons for shelves, desks, bags, and kitchen counters.</p>
-            </div>
-            <Tags size={42} />
-          </div>
-          <div className="mini-product-grid">
-            {dealProducts.map((product) => (
-              <article className="mini-product-card" key={product.id}>
-                <button
-                  className="mini-image-button product-image--cutout"
-                  type="button"
-                  onClick={() => openImageInfo(product)}
-                >
-                  <img src={product.image} alt={product.name} />
-                </button>
-                <div>
-                  <h3>{product.name}</h3>
-                  <p>{product.shortDetail}</p>
-                  <strong>{formatPrice(product.price)}</strong>
-                </div>
-                <button type="button" onClick={() => addToCart(product)}>
-                  Add
-                </button>
-                <button className="details-button" type="button" onClick={() => openProductDetail(product)}>
-                  Details
-                </button>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="featured" className="store-section spotlight-section">
-          <div className="section-heading">
-            <div>
-              <p className="receipt-label">Staff counter picks</p>
-              <h2>Featured This Week</h2>
-            </div>
-            <p className="section-note">Three products with stronger display value for rooms and shelves.</p>
-          </div>
-          <div className="spotlight-grid">
-            {spotlightProducts.map((product, index) => {
-              const spotlightImage = featuredImages[product.id] ?? product.image
-
-              return (
-                <article className={`spotlight-card ${index === 0 ? 'wide' : ''}`} key={product.id}>
-                  <button
-                    className="spotlight-image-button"
-                    type="button"
-                    onClick={() =>
-                      openImageInfo(
-                        {
-                          ...product,
-                          image: spotlightImage,
-                        },
-                        'Featured banner image',
-                        'scene',
-                      )
-                    }
-                  >
-                    <img src={spotlightImage} alt={product.name} />
-                  </button>
-                  <div>
-                    <p className="receipt-label">{product.tag}</p>
-                    <h3>{product.name}</h3>
-                    <p>{product.shortDetail}</p>
-                    <div className="bundle-buy">
-                      <strong>{formatPrice(product.price)}</strong>
-                      <span className="buy-actions">
-                        <button className="details-button" type="button" onClick={() => openProductDetail(product)}>
-                          Details
-                        </button>
-                        <button type="button" onClick={() => addToCart(product)}>
-                          Add to Cart
-                        </button>
-                      </span>
-                    </div>
-                  </div>
-                </article>
-              )
-            })}
-          </div>
-        </section>
-
-        <section id="collections" className="store-section">
+        <section id="collections" className="store-section bundle-builder-section">
           <div className="section-heading">
             <div>
               <p className="receipt-label">Curated kits</p>
-              <h2>Collections & Bundles</h2>
+              <h2>Weekend Bundle Builder</h2>
             </div>
-            <p className="section-note">Build a weekend bundle and save.</p>
+            <p className="section-note">Three ready-made carts for movie nights, counters, and mall-weekend shelves.</p>
           </div>
           <div className="bundle-grid">
             {bundles.map((bundle) => (
@@ -1007,6 +1125,11 @@ function App() {
                   <p className="receipt-label">Bundle value {formatPrice(bundle.value)}</p>
                   <h3>{bundle.name}</h3>
                   <p>{bundle.shortDetail}</p>
+                  <ul className="bundle-item-list">
+                    {bundle.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
                   <div className="bundle-buy">
                     <strong>{formatPrice(bundle.price)}</strong>
                     <button type="button" onClick={() => addToCart(bundle)}>
@@ -1019,18 +1142,34 @@ function App() {
           </div>
         </section>
 
-        <section id="gift-guide" className="store-section gift-section">
+        <section id="deals" className="store-section gift-counter-section">
           <div className="section-heading">
             <div>
               <p className="receipt-label">Gift lanes</p>
-              <h2>Gift Guide</h2>
+              <h2>Gift Counter</h2>
             </div>
-            <p className="section-note">Shop by the kind of setup your buyer is building.</p>
+            <p className="section-note">Fast gift routes with a clear budget before you start browsing.</p>
           </div>
           <div className="gift-grid">
-            {giftGuides.map((guide) => (
+            {giftCounterItems.map((guide) => (
               <article className="gift-card" key={guide.title}>
-                <Gift size={30} />
+                <button
+                  className="gift-image-button product-image--cutout"
+                  type="button"
+                  onClick={() =>
+                    openImageInfo(
+                      {
+                        id: guide.title,
+                        name: guide.title,
+                        image: guide.image,
+                        category: guide.category,
+                      },
+                      'Gift counter image',
+                    )
+                  }
+                >
+                  <img src={guide.image} alt={`${guide.title} gift products`} />
+                </button>
                 <span>{guide.budget}</span>
                 <h3>{guide.title}</h3>
                 <p>{guide.copy}</p>
@@ -1049,9 +1188,117 @@ function App() {
           </div>
         </section>
 
+        <section id="featured" className="store-section featured-drop-section">
+          <div className="section-heading">
+            <div>
+              <p className="receipt-label">Staff counter pick</p>
+              <h2>Featured Drop</h2>
+            </div>
+            <p className="section-note">A larger product moment with quick specs and a direct cart action.</p>
+          </div>
+          <article className="featured-drop-card">
+            <button
+              className="featured-drop-image"
+              type="button"
+              onClick={() =>
+                openImageInfo(
+                  {
+                    ...featuredDrop,
+                    image: featuredDropImage,
+                  },
+                  'Featured drop image',
+                  'scene',
+                )
+              }
+            >
+              <img src={featuredDropImage} alt={featuredDrop.name} />
+            </button>
+            <div className="featured-drop-copy">
+              <p className="receipt-label">{featuredDrop.tag}</p>
+              <h3>{featuredDrop.name}</h3>
+              <p>{featuredDrop.shortDetail}</p>
+              <dl className="drop-spec-list">
+                <div>
+                  <dt>Condition</dt>
+                  <dd>Excellent</dd>
+                </div>
+                <div>
+                  <dt>Headphones</dt>
+                  <dd>Foam on-ear</dd>
+                </div>
+                <div>
+                  <dt>Battery</dt>
+                  <dd>2 AA not included</dd>
+                </div>
+                <div>
+                  <dt>Ships</dt>
+                  <dd>2-4 days</dd>
+                </div>
+                <div>
+                  <dt>Features</dt>
+                  <dd>AM/FM radio</dd>
+                </div>
+                <div>
+                  <dt>Year</dt>
+                  <dd>1989</dd>
+                </div>
+              </dl>
+            </div>
+            <aside className="featured-drop-actions" aria-label={`${featuredDrop.name} purchase actions`}>
+              <div className="featured-price">
+                <strong>{formatPrice(featuredDrop.price)}</strong>
+                <span>In stock</span>
+              </div>
+              <button className="checkout-button" type="button" onClick={() => addToCart(featuredDrop)}>
+                <ShoppingCart size={18} />
+                Add to Cart
+              </button>
+              <button className="wishlist-button" type="button" onClick={() => openProductDetail(featuredDrop)}>
+                <Heart size={18} />
+                Add to Wishlist
+              </button>
+              <div className="drop-stamp">Good Times. Guaranteed.</div>
+            </aside>
+          </article>
+        </section>
+
+        <section id="gift-guide" className="store-section shelf-ready-section">
+          <div className="section-heading">
+            <div>
+              <p className="receipt-label">Ready for the shelf</p>
+              <h2>Shelf-Ready Sets</h2>
+            </div>
+            <p className="section-note">Denser kits for shoppers who want the full look in one pass.</p>
+          </div>
+          <div className="shelf-set-grid">
+            {shelfSets.map((set) => (
+              <article className="shelf-set-card" key={set.id}>
+                <button
+                  className="shelf-set-image"
+                  type="button"
+                  onClick={() => openImageInfo(set, 'Shelf-ready set image', set.imageMode)}
+                >
+                  <img src={set.image} alt={`${set.name} product set`} />
+                </button>
+                <div>
+                  <p className="receipt-label">Curated kit</p>
+                  <h3>{set.name}</h3>
+                  <p>{set.copy}</p>
+                </div>
+                <div className="shelf-set-ticket">
+                  <span>{formatPrice(set.price)}</span>
+                  <button type="button" onClick={() => addToCart(set)}>
+                    Add
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
       </main>
 
-      <footer className="site-footer">
+      <footer id="footer" className="site-footer">
         <div className="footer-stickers" aria-hidden="true">
           <span className="footer-sticker footer-sticker--rewind">
             <Sparkles size={15} /> REWIND10
@@ -1067,7 +1314,7 @@ function App() {
         <div className="footer-inner">
           <div className="footer-brand">
             <p className="receipt-label">Open late since 1989-ish</p>
-            <h2>Deaming in 1989</h2>
+            <h2>1989 Supply Co.</h2>
             <p>Retro-inspired goods, shelf pieces, apparel, kitchen finds, and checkout-ready bundles.</p>
             <div className="footer-service-row" aria-label="Store service notes">
               <span><Truck size={16} /> Fast shipping</span>
@@ -1096,7 +1343,8 @@ function App() {
             <h3>Counter</h3>
             <a href="#new-arrivals">New arrivals</a>
             <a href="#collections">Bundles</a>
-            <a href="#gift-guide">Gift guide</a>
+            <a href="#deals">Gift counter</a>
+            <a href="#gift-guide">Shelf sets</a>
             <a href="#products">Best sellers</a>
           </nav>
 
@@ -1113,8 +1361,8 @@ function App() {
         <div className="footer-receipt-strip">
           <span>Use REWIND10 for 10% off</span>
           <span>Free shipping over $75</span>
-          <span>Support: hello@deaming1989.test</span>
-          <span>© 1989-2026 Deaming in 1989</span>
+          <span>Support: hello@1989supply.test</span>
+          <span>Copyright 1989-2026 1989 Supply Co.</span>
         </div>
       </footer>
 
