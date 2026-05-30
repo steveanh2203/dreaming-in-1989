@@ -41,22 +41,26 @@ import audioShelfSetImage from './assets/sets/audio-shelf-set.png'
 import deskSetupPackSetImage from './assets/sets/desk-setup-pack.png'
 import kitchenDinnerKitSetImage from './assets/sets/kitchen-dinner-kit.png'
 import wallArtStarterSetImage from './assets/sets/wall-art-starter.png'
-import albumWallPrintImage from './assets/products/album-wall-print.png'
-import arcadePosterImage from './assets/products/arcade-poster.png'
-import arcadeTokenCupImage from './assets/products/arcade-token-cup.png'
-import boomboxSpeakerImage from './assets/products/boombox-speaker.png'
-import cartoonPinPackImage from './assets/products/cartoon-pin-pack.png'
-import cassetteMixImage from './assets/products/cassette-mix.png'
-import dinerMugImage from './assets/products/diner-mug.png'
-import dinerTrayImage from './assets/products/diner-tray.png'
-import mallToteImage from './assets/products/mall-tote.png'
-import neonClockImage from './assets/products/neon-clock.png'
-import pinballKeychainImage from './assets/products/pinball-keychain.png'
-import pocketGameImage from './assets/products/pocket-game.png'
-import rewindTeeImage from './assets/products/rewind-tee.png'
-import snackBowlSetImage from './assets/products/snack-bowl-set.png'
-import vhsCalendarImage from './assets/products/vhs-calendar.png'
-import videoNightSignImage from './assets/products/video-night-sign.png'
+import deskGiftsLineupImage from './assets/gift-counter/desk-gifts-lineup-v2.png'
+import partyNightLineupImage from './assets/gift-counter/party-night-lineup-v2.png'
+import shelfDecorLineupImage from './assets/gift-counter/shelf-decor-lineup-v2.png'
+import under25LineupImage from './assets/gift-counter/under-25-lineup-v2.png'
+import albumWallPrintImage from './assets/products-cutout/album-wall-print.png'
+import arcadePosterImage from './assets/products-cutout/arcade-poster.png'
+import arcadeTokenCupImage from './assets/products-cutout/arcade-token-cup.png'
+import boomboxSpeakerImage from './assets/products-cutout/boombox-speaker.png'
+import cartoonPinPackImage from './assets/products-cutout/cartoon-pin-pack.png'
+import cassetteMixImage from './assets/products-cutout/cassette-mix.png'
+import dinerMugImage from './assets/products-cutout/diner-mug.png'
+import dinerTrayImage from './assets/products-cutout/diner-tray.png'
+import mallToteImage from './assets/products-cutout/mall-tote.png'
+import neonClockImage from './assets/products-cutout/neon-clock.png'
+import pinballKeychainImage from './assets/products-cutout/pinball-keychain.png'
+import pocketGameImage from './assets/products-cutout/pocket-game.png'
+import rewindTeeImage from './assets/products-cutout/rewind-tee.png'
+import snackBowlSetImage from './assets/products-cutout/snack-bowl-set.png'
+import vhsCalendarImage from './assets/products-cutout/vhs-calendar.png'
+import videoNightSignImage from './assets/products-cutout/video-night-sign.png'
 import './App.css'
 
 const categories = ['All', 'Audio', 'Arcade', 'Apparel', 'Kitchen', 'Wall Art', 'Collectibles']
@@ -389,28 +393,28 @@ const giftCounterItems = [
     copy: 'Pins, mugs, cups, and small counter goods.',
     category: 'Collectibles',
     budget: '$14-$24',
-    image: pinballKeychainImage,
+    image: under25LineupImage,
   },
   {
     title: 'Desk Gifts',
     copy: 'Calendar flips, clocks, and desktop shelf pieces.',
     category: 'Collectibles',
     budget: '$34-$64',
-    image: vhsCalendarImage,
+    image: deskGiftsLineupImage,
   },
   {
     title: 'Shelf Decor',
     copy: 'Signs, prints, and display pieces for rooms.',
     category: 'Wall Art',
     budget: '$32-$38',
-    image: albumWallPrintImage,
+    image: shelfDecorLineupImage,
   },
   {
     title: 'Party Night',
     copy: 'Snack bowls, trays, and couch-night add-ons.',
     category: 'Kitchen',
     budget: '$26-$42',
-    image: snackBowlSetImage,
+    image: partyNightLineupImage,
   },
 ]
 
@@ -791,15 +795,14 @@ function App() {
           <a className="home-tab" href="#top" aria-label="Home">
             <Home size={18} />
           </a>
-          <a href="#products">Explore</a>
-          <a href="#new-arrivals">News</a>
-          <a href="#collections">Stories</a>
-          <a href="#featured">Photos</a>
-          <a href="#products">Videos</a>
-          <a href="#deals">Games</a>
-          <a href="#gift-guide">Community</a>
-          <a href="#products">Shop</a>
-          <a href="#footer">About</a>
+          <a href="#products">Aisles</a>
+          <a href="#new-arrivals">New Drops</a>
+          <a href="#collections">Bundles</a>
+          <a href="#featured">Spotlight</a>
+          <a href="#products">Best Sellers</a>
+          <a href="#deals">Gift Counter</a>
+          <a href="#gift-guide">Shelf Sets</a>
+          <a href="#footer">Support</a>
         </nav>
       </header>
 
@@ -1003,9 +1006,6 @@ function App() {
                   <div className="bundle-buy">
                     <strong>{formatPrice(product.price)}</strong>
                     <span className="buy-actions">
-                      <button className="details-button" type="button" onClick={() => openProductDetail(product)}>
-                        Details
-                      </button>
                       <button type="button" onClick={() => addToCart(product)}>
                         Add
                       </button>
@@ -1070,9 +1070,6 @@ function App() {
                   <div className="product-buy">
                     <strong>{formatPrice(product.price)}</strong>
                     <span className="buy-actions">
-                      <button className="details-button" type="button" onClick={() => openProductDetail(product)}>
-                        Details
-                      </button>
                       <button
                         type="button"
                         disabled={product.stockState === 'sold-out'}
