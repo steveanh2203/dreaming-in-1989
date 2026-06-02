@@ -1,12 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   CreditCard,
   Gift,
   Heart,
+  History,
   Home,
   Image,
+  LogIn,
+  LogOut,
+  Mail,
   Minus,
   Package,
   Plus,
@@ -17,6 +22,7 @@ import {
   Sparkles,
   Tags,
   Truck,
+  User,
   Wallet,
   X,
 } from 'lucide-react'
@@ -53,6 +59,8 @@ import mallToteImage from './assets/products-cutout/mall-tote.png'
 import rewindTeeImage from './assets/products-cutout/rewind-tee.png'
 import vhsCalendarImage from './assets/products-cutout/vhs-calendar.png'
 import videoNightSignImage from './assets/products-cutout/video-night-sign.png'
+import retroCartImage from './assets/ui/retro-cart.png'
+import RevenueDashboard from './RevenueDashboard.jsx'
 import './App.css'
 
 const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
@@ -379,13 +387,6 @@ const giftCounterItems = [
   },
 ]
 
-const quickFilters = [
-  { label: 'Under $25', query: 'Under' },
-  { label: 'New Drops', query: 'New' },
-  { label: 'Gift Picks', query: 'Gift' },
-  { label: 'Low Stock', query: 'Low Stock' },
-]
-
 const newArrivalIds = ['mall-weekend-hoodie', 'rewind-club-tee', 'diner-counter-mug', 'retro-desk-calendar']
 const featuredDropProduct = {
   id: 'arcade-night-poster',
@@ -497,6 +498,13 @@ const policyCards = [
     ],
   },
 ]
+
+const supportMenuItems = [
+  policyCards.find((policy) => policy.id === 'contact'),
+  policyCards.find((policy) => policy.id === 'shipping'),
+  policyCards.find((policy) => policy.id === 'refund'),
+  policyCards.find((policy) => policy.id === 'terms-privacy'),
+].filter(Boolean)
 
 const policyPageDetails = {
   shipping: {
@@ -669,27 +677,118 @@ const getSelectedOptions = (groups, selectedOptions) =>
   groups.map((group) => group.options.find((option) => option.label === selectedOptions[group.name]) ?? group.options[0])
 
 const formatPrice = (value) => `$${value.toFixed(2)}`
+const collapsedCartItemCount = 2
+const visitorStorageKey = 'dreaming-1989-visitor'
+
+const demoCustomerOrders = [
+  {
+    id: '1989-0529',
+    date: 'May 29, 2026',
+    status: 'In production',
+    total: 64,
+    items: ['Rewind Club Tee', 'Rewind Sticker Pack'],
+  },
+  {
+    id: '1989-0517',
+    date: 'May 17, 2026',
+    status: 'Delivered',
+    total: 42,
+    items: ['Diner Counter Mug', 'Mall Weekend Tote'],
+  },
+]
+
+const getStoredCustomer = () => {
+  try {
+    const savedCustomer = window.localStorage.getItem('dreaming-1989-customer')
+    return savedCustomer ? JSON.parse(savedCustomer) : null
+  } catch {
+    return null
+  }
+}
+
+const saveStoredCustomer = (customer) => {
+  try {
+    if (customer) {
+      window.localStorage.setItem('dreaming-1989-customer', JSON.stringify(customer))
+    } else {
+      window.localStorage.removeItem('dreaming-1989-customer')
+    }
+  } catch {
+    // Account persistence should not block the shopping flow.
+  }
+}
+
+const getStoredVisitorExperience = () => {
+  try {
+    const forceIntro = window.location.hash === '#intro' || new URLSearchParams(window.location.search).has('intro')
+    const savedVisitor = window.localStorage.getItem(visitorStorageKey)
+    const savedCustomer = window.localStorage.getItem('dreaming-1989-customer')
+    const hasVisited = Boolean(savedCustomer) || Boolean(savedVisitor && JSON.parse(savedVisitor)?.hasVisited)
+
+    return {
+      hasVisited,
+      showOnboarding: forceIntro || !hasVisited,
+      showReturnCue: !forceIntro && hasVisited,
+    }
+  } catch {
+    return {
+      hasVisited: false,
+      showOnboarding: true,
+      showReturnCue: false,
+    }
+  }
+}
+
+const saveVisitorExperience = () => {
+  try {
+    window.localStorage.setItem(
+      visitorStorageKey,
+      JSON.stringify({
+        hasVisited: true,
+        lastVisit: new Date().toISOString(),
+      }),
+    )
+  } catch {
+    // Visitor recognition is a progressive enhancement.
+  }
+}
 
 function App() {
   const [activeCategory, setActiveCategory] = useState('All')
   const [query, setQuery] = useState('')
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const [authMode, setAuthMode] = useState('sign-in')
   const [checkoutDone, setCheckoutDone] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('paypal')
   const [paypalDemoState, setPaypalDemoState] = useState('idle')
   const [promoCode, setPromoCode] = useState('')
   const [promoState, setPromoState] = useState('idle')
-  const [addedName, setAddedName] = useState('')
+  const [cartNotice, setCartNotice] = useState(null)
+  const [flyingCartItem, setFlyingCartItem] = useState(null)
   const [heroSlideIndex, setHeroSlideIndex] = useState(0)
   const [activePolicyId, setActivePolicyId] = useState('shipping')
   const [activeRoute, setActiveRoute] = useState('home')
+  const [supportMenuOpen, setSupportMenuOpen] = useState(false)
+  const [supportMenuPosition, setSupportMenuPosition] = useState({ top: 0, left: 0 })
+  const [cartExpanded, setCartExpanded] = useState(false)
+  const [visitorExperience, setVisitorExperience] = useState(() => getStoredVisitorExperience())
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
+  const [customer, setCustomer] = useState(() => getStoredCustomer())
   const [cart, setCart] = useState([
     { id: 'rewind-sticker-pack', name: 'Rewind Sticker Pack', price: 16, image: productImages.stickerPack, quantity: 1 },
   ])
+  const cartButtonRef = useRef(null)
+  const floatingCartButtonRef = useRef(null)
+  const supportButtonRef = useRef(null)
+  const flyTimerRef = useRef(null)
+  const noticeTimerRef = useRef(null)
+  const cartFeedbackCounterRef = useRef(0)
+  const visitorCueTimerRef = useRef(null)
 
   useEffect(() => {
     const slideTimer = window.setInterval(() => {
@@ -717,6 +816,55 @@ function App() {
     return () => window.removeEventListener('hashchange', syncRoute)
   }, [])
 
+  useEffect(() => {
+    return () => {
+      if (flyTimerRef.current) window.clearTimeout(flyTimerRef.current)
+      if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current)
+      if (visitorCueTimerRef.current) window.clearTimeout(visitorCueTimerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!visitorExperience.showReturnCue) return undefined
+
+    visitorCueTimerRef.current = window.setTimeout(() => {
+      setVisitorExperience((currentExperience) => ({
+        ...currentExperience,
+        showReturnCue: false,
+      }))
+    }, 2800)
+
+    return () => {
+      if (visitorCueTimerRef.current) window.clearTimeout(visitorCueTimerRef.current)
+    }
+  }, [visitorExperience.showReturnCue])
+
+  const updateSupportMenuPosition = useCallback(() => {
+    const triggerRect = supportButtonRef.current?.getBoundingClientRect()
+    if (!triggerRect) return
+
+    const menuWidth = Math.min(280, window.innerWidth - 28)
+    const left = Math.min(Math.max(14, triggerRect.right - menuWidth), window.innerWidth - menuWidth - 14)
+
+    setSupportMenuPosition({
+      top: triggerRect.bottom + 8,
+      left,
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!supportMenuOpen) return undefined
+
+    updateSupportMenuPosition()
+    window.addEventListener('resize', updateSupportMenuPosition)
+    window.addEventListener('scroll', updateSupportMenuPosition, true)
+
+    return () => {
+      window.removeEventListener('resize', updateSupportMenuPosition)
+      window.removeEventListener('scroll', updateSupportMenuPosition, true)
+    }
+  }, [supportMenuOpen, updateSupportMenuPosition])
+
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
     return products.filter((product) => {
@@ -736,7 +884,9 @@ function App() {
   const shipping = subtotal - discount >= 75 || subtotal === 0 ? 0 : 7.95
   const total = Math.max(subtotal - discount + shipping, 0)
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
-  const freeShippingRemaining = Math.max(75 - subtotal + discount, 0)
+  const cartListExpanded = cartExpanded && cart.length > collapsedCartItemCount
+  const visibleCartItems = cartListExpanded ? cart : cart.slice(0, collapsedCartItemCount)
+  const hiddenCartItemCount = Math.max(cart.length - visibleCartItems.length, 0)
   const newArrivals = products.filter((product) => newArrivalIds.includes(product.id))
   const featuredDrop = featuredDropProduct
   const shelfSets = shelfReadySets
@@ -773,18 +923,102 @@ function App() {
   const openPolicy = (policyId) => {
     const policy = policyCards.find((item) => item.id === policyId)
     if (!policy) return
-    window.location.hash = `/${policy.path}`
+    window.history.pushState(null, '', `#/${policy.path}`)
+    window.dispatchEvent(new Event('hashchange'))
   }
 
   const openHomeSection = (sectionId) => {
     setActiveRoute('home')
-    window.location.hash = sectionId
+    window.history.pushState(null, '', `#${sectionId}`)
+    window.dispatchEvent(new Event('hashchange'))
     window.setTimeout(() => {
       document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 0)
   }
 
-  const addToCart = (item) => {
+  const openSupportMenu = () => {
+    updateSupportMenuPosition()
+    setSupportMenuOpen(true)
+  }
+
+  const enterMemoryMarket = useCallback(() => {
+    saveVisitorExperience()
+    if (window.location.hash === '#intro' || window.location.search.includes('intro')) {
+      window.history.replaceState(null, '', window.location.pathname || '/')
+    }
+    setVisitorExperience({
+      hasVisited: true,
+      showOnboarding: false,
+      showReturnCue: false,
+    })
+  }, [])
+
+  useEffect(() => {
+    if (!visitorExperience.showOnboarding) return undefined
+
+    const introTimer = window.setTimeout(() => {
+      enterMemoryMarket()
+    }, 5600)
+
+    return () => window.clearTimeout(introTimer)
+  }, [enterMemoryMarket, visitorExperience.showOnboarding])
+
+  const getVisibleCartTarget = () => {
+    const floatingRect = floatingCartButtonRef.current?.getBoundingClientRect()
+    if (floatingRect && floatingRect.bottom > 0 && floatingRect.top < window.innerHeight) {
+      return floatingRect
+    }
+
+    const headerRect = cartButtonRef.current?.getBoundingClientRect()
+    if (headerRect && headerRect.bottom > 0 && headerRect.top < window.innerHeight) {
+      return headerRect
+    }
+
+    return floatingRect ?? headerRect ?? { left: window.innerWidth - 92, right: window.innerWidth - 24, top: window.innerHeight - 92, bottom: window.innerHeight - 24 }
+  }
+
+  const showCartFeedback = (item, sourceElement) => {
+    const sourceRect = sourceElement?.getBoundingClientRect()
+    const targetRect = getVisibleCartTarget()
+    const startX = sourceRect ? sourceRect.left + sourceRect.width / 2 - 29 : targetRect.left
+    const startY = sourceRect ? sourceRect.top + sourceRect.height / 2 - 29 : targetRect.top
+    const endX = targetRect.left + targetRect.width / 2 - 29
+    const endY = targetRect.top + targetRect.height / 2 - 29
+    const noticeWidth = 292
+    const noticeLeft = Math.min(Math.max(16, targetRect.right - noticeWidth), window.innerWidth - noticeWidth - 16)
+    const noticeGoesAbove = targetRect.bottom + 12 > window.innerHeight - 128
+    const noticeTop = noticeGoesAbove ? Math.max(16, targetRect.top - 138) : Math.max(16, targetRect.bottom + 12)
+
+    if (flyTimerRef.current) window.clearTimeout(flyTimerRef.current)
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current)
+
+    cartFeedbackCounterRef.current += 1
+    const feedbackKey = cartFeedbackCounterRef.current
+
+    setFlyingCartItem({
+      key: `${item.id}-${feedbackKey}`,
+      name: item.name,
+      image: item.image,
+      startX,
+      startY,
+      endX,
+      endY,
+    })
+    setCartNotice({
+      key: `${item.id}-notice-${feedbackKey}`,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      left: noticeLeft,
+      top: noticeTop,
+      placement: noticeGoesAbove ? 'above' : 'below',
+    })
+    flyTimerRef.current = window.setTimeout(() => setFlyingCartItem(null), 760)
+    noticeTimerRef.current = window.setTimeout(() => setCartNotice(null), 2600)
+  }
+
+  const addToCart = (item, event) => {
+    if (!item) return
     const product = {
       id: item.cartId ?? item.id,
       name: item.name,
@@ -802,12 +1036,10 @@ function App() {
       }
       return [...currentCart, product]
     })
-    setCartOpen(true)
-    setAddedName(item.name)
-    window.setTimeout(() => setAddedName(''), 1600)
+    showCartFeedback(product, event?.currentTarget)
   }
 
-  const addSelectedProductToCart = () => {
+  const addSelectedProductToCart = (event) => {
     if (!selectedProduct) return
 
     addToCart({
@@ -815,7 +1047,7 @@ function App() {
       cartId: `${selectedProduct.id}:${selectedVariantSummary}`,
       price: selectedVariantPrice,
       optionSummary: selectedVariantSummary,
-    })
+    }, event)
     setSelectedProduct(null)
   }
 
@@ -835,6 +1067,36 @@ function App() {
     setPromoState(promoCode.trim().toUpperCase() === 'REWIND10' ? 'success' : 'invalid')
   }
 
+  const openAuth = (mode = 'sign-in') => {
+    setAuthMode(mode)
+    setAuthOpen(true)
+  }
+
+  const handleAuthSubmit = (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get('email') ?? '').trim()
+    const fallbackName = email.split('@')[0] || 'Retro Shopper'
+    const name = String(formData.get('name') ?? '').trim() || fallbackName
+    const nextCustomer = {
+      name,
+      email,
+      joined: customer?.joined ?? 'June 2026',
+      orders: customer?.orders?.length ? customer.orders : demoCustomerOrders,
+    }
+
+    setCustomer(nextCustomer)
+    saveStoredCustomer(nextCustomer)
+    setAuthOpen(false)
+    setAccountOpen(true)
+  }
+
+  const logoutCustomer = () => {
+    setCustomer(null)
+    saveStoredCustomer(null)
+    setAccountOpen(false)
+  }
+
   const openCheckout = () => {
     if (!cart.length) return
     setCheckoutDone(false)
@@ -849,14 +1111,71 @@ function App() {
       setPaypalDemoState('required')
       return
     }
+    if (customer) {
+      const completedOrder = {
+        id: `1989-${String(Math.floor(Date.now() / 1000)).slice(-4)}`,
+        date: 'Today',
+        status: 'Order received',
+        total,
+        items: cart.map((item) => item.name),
+      }
+      const nextCustomer = {
+        ...customer,
+        orders: [completedOrder, ...(customer.orders ?? demoCustomerOrders)],
+      }
+      setCustomer(nextCustomer)
+      saveStoredCustomer(nextCustomer)
+    }
     setCheckoutDone(true)
     setCart([])
     setPromoCode('')
     setPromoState('idle')
   }
 
+  const isRevenueDashboard = window.location.pathname === '/dashboard' || window.location.hash === '#revenue-dashboard'
+
+  if (isRevenueDashboard) {
+    return <RevenueDashboard />
+  }
+
   return (
     <div className="shop-app">
+      {visitorExperience.showOnboarding && (
+        <div className="memory-onboarding-backdrop" role="presentation">
+          <section
+            className="memory-onboarding"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="memory-onboarding-title"
+          >
+            <div className="memory-onboarding-scene" aria-hidden="true">
+              <img className="memory-entry-image" src={heroMemoryLaneImage} alt="" />
+              <div className="memory-entry-dim" />
+              <div className="memory-entry-glow" />
+            </div>
+            <div className="memory-onboarding-copy">
+              <p className="receipt-label">Memory lane is opening</p>
+              <h2 id="memory-onboarding-title">The shop is waking up.</h2>
+              <p>Lights on. Doors open. Good times are back on the shelf.</p>
+              <div className="memory-entry-progress" aria-hidden="true">
+                <span />
+              </div>
+              <button className="memory-skip-button" type="button" onClick={enterMemoryMarket}>
+                Skip intro
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {visitorExperience.showReturnCue && !visitorExperience.showOnboarding && (
+        <div className="returning-memory-ticket" role="status">
+          <span>Welcome back</span>
+          <strong>Your memory lane is still open.</strong>
+        </div>
+      )}
+
       <header className="site-header">
         <div className="header-main">
           <a className="brand" href="#top" aria-label="Dreaming in 1989 home">
@@ -892,7 +1211,24 @@ function App() {
             <span>VHS</span>
           </div>
           <div className="header-checkout">
-            <button className="cart-button" type="button" onClick={() => setCartOpen(true)}>
+            {customer ? (
+              <div className="account-menu">
+                <button className="account-button" type="button" onClick={() => setAccountOpen(true)}>
+                  <User size={17} />
+                  <span>Hi, {customer.name.split(' ')[0]}</span>
+                </button>
+                <button className="logout-button" type="button" onClick={logoutCustomer}>
+                  <LogOut size={15} />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button className="signin-button" type="button" onClick={() => openAuth('sign-in')}>
+                <LogIn size={17} />
+                Sign in
+              </button>
+            )}
+            <button className="cart-button" type="button" ref={cartButtonRef} onClick={() => setCartOpen(true)}>
               <ShoppingCart size={20} />
               <span>Cart ({itemCount})</span>
               <strong>{formatPrice(total)}</strong>
@@ -911,16 +1247,67 @@ function App() {
           <a href="#products">Best Sellers</a>
           <a href="#deals">Gift Counter</a>
           <a href="#gift-guide">Shelf Sets</a>
-          <a
-            href="#/shipping"
-            onClick={(event) => {
-              event.preventDefault()
-              openPolicy('shipping')
+          <div
+            className={`support-menu ${supportMenuOpen ? 'is-open' : ''}`}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) {
+                setSupportMenuOpen(false)
+              }
             }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                setSupportMenuOpen(false)
+              }
+            }}
+            onMouseLeave={() => setSupportMenuOpen(false)}
           >
-            Policies
-          </a>
-          <a href="#footer">Support</a>
+            <button
+              className="support-menu-trigger"
+              type="button"
+              ref={supportButtonRef}
+              aria-expanded={supportMenuOpen}
+              aria-haspopup="menu"
+              onClick={() => {
+                if (supportMenuOpen) {
+                  setSupportMenuOpen(false)
+                } else {
+                  openSupportMenu()
+                }
+              }}
+              onMouseEnter={openSupportMenu}
+            >
+              Support
+              <ChevronDown size={14} />
+            </button>
+            <div
+              className="support-submenu"
+              role="menu"
+              aria-label="Support menu"
+              style={{
+                '--support-menu-top': `${supportMenuPosition.top}px`,
+                '--support-menu-left': `${supportMenuPosition.left}px`,
+              }}
+            >
+              {supportMenuItems.map((policy) => (
+                <button
+                  key={policy.id}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setSupportMenuOpen(false)
+                    openPolicy(policy.id)
+                  }}
+                >
+                  <span>{policy.title}</span>
+                  <small>{policy.label}</small>
+                </button>
+              ))}
+              <a href="#footer" role="menuitem" onClick={() => setSupportMenuOpen(false)}>
+                <span>Support Email</span>
+                <small>Store footer details</small>
+              </a>
+            </div>
+          </div>
         </nav>
       </header>
 
@@ -1157,83 +1544,35 @@ function App() {
         </section>
 
         <section className="service-strip" aria-label="Store service benefits">
-          <span>
-            <Truck size={18} /> Shipping estimate
-          </span>
-          <span>
-            <CheckCircle2 size={18} /> Refund policy
-          </span>
-          <span>
-            <ShieldCheck size={18} /> Secure checkout
-          </span>
-          <span>
-            <Package size={18} /> Made to order
-          </span>
+          <div className="service-ticket">
+            <Truck size={18} />
+            <span>
+              <strong>Shipping estimate</strong>
+              <small>Printed in 2-5 days</small>
+            </span>
+          </div>
+          <div className="service-ticket">
+            <CheckCircle2 size={18} />
+            <span>
+              <strong>Refund policy</strong>
+              <small>Help within 30 days</small>
+            </span>
+          </div>
+          <div className="service-ticket">
+            <ShieldCheck size={18} />
+            <span>
+              <strong>Secure checkout</strong>
+              <small>SSL protected</small>
+            </span>
+          </div>
+          <div className="service-ticket">
+            <Package size={18} />
+            <span>
+              <strong>Made to order</strong>
+              <small>POD fulfilled</small>
+            </span>
+          </div>
         </section>
-
-        <div className="desktop-rail left-rail" aria-label="Shop directory">
-          <p className="receipt-label">Shop Directory</p>
-          <h2>Find Goods</h2>
-          <div className="rail-link-list">
-            {categories.slice(1).map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => {
-                  setQuery('')
-                  setActiveCategory(category)
-                  window.location.hash = 'products'
-                }}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-          <div className="rail-divider" />
-          <p className="receipt-label">Quick Filters</p>
-          <div className="rail-chip-list">
-            {quickFilters.map((filter) => (
-              <button
-                key={filter.label}
-                type="button"
-                onClick={() => {
-                  setActiveCategory('All')
-                  setQuery(filter.query)
-                  window.location.hash = 'products'
-                }}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="desktop-rail right-rail" aria-label="Cart and current deal">
-          <p className="receipt-label">Cart Status</p>
-          <h2>{itemCount} item{itemCount === 1 ? '' : 's'}</h2>
-          <div className="rail-total">
-            <span>Subtotal</span>
-            <strong>{formatPrice(subtotal)}</strong>
-          </div>
-          <div className="shipping-meter" aria-label="Free shipping progress">
-            <span style={{ width: `${Math.min((subtotal / 75) * 100, 100)}%` }} />
-          </div>
-          <p className="rail-note">
-            {freeShippingRemaining > 0
-              ? `${formatPrice(freeShippingRemaining)} more for free shipping.`
-              : 'Free shipping unlocked.'}
-          </p>
-          <button className="rail-cart-button" type="button" onClick={() => setCartOpen(true)}>
-            Open Cart
-          </button>
-          <div className="rail-divider" />
-          <p className="receipt-label">Counter Pick</p>
-          <h3>Rewind Sticker Pack</h3>
-          <p className="rail-note">Small gift, easy add-on, simple to ship.</p>
-          <button type="button" onClick={() => addToCart(products.find((product) => product.id === 'rewind-sticker-pack'))}>
-            Add $16.00
-          </button>
-        </div>
 
         <section className="store-section department-section" aria-label="Shop by department">
           <div className="section-heading">
@@ -1294,7 +1633,7 @@ function App() {
                   <div className="bundle-buy">
                     <strong>{formatPrice(product.price)}</strong>
                     <span className="buy-actions">
-                      <button type="button" onClick={() => addToCart(product)}>
+                      <button type="button" onClick={(event) => addToCart(product, event)}>
                         Add
                       </button>
                     </span>
@@ -1362,7 +1701,7 @@ function App() {
                       <button
                         type="button"
                         disabled={product.stockState === 'sold-out'}
-                        onClick={() => addToCart(product)}
+                        onClick={(event) => addToCart(product, event)}
                       >
                         <ShoppingCart size={17} />
                         {product.stockState === 'sold-out' ? 'Sold out' : 'Add'}
@@ -1418,7 +1757,7 @@ function App() {
                   </ul>
                   <div className="bundle-buy">
                     <strong>{formatPrice(bundle.price)}</strong>
-                    <button type="button" onClick={() => addToCart(bundle)}>
+                    <button type="button" onClick={(event) => addToCart(bundle, event)}>
                       Add Bundle
                     </button>
                   </div>
@@ -1535,7 +1874,7 @@ function App() {
                 <strong>{formatPrice(featuredDrop.price)}</strong>
                 <span>In stock</span>
               </div>
-              <button className="checkout-button" type="button" onClick={() => addToCart(featuredDrop)}>
+              <button className="checkout-button" type="button" onClick={(event) => addToCart(featuredDrop, event)}>
                 <ShoppingCart size={18} />
                 Add to Cart
               </button>
@@ -1573,7 +1912,7 @@ function App() {
                 </div>
                 <div className="shelf-set-ticket">
                   <span>{formatPrice(set.price)}</span>
-                  <button type="button" onClick={() => addToCart(set)}>
+                  <button type="button" onClick={(event) => addToCart(set, event)}>
                     Add
                   </button>
                 </div>
@@ -1698,7 +2037,58 @@ function App() {
         </div>
       </footer>
 
-      {addedName && <div className="toast" role="status">{addedName} added to cart.</div>}
+      {!cartOpen && (
+        <button
+          className="floating-cart-button"
+          type="button"
+          ref={floatingCartButtonRef}
+          aria-label={`Open cart with ${itemCount} item${itemCount === 1 ? '' : 's'}`}
+          onClick={() => setCartOpen(true)}
+        >
+          <img className="floating-cart-art" src={retroCartImage} alt="" aria-hidden="true" />
+          <span className="floating-cart-count">{itemCount}</span>
+          <span className="floating-cart-copy">
+            Cart
+            <strong>{formatPrice(total)}</strong>
+          </span>
+        </button>
+      )}
+
+      {flyingCartItem && (
+        <div
+          className="cart-fly-item"
+          key={flyingCartItem.key}
+          aria-hidden="true"
+          style={{
+            '--fly-start-x': `${flyingCartItem.startX}px`,
+            '--fly-start-y': `${flyingCartItem.startY}px`,
+            '--fly-end-x': `${flyingCartItem.endX}px`,
+            '--fly-end-y': `${flyingCartItem.endY}px`,
+          }}
+        >
+          {flyingCartItem.image ? <img src={flyingCartItem.image} alt="" /> : <ShoppingCart size={22} />}
+        </div>
+      )}
+
+      {cartNotice && (
+        <div
+          className={`cart-mini-modal ${cartNotice.placement === 'above' ? 'is-above' : ''}`}
+          role="status"
+          style={{ left: cartNotice.left, top: cartNotice.top }}
+        >
+          <div className="cart-mini-image">
+            {cartNotice.image ? <img src={cartNotice.image} alt="" /> : <ShoppingCart size={20} />}
+          </div>
+          <div>
+            <strong>Added to cart</strong>
+            <span>{cartNotice.name}</span>
+            <small>{formatPrice(cartNotice.price)} / Cart {itemCount} item{itemCount === 1 ? '' : 's'}</small>
+          </div>
+          <button type="button" onClick={() => setCartOpen(true)}>
+            View
+          </button>
+        </div>
+      )}
 
       <div className={`drawer-backdrop ${cartOpen ? 'open' : ''}`} onClick={() => setCartOpen(false)} />
       <aside className={`cart-drawer ${cartOpen ? 'open' : ''}`} aria-label="Shopping cart" aria-hidden={!cartOpen}>
@@ -1713,30 +2103,37 @@ function App() {
         </div>
 
         {cart.length ? (
-          <div className="cart-items">
-            {cart.map((item) => (
-              <div className="cart-item" key={item.id}>
-                <img src={item.image} alt={item.name} />
-                <div>
-                  <h3>{item.name}</h3>
-                  <p>{formatPrice(item.price)}</p>
-                  {item.optionSummary && <p className="cart-variant">{item.optionSummary}</p>}
-                  <div className="quantity-row">
-                    <button type="button" aria-label={`Decrease ${item.name}`} onClick={() => updateQuantity(item.id, -1)}>
-                      <Minus size={15} />
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button type="button" aria-label={`Increase ${item.name}`} onClick={() => updateQuantity(item.id, 1)}>
-                      <Plus size={15} />
-                    </button>
-                    <button type="button" onClick={() => removeItem(item.id)}>
-                      Remove
-                    </button>
+          <>
+            <div className="cart-items">
+              {visibleCartItems.map((item) => (
+                <div className="cart-item" key={item.id}>
+                  <img src={item.image} alt={item.name} />
+                  <div>
+                    <h3>{item.name}</h3>
+                    <p>{formatPrice(item.price)}</p>
+                    {item.optionSummary && <p className="cart-variant">{item.optionSummary}</p>}
+                    <div className="quantity-row">
+                      <button type="button" aria-label={`Decrease ${item.name}`} onClick={() => updateQuantity(item.id, -1)}>
+                        <Minus size={15} />
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button type="button" aria-label={`Increase ${item.name}`} onClick={() => updateQuantity(item.id, 1)}>
+                        <Plus size={15} />
+                      </button>
+                      <button type="button" onClick={() => removeItem(item.id)}>
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+            {cart.length > collapsedCartItemCount && (
+              <button className="cart-toggle" type="button" onClick={() => setCartExpanded((expanded) => !expanded)}>
+                {cartListExpanded ? 'Rút gọn' : `Hiển thị hết (${hiddenCartItemCount})`}
+              </button>
+            )}
+          </>
         ) : (
           <div className="empty-cart">
             <ShoppingBag size={34} />
@@ -1787,6 +2184,117 @@ function App() {
           </button>
         </div>
       </aside>
+
+      {authOpen && (
+        <div className="modal-backdrop" role="presentation" onClick={() => setAuthOpen(false)}>
+          <section
+            className="auth-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="auth-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="modal-close" type="button" aria-label="Close sign in" onClick={() => setAuthOpen(false)}>
+              <X size={22} />
+            </button>
+            <p className="receipt-label">Customer counter</p>
+            <h2 id="auth-title">{authMode === 'sign-up' ? 'Create account' : 'Sign in'}</h2>
+            <p className="checkout-note">
+              Access your saved orders, checkout details, and account history.
+            </p>
+            <form className="auth-form" onSubmit={handleAuthSubmit}>
+              {authMode === 'sign-up' && (
+                <label>
+                  Full name
+                  <input name="name" placeholder="Alex Taylor" />
+                </label>
+              )}
+              <label>
+                Email
+                <input name="email" required type="email" placeholder="alex@example.com" />
+              </label>
+              <label>
+                Password
+                <input required type="password" placeholder="Your password" />
+              </label>
+              <button className="checkout-button" type="submit">
+                {authMode === 'sign-up' ? 'Create Account' : 'Sign In'}
+              </button>
+            </form>
+            <div className="auth-switch">
+              {authMode === 'sign-up' ? 'Already have an account?' : 'New customer?'}
+              <button
+                type="button"
+                onClick={() => setAuthMode(authMode === 'sign-up' ? 'sign-in' : 'sign-up')}
+              >
+                {authMode === 'sign-up' ? 'Sign in' : 'Create account'}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {accountOpen && customer && (
+        <div className="modal-backdrop" role="presentation" onClick={() => setAccountOpen(false)}>
+          <section
+            className="account-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="modal-close" type="button" aria-label="Close account" onClick={() => setAccountOpen(false)}>
+              <X size={22} />
+            </button>
+            <div className="account-head">
+              <div>
+                <p className="receipt-label">My account</p>
+                <h2 id="account-title">{customer.name}</h2>
+                <p>{customer.email}</p>
+              </div>
+              <div className="account-stamp">Customer</div>
+            </div>
+            <div className="account-summary-grid">
+              <span>
+                <Mail size={18} />
+                Account email
+              </span>
+              <span>
+                <History size={18} />
+                {(customer.orders ?? demoCustomerOrders).length} orders
+              </span>
+              <span>
+                <Package size={18} />
+                Joined {customer.joined}
+              </span>
+            </div>
+            <div className="order-history">
+              <div className="account-section-heading">
+                <h3>Order history</h3>
+                <small>Recent account activity</small>
+              </div>
+              {(customer.orders ?? demoCustomerOrders).map((order) => (
+                <article className="order-card" key={order.id}>
+                  <div>
+                    <strong>#{order.id}</strong>
+                    <span>{order.date} / {order.status}</span>
+                    <small>{order.items.join(', ')}</small>
+                  </div>
+                  <em>{formatPrice(order.total)}</em>
+                </article>
+              ))}
+            </div>
+            <div className="account-actions">
+              <button className="secondary-button" type="button" onClick={() => setAccountOpen(false)}>
+                Back to Shop
+              </button>
+              <button className="checkout-button" type="button" onClick={logoutCustomer}>
+                Logout
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       {selectedProduct && (
         <div className="modal-backdrop product-detail-backdrop" role="presentation" onClick={() => setSelectedProduct(null)}>
@@ -2023,8 +2531,8 @@ function App() {
                   </div>
                   <div className={`paypal-demo-panel paypal-demo-panel--${paypalDemoState}`}>
                     <div>
-                      <strong>PayPal checkout demo</strong>
-                      <p>No real PayPal payment is processed in this build.</p>
+                      <strong>PayPal checkout</strong>
+                      <p>Continue to PayPal to review and approve your payment.</p>
                     </div>
                     <button
                       className="paypal-demo-button"
@@ -2035,7 +2543,7 @@ function App() {
                     </button>
                   </div>
                   {paypalDemoState === 'required' && (
-                    <p className="payment-warning">Please approve PayPal demo before placing the order.</p>
+                    <p className="payment-warning">Please approve PayPal before placing the order.</p>
                   )}
                 </section>
                 <div className="review-box">
