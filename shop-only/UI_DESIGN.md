@@ -10,9 +10,9 @@ The target experience is a retro American 80s/90s shop with modern ecommerce usa
 
 Brand direction: `1989 Supply Co.`
 
-Offer: retro-inspired goods, gifts, shelf decor, apparel, audio objects, arcade collectibles, and curated bundles.
+Offer: retro-inspired made-to-order goods, gifts, apparel, bags, drinkware, wall art, stationery, home goods, and curated bundles.
 
-Primary user goal: discover products, compare categories, add items to cart, and complete a demo checkout.
+Primary user goal: discover products, compare categories, add items to cart, and complete checkout.
 
 ## Brand Voice
 
@@ -59,7 +59,7 @@ Allowed sections:
 
 3. Category Bar
    - Ecommerce filters only
-   - Example: `All`, `Audio`, `Arcade`, `Apparel`, `Kitchen`, `Wall Art`, `Collectibles`
+   - Example: `All`, `Apparel`, `Bags`, `Drinkware`, `Wall Art`, `Stationery`, `Home Goods`
 
 4. Product Grid
    - Main page focus
@@ -80,9 +80,9 @@ Allowed sections:
    - Checkout CTA
 
 7. Checkout Modal
-   - Demo checkout only
+   - Checkout flow
    - Shipping form
-   - Payment demo form
+   - Payment form
    - Review state
    - Success state
 
@@ -92,7 +92,15 @@ Allowed sections:
    - Secure checkout
    - Retro packaging
 
-9. Footer
+9. Policy Pages
+   - Shipping
+   - Refund
+   - Contact
+   - Terms / Privacy
+   - Each page must be opened from its own hash route
+   - Content must describe made-to-order operations based on Printful fulfillment, returns, and data-sharing expectations
+
+10. Footer
    - Lightweight
    - Shop links
    - Support links
@@ -123,6 +131,20 @@ Disallowed sections:
 - Product browsing must be easier to understand than the theme.
 - Retro styling should support the store, not compete with product discovery.
 - No section after the hero should span edge-to-edge unless it has a strong ecommerce reason.
+
+## Image Asset Rules
+
+Use explicit image roles in product data so assets do not get mixed:
+
+- `product`: sellable SKU images only. Display as a stable `1:1` square frame with the full item visible.
+- `banner`: bundles, gift guides, featured drops, departments, and shelf sets. Display as `16:9` landscape artwork with cover crop.
+- `hero`: first-viewport campaign/storefront scenes only. Display full-bleed with cover crop.
+
+Rules:
+
+- Product cards, new arrivals, product detail, cart thumbnails, and product image modals must use `product`.
+- Bundle cards, gift counter cards, department covers, featured drop art, and shelf-ready set images must use `banner`.
+- Do not use banner/scene images inside the product grid unless they are cropped into a deliberate `1:1` product image.
 
 ## Responsive Rules
 
@@ -460,7 +482,7 @@ MVP interactions:
 - Quantity increment/decrement
 - Remove item
 - Promo code field UI
-- Checkout demo modal
+- Checkout modal
 - Order success state
 
 Not required for MVP:

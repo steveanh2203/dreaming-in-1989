@@ -5,7 +5,6 @@ import {
   CreditCard,
   Gift,
   Heart,
-  Headphones,
   Home,
   Image,
   Minus,
@@ -18,6 +17,7 @@ import {
   Sparkles,
   Tags,
   Truck,
+  Wallet,
   X,
 } from 'lucide-react'
 import heroImage from './assets/store-hero.png'
@@ -34,7 +34,6 @@ import arcadeDepartmentImage from './assets/departments/arcade-department.png'
 import audioDepartmentImage from './assets/departments/audio-department.png'
 import kitchenDepartmentImage from './assets/departments/kitchen-department.png'
 import wallArtDepartmentImage from './assets/departments/wall-art-department.png'
-import cassettePlayerFeatureImage from './assets/featured/cassette-player-feature.png'
 import snackBowlSetFeatureImage from './assets/featured/snack-bowl-set-feature.png'
 import arcadeEssentialsSetImage from './assets/sets/arcade-essentials.png'
 import audioShelfSetImage from './assets/sets/audio-shelf-set.png'
@@ -47,217 +46,166 @@ import shelfDecorLineupImage from './assets/gift-counter/shelf-decor-lineup-v2.p
 import under25LineupImage from './assets/gift-counter/under-25-lineup-v2.png'
 import albumWallPrintImage from './assets/products-cutout/album-wall-print.png'
 import arcadePosterImage from './assets/products-cutout/arcade-poster.png'
-import arcadeTokenCupImage from './assets/products-cutout/arcade-token-cup.png'
-import boomboxSpeakerImage from './assets/products-cutout/boombox-speaker.png'
 import cartoonPinPackImage from './assets/products-cutout/cartoon-pin-pack.png'
-import cassetteMixImage from './assets/products-cutout/cassette-mix.png'
 import dinerMugImage from './assets/products-cutout/diner-mug.png'
 import dinerTrayImage from './assets/products-cutout/diner-tray.png'
 import mallToteImage from './assets/products-cutout/mall-tote.png'
-import neonClockImage from './assets/products-cutout/neon-clock.png'
-import pinballKeychainImage from './assets/products-cutout/pinball-keychain.png'
-import pocketGameImage from './assets/products-cutout/pocket-game.png'
 import rewindTeeImage from './assets/products-cutout/rewind-tee.png'
-import snackBowlSetImage from './assets/products-cutout/snack-bowl-set.png'
 import vhsCalendarImage from './assets/products-cutout/vhs-calendar.png'
 import videoNightSignImage from './assets/products-cutout/video-night-sign.png'
 import './App.css'
 
-const categories = ['All', 'Audio', 'Arcade', 'Apparel', 'Kitchen', 'Wall Art', 'Collectibles']
+const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
 
 const productImages = {
-  pocketGame: pocketGameImage,
-  cassetteMix: cassetteMixImage,
-  arcadePoster: arcadePosterImage,
-  videoNightSign: videoNightSignImage,
+  rewindTee: rewindTeeImage,
+  rewindHoodie: rewindTeeImage,
   mallTote: mallToteImage,
   dinerMug: dinerMugImage,
-  cartoonPinPack: cartoonPinPackImage,
-  neonClock: neonClockImage,
-  boomboxSpeaker: boomboxSpeakerImage,
-  arcadeTokenCup: arcadeTokenCupImage,
-  dinerTray: dinerTrayImage,
-  vhsCalendar: vhsCalendarImage,
-  rewindTee: rewindTeeImage,
-  albumWallPrint: albumWallPrintImage,
-  snackBowlSet: snackBowlSetImage,
-  pinballKeychain: pinballKeychainImage,
+  arcadePoster: arcadePosterImage,
+  stickerPack: cartoonPinPackImage,
+  deskCalendar: vhsCalendarImage,
+  notebook: videoNightSignImage,
+  coasterSet: dinerTrayImage,
+  wallCanvas: albumWallPrintImage,
+}
+
+const imageUseMeta = {
+  product: {
+    ratio: '1:1 product frame',
+    treatment: 'Object contained',
+    note: 'Use for sellable SKU images. Keep the full item visible inside a square frame.',
+  },
+  banner: {
+    ratio: '16:9 landscape banner',
+    treatment: 'Cover crop',
+    note: 'Use for bundles, gift guides, featured promos, and section cover images.',
+  },
+  hero: {
+    ratio: 'Full-bleed hero',
+    treatment: 'Cover crop',
+    note: 'Use only for first-viewport storefront scenes and wide campaign backgrounds.',
+  },
 }
 
 const products = [
   {
-    id: 'pocket-game',
-    name: 'Pocket Game Console',
-    shortDetail: 'Handheld shelf piece with playable charm.',
-    price: 49,
-    category: 'Arcade',
+    id: 'rewind-club-tee',
+    name: 'Rewind Club Tee',
+    shortDetail: 'Soft cotton tee printed on demand.',
+    price: 30,
+    category: 'Apparel',
     tag: 'New',
-    image: productImages.pocketGame,
+    image: productImages.rewindTee,
+    imageUse: 'product',
     sku: 'SKU-1989-014',
     stockState: 'in-stock',
   },
   {
-    id: 'cassette-mix',
-    name: 'Soft Rock Cassette Set',
-    shortDetail: 'Three display tapes in clamshell cases.',
-    price: 28,
-    category: 'Audio',
+    id: 'mall-weekend-hoodie',
+    name: 'Mall Weekend Hoodie',
+    shortDetail: 'Warm pullover with a small retro chest print.',
+    price: 54,
+    category: 'Apparel',
     tag: 'Best Seller',
-    image: productImages.cassetteMix,
+    image: productImages.rewindHoodie,
+    imageUse: 'product',
     sku: 'SKU-1989-022',
     stockState: 'in-stock',
   },
   {
-    id: 'arcade-poster',
-    name: 'Arcade Lights Poster',
-    shortDetail: '18x24 print for game room walls.',
-    price: 32,
-    category: 'Wall Art',
-    tag: 'Low Stock',
-    image: productImages.arcadePoster,
+    id: 'mall-weekend-tote',
+    name: 'Mall Weekend Tote',
+    shortDetail: 'Heavy canvas tote for shopping and day trips.',
+    price: 24,
+    category: 'Bags',
+    tag: 'Fresh Drop',
+    image: productImages.mallTote,
+    imageUse: 'product',
     sku: 'SKU-1989-031',
-    stockState: 'low-stock',
+    stockState: 'in-stock',
   },
   {
-    id: 'video-night-sign',
-    name: 'Video Store Desk Sign',
-    shortDetail: 'Acrylic counter sign with late-fee energy.',
-    price: 36,
-    category: 'Collectibles',
-    tag: 'Gift Pick',
-    image: productImages.videoNightSign,
+    id: 'diner-counter-mug',
+    name: 'Diner Counter Mug',
+    shortDetail: 'Ceramic mug for coffee, tea, and desk days.',
+    price: 18,
+    category: 'Drinkware',
+    tag: 'Under $20',
+    image: productImages.dinerMug,
+    imageUse: 'product',
     sku: 'SKU-1989-044',
     stockState: 'in-stock',
   },
   {
-    id: 'mall-tote',
-    name: 'Mall Weekend Tote',
-    shortDetail: 'Heavy canvas tote for weekend runs.',
-    price: 24,
-    category: 'Apparel',
-    tag: 'Fresh Drop',
-    image: productImages.mallTote,
+    id: 'arcade-night-poster',
+    name: 'Arcade Night Poster',
+    shortDetail: '18x24 wall poster for rooms and studios.',
+    price: 32,
+    category: 'Wall Art',
+    tag: 'Low Stock',
+    image: productImages.arcadePoster,
+    imageUse: 'product',
     sku: 'SKU-1989-051',
-    stockState: 'in-stock',
+    stockState: 'low-stock',
   },
   {
-    id: 'diner-mug',
-    name: 'Diner Counter Mug',
-    shortDetail: 'Cream ceramic mug with red stripe.',
-    price: 18,
-    category: 'Kitchen',
-    tag: 'Under $20',
-    image: productImages.dinerMug,
+    id: 'rewind-sticker-pack',
+    name: 'Rewind Sticker Pack',
+    shortDetail: 'Die-cut stickers for laptops, bottles, and notebooks.',
+    price: 16,
+    category: 'Stationery',
+    tag: 'Gift Pick',
+    image: productImages.stickerPack,
+    imageUse: 'product',
     sku: 'SKU-1989-063',
     stockState: 'in-stock',
   },
   {
-    id: 'cartoon-pin-pack',
-    name: 'Saturday Pin Pack',
-    shortDetail: 'Four enamel pins for jackets or bags.',
-    price: 22,
-    category: 'Apparel',
-    tag: 'Bundle Ready',
-    image: productImages.cartoonPinPack,
+    id: 'retro-desk-calendar',
+    name: 'Retro Desk Calendar',
+    shortDetail: 'Monthly desk calendar with original 1989-style art.',
+    price: 26,
+    category: 'Stationery',
+    tag: 'Desk Pick',
+    image: productImages.deskCalendar,
+    imageUse: 'product',
     sku: 'SKU-1989-077',
     stockState: 'in-stock',
   },
   {
-    id: 'neon-clock',
-    name: 'Neon Counter Clock',
-    shortDetail: 'Desk clock with soft cyan glow.',
-    price: 64,
-    category: 'Collectibles',
-    tag: 'Sold Out',
-    image: productImages.neonClock,
+    id: 'video-rental-notebook',
+    name: 'Video Rental Notebook',
+    shortDetail: 'Lined notebook for lists, sketches, and daily notes.',
+    price: 22,
+    category: 'Stationery',
+    tag: 'New',
+    image: productImages.notebook,
+    imageUse: 'product',
     sku: 'SKU-1989-089',
-    stockState: 'sold-out',
+    stockState: 'in-stock',
   },
   {
-    id: 'boombox-speaker',
-    name: 'Boombox Shelf Speaker',
-    shortDetail: 'Bluetooth speaker with chrome faceplate.',
-    price: 72,
-    category: 'Audio',
-    tag: 'Premium',
-    image: productImages.boomboxSpeaker,
+    id: 'diner-coaster-set',
+    name: 'Diner Coaster Set',
+    shortDetail: 'Four printed coasters for coffee tables and desks.',
+    price: 22,
+    category: 'Home Goods',
+    tag: 'Bundle Ready',
+    image: productImages.coasterSet,
+    imageUse: 'product',
     sku: 'SKU-1989-102',
     stockState: 'in-stock',
   },
   {
-    id: 'arcade-token-cup',
-    name: 'Arcade Token Cup',
-    shortDetail: 'Ceramic cup for desks, coins, or pens.',
-    price: 20,
-    category: 'Arcade',
-    tag: 'Under $25',
-    image: productImages.arcadeTokenCup,
-    sku: 'SKU-1989-118',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'diner-tray',
-    name: 'Diner Counter Tray',
-    shortDetail: 'Metal catchall tray for keys and watches.',
-    price: 26,
-    category: 'Kitchen',
-    tag: 'New',
-    image: productImages.dinerTray,
-    sku: 'SKU-1989-126',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'vhs-calendar',
-    name: 'VHS Desk Calendar',
-    shortDetail: 'Flip calendar with rental-store styling.',
-    price: 34,
-    category: 'Collectibles',
-    tag: 'Desk Pick',
-    image: productImages.vhsCalendar,
-    sku: 'SKU-1989-137',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'rewind-tee',
-    name: 'Rewind Club Tee',
-    shortDetail: 'Soft cotton tee with small chest mark.',
-    price: 30,
-    category: 'Apparel',
-    tag: 'New Size Run',
-    image: productImages.rewindTee,
-    sku: 'SKU-1989-144',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'album-wall-print',
-    name: 'Album Wall Print',
-    shortDetail: 'Gallery print for music corners.',
-    price: 38,
+    id: 'memory-lane-canvas',
+    name: 'Memory Lane Canvas',
+    shortDetail: 'Stretched canvas print for bedrooms and work corners.',
+    price: 48,
     category: 'Wall Art',
     tag: 'Gift Pick',
-    image: productImages.albumWallPrint,
-    sku: 'SKU-1989-152',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'snack-bowl-set',
-    name: 'Movie Snack Bowl Set',
-    shortDetail: 'Stacking bowls for couch-night snacks.',
-    price: 42,
-    category: 'Kitchen',
-    tag: 'Bundle Ready',
-    image: productImages.snackBowlSet,
-    sku: 'SKU-1989-168',
-    stockState: 'low-stock',
-  },
-  {
-    id: 'pinball-keychain',
-    name: 'Pinball Keychain',
-    shortDetail: 'Enamel keychain with arcade cabinet charm.',
-    price: 14,
-    category: 'Collectibles',
-    tag: 'Stocking Gift',
-    image: productImages.pinballKeychain,
+    image: productImages.wallCanvas,
+    imageUse: 'product',
     sku: 'SKU-1989-181',
     stockState: 'in-stock',
   },
@@ -265,114 +213,123 @@ const products = [
 
 const bundles = [
   {
-    id: 'bundle-video',
-    name: 'Video Store Night',
-    shortDetail: 'Desk sign, cassette set, and snack tray print.',
-    price: 82,
-    value: 96,
+    id: 'bundle-weekend',
+    name: 'Weekend Outfit Pack',
+    shortDetail: 'Tee, tote, and stickers for an easy first order.',
+    price: 64,
+    value: 70,
     image: videoStoreImage,
-    items: ['Video Store Desk Sign', 'Soft Rock Cassette Set', 'Movie Snack Bowl Set'],
+    imageUse: 'banner',
+    items: ['Rewind Club Tee', 'Mall Weekend Tote', 'Rewind Sticker Pack'],
   },
   {
-    id: 'bundle-shelf',
-    name: 'Diner Counter Set',
-    shortDetail: 'Pin pack, counter mug, and shelf display art.',
-    price: 68,
-    value: 78,
+    id: 'bundle-desk',
+    name: 'Desk Work Pack',
+    shortDetail: 'Notebook, calendar, and coasters for a cleaner desk.',
+    price: 58,
+    value: 70,
     image: snackBowlSetFeatureImage,
-    items: ['Diner Counter Mug', 'Diner Counter Tray', 'Saturday Pin Pack'],
+    imageUse: 'banner',
+    items: ['Video Rental Notebook', 'Retro Desk Calendar', 'Diner Coaster Set'],
   },
   {
-    id: 'bundle-mall',
-    name: 'Mall Weekend Kit',
-    shortDetail: 'Tote, poster, and pocket game display.',
-    price: 99,
-    value: 115,
+    id: 'bundle-room',
+    name: 'Retro Room Pack',
+    shortDetail: 'Poster, canvas, and stickers for a quick room refresh.',
+    price: 86,
+    value: 96,
     image: mallWeekendImage,
-    items: ['Mall Weekend Tote', 'Arcade Lights Poster', 'Pocket Game Console'],
+    imageUse: 'banner',
+    items: ['Arcade Night Poster', 'Memory Lane Canvas', 'Rewind Sticker Pack'],
   },
 ]
 
 const heroSlides = [
   {
     image: heroImage,
+    imageUse: 'hero',
     label: 'Retro den counter',
     receipt: {
       code: 'RCPT-1989-01',
       items: [
-        ['Audio', 29],
-        ['Arcade', 24],
-        ['Kitchen', 19],
-        ['Wall art', 38],
-        ['Bundles', 49],
+        ['Tee', 30],
+        ['Tote', 24],
+        ['Mug', 18],
+        ['Wall art', 48],
+        ['Stickers', 16],
       ],
     },
   },
   {
     image: heroSupermarketV2Image,
+    imageUse: 'hero',
     label: 'Checkout lane',
     receipt: {
       code: 'RCPT-1989-02',
       items: [
-        ['Counter mug', 18],
-        ['Mall tote', 24],
-        ['Snack bowls', 42],
-        ['Desk calendar', 34],
-        ['Gift wrap', 6],
+        ['Diner mug', 18],
+        ['Canvas tote', 24],
+        ['Coasters', 22],
+        ['Desk calendar', 26],
+        ['Gift note', 6],
       ],
     },
   },
   {
     image: heroSupermarketImage,
+    imageUse: 'hero',
     label: 'Aisle storefront',
     receipt: {
       code: 'RCPT-1989-03',
       items: [
-        ['Pocket game', 49],
-        ['Token cup', 20],
-        ['Pin pack', 22],
-        ['Neon clock', 64],
+        ['Hoodie', 54],
+        ['Notebook', 22],
+        ['Sticker pack', 16],
+        ['Canvas print', 48],
         ['Poster', 32],
       ],
     },
   },
   {
     image: heroMemoryLaneImage,
+    imageUse: 'hero',
     label: 'Memory lane room',
     receipt: {
       code: 'RCPT-1989-04',
       items: [
-        ['Cassette set', 28],
-        ['Shelf speaker', 72],
-        ['Album print', 38],
+        ['Tee', 30],
+        ['Desk calendar', 26],
+        ['Wall canvas', 48],
         ['Rewind tee', 30],
-        ['Late fee', 0],
+        ['Handling', 0],
       ],
     },
   },
   {
     image: heroProductSheetImage,
+    imageUse: 'hero',
     label: 'Product shelf sheet',
     receipt: {
       code: 'RCPT-1989-05',
       items: [
-        ['VHS calendar', 34],
-        ['Desk sign', 36],
-        ['Diner tray', 26],
-        ['Pinball key', 14],
+        ['Desk calendar', 26],
+        ['Notebook', 22],
+        ['Coaster set', 22],
+        ['Mug', 18],
         ['Bundle save', -12],
       ],
     },
   },
   {
     image: heroContentSheetImage,
+    imageUse: 'hero',
     label: 'Retro content wall',
     receipt: {
       code: 'RCPT-1989-06',
       items: [
-        ['Wall print', 38],
+        ['Wall canvas', 48],
         ['Arcade poster', 32],
-        ['Mix tape', 28],
+        ['Sticker pack', 16],
         ['Gift note', 5],
         ['Shipping', 0],
       ],
@@ -381,141 +338,219 @@ const heroSlides = [
 ]
 
 const departmentCards = [
-  { name: 'Audio', copy: 'Tapes, players, speakers, and desktop sound pieces.', image: audioDepartmentImage },
-  { name: 'Arcade', copy: 'Handhelds, token goods, and game-room accents.', image: arcadeDepartmentImage },
-  { name: 'Kitchen', copy: 'Diner mugs, trays, and snack-night hardware.', image: kitchenDepartmentImage },
-  { name: 'Wall Art', copy: 'Prints and signs for shelves, studios, and dens.', image: wallArtDepartmentImage },
+  { name: 'Apparel', copy: 'Tees and hoodies printed after each order.', image: audioDepartmentImage, imageUse: 'banner' },
+  { name: 'Drinkware', copy: 'Mugs for coffee, tea, and desk days.', image: kitchenDepartmentImage, imageUse: 'banner' },
+  { name: 'Wall Art', copy: 'Posters and canvas prints for rooms and studios.', image: wallArtDepartmentImage, imageUse: 'banner' },
+  { name: 'Stationery', copy: 'Stickers, notebooks, and desk calendars.', image: arcadeDepartmentImage, imageUse: 'banner' },
 ]
 
 const giftCounterItems = [
   {
     title: 'Under $25',
-    copy: 'Pins, mugs, cups, and small counter goods.',
-    category: 'Collectibles',
-    budget: '$14-$24',
+    copy: 'Stickers, notebooks, coasters, and small desk goods.',
+    category: 'Stationery',
+    budget: '$16-$22',
     image: under25LineupImage,
+    imageUse: 'banner',
   },
   {
     title: 'Desk Gifts',
-    copy: 'Calendar flips, clocks, and desktop shelf pieces.',
-    category: 'Collectibles',
-    budget: '$34-$64',
+    copy: 'Calendars, notebooks, mugs, and clean desk add-ons.',
+    category: 'Stationery',
+    budget: '$18-$26',
     image: deskGiftsLineupImage,
+    imageUse: 'banner',
   },
   {
-    title: 'Shelf Decor',
-    copy: 'Signs, prints, and display pieces for rooms.',
+    title: 'Room Decor',
+    copy: 'Posters and canvas prints for quick wall upgrades.',
     category: 'Wall Art',
-    budget: '$32-$38',
+    budget: '$32-$48',
     image: shelfDecorLineupImage,
+    imageUse: 'banner',
   },
   {
-    title: 'Party Night',
-    copy: 'Snack bowls, trays, and couch-night add-ons.',
-    category: 'Kitchen',
-    budget: '$26-$42',
+    title: 'Outfit',
+    copy: 'Tees, hoodies, and tote bags for daily wear.',
+    category: 'Apparel',
+    budget: '$24-$54',
     image: partyNightLineupImage,
+    imageUse: 'banner',
   },
 ]
 
 const quickFilters = [
-  { label: 'Under $25', query: 'Under $25' },
+  { label: 'Under $25', query: 'Under' },
   { label: 'New Drops', query: 'New' },
   { label: 'Gift Picks', query: 'Gift' },
   { label: 'Low Stock', query: 'Low Stock' },
 ]
 
-const newArrivalIds = ['diner-tray', 'rewind-tee', 'boombox-speaker', 'vhs-calendar']
+const newArrivalIds = ['mall-weekend-hoodie', 'rewind-club-tee', 'diner-counter-mug', 'retro-desk-calendar']
 const featuredDropProduct = {
-  id: 'cassette-player-wm36',
-  name: 'Cassette Player WM-36',
-  shortDetail: 'Clear blue edition for pocket playlists and shelf display.',
-  price: 79,
-  category: 'Audio',
+  id: 'arcade-night-poster',
+  name: 'Arcade Night Poster',
+  shortDetail: 'Wall poster made after order for rooms, offices, and studios.',
+  price: 32,
+  category: 'Wall Art',
   tag: "Today's Spotlight",
-  image: cassettePlayerFeatureImage,
+  image: arcadePosterImage,
+  imageUse: 'product',
   sku: 'SKU-1989-198',
   stockState: 'in-stock',
 }
 
 const shelfReadySets = [
   {
-    id: 'set-counter',
-    name: 'Audio Shelf Set',
-    copy: 'Speaker, tapes, and wall-ready sound.',
-    price: 119,
+    id: 'set-outfit',
+    name: 'Outfit Starter',
+    copy: 'Tee, hoodie, and tote for a simple first drop.',
+    price: 108,
     image: audioShelfSetImage,
-    imageMode: 'scene',
+    imageUse: 'banner',
   },
   {
-    id: 'set-arcade',
-    name: 'Arcade Essentials',
-    copy: 'Poster, token cup, pin pack.',
-    price: 99,
+    id: 'set-room',
+    name: 'Room Wall Set',
+    copy: 'Poster, canvas, and sticker pack.',
+    price: 86,
     image: arcadeEssentialsSetImage,
-    imageMode: 'scene',
-  },
-  {
-    id: 'set-kitchen',
-    name: 'Kitchen Dinner Kit',
-    copy: 'Tray, mugs, and snack bowls.',
-    price: 90,
-    image: kitchenDinnerKitSetImage,
-    imageMode: 'scene',
-  },
-  {
-    id: 'set-wall-art',
-    name: 'Wall Art Starter',
-    copy: 'Prints to style your walls.',
-    price: 90,
-    image: wallArtStarterSetImage,
-    imageMode: 'scene',
+    imageUse: 'banner',
   },
   {
     id: 'set-desk',
     name: 'Desk Setup Pack',
-    copy: 'Clock, organizer, and calendar.',
-    price: 79,
+    copy: 'Notebook, calendar, mug, and coasters.',
+    price: 78,
+    image: kitchenDinnerKitSetImage,
+    imageUse: 'banner',
+  },
+  {
+    id: 'set-wall-art',
+    name: 'Wall Art Starter',
+    copy: 'Two wall prints and stickers to style a room.',
+    price: 80,
+    image: wallArtStarterSetImage,
+    imageUse: 'banner',
+  },
+  {
+    id: 'set-gift',
+    name: 'Small Gift Pack',
+    copy: 'Sticker pack, notebook, and coasters.',
+    price: 50,
     image: deskSetupPackSetImage,
-    imageMode: 'scene',
+    imageUse: 'banner',
   },
 ]
 
+const policyCards = [
+  {
+    id: 'shipping',
+    title: 'Shipping',
+    path: 'shipping',
+    label: 'Printful fulfillment',
+    copy: 'Orders are produced through Printful after checkout, then handed to a carrier for delivery. Production time and shipping time are separate.',
+    points: ['Production usually takes 2-5 business days', 'US domestic transit is commonly estimated after fulfillment', 'Tracking is sent after the carrier label is created'],
+    sections: [
+      ['Production', 'Printful production is the time needed to prepare an order for shipping after the order is received. The store should show this separately from carrier transit.'],
+      ['Delivery', 'US delivery estimates should be shown as fulfillment time plus shipping transit. Tracking should be sent to the customer once Printful marks the order shipped.'],
+      ['Address changes', 'Address edits should be handled before the order is submitted or before fulfillment starts. After production begins, changes may not be possible.'],
+    ],
+  },
+  {
+    id: 'refund',
+    title: 'Refund',
+    path: 'refund',
+    label: 'Returns and claims',
+    copy: 'Because items are made after purchase, refunds focus on damaged, misprinted, defective, incorrect, or lost orders.',
+    points: ['Claims should be submitted within Printful claim windows', 'Photo proof is required for damaged or misprinted goods', 'Wrong size or changed mind is not an automatic refund'],
+    sections: [
+      ['Covered cases', 'The store should handle damaged, misprinted, defective, incorrect, and confirmed lost orders through Printful claim handling.'],
+      ['Not covered', 'Wrong size selection, wrong color selection, changed mind, or customer address mistakes should not be automatic refunds once an item is produced.'],
+      ['Claim flow', 'The customer sends an order number, photos, and a short description. The store reviews the issue and requests a reprint or refund from Printful when eligible.'],
+    ],
+  },
+  {
+    id: 'contact',
+    title: 'Contact',
+    path: 'contact',
+    label: 'Support desk',
+    copy: 'One support inbox handles order questions, address updates, tracking questions, supplier claims, and refund requests.',
+    points: ['Email: support@1989supply.co', 'Include order number and checkout email', 'Attach photos for damaged or misprinted items'],
+    sections: [
+      ['Support email', 'Use support@1989supply.co as the customer support inbox for order questions, address updates, tracking help, and claim follow-up.'],
+      ['What to include', 'For order issues, customers should include order number, email used at checkout, photos if relevant, and the shipping address if asking about delivery.'],
+      ['Response target', 'A realistic small-shop target is 1-2 business days for first response, with Printful supplier claims taking longer when production review is needed.'],
+    ],
+  },
+  {
+    id: 'terms-privacy',
+    title: 'Terms & Privacy',
+    path: 'terms-privacy',
+    label: 'Store terms',
+    copy: 'Store terms explain made-to-order production, payment processing, fulfillment partner data use, and customer privacy handling.',
+    points: ['Orders are produced by a fulfillment partner', 'Customer data is used for checkout, support, and shipping', 'Payment and fulfillment providers may process order data'],
+    sections: [
+      ['Made-to-order production', 'Items are made after purchase through Printful. Production status, address changes, cancellations, and delivery timing depend on fulfillment progress.'],
+      ['Customer data', 'Customer name, email, address, order items, and support messages are used to process payment, fulfill orders, send tracking, and handle support.'],
+      ['Supplier terms', 'Printful receives the order details needed to produce and ship items. The store policy should link to the relevant payment and fulfillment partner terms.'],
+    ],
+  },
+]
+
+const policyPageDetails = {
+  shipping: {
+    timeline: [
+      ['Order received', 'Checkout is captured and the order is prepared for Printful fulfillment.'],
+      ['Production', 'Printful prints, packs, and prepares the item. Most items are commonly produced in 2-5 business days, but peak periods can take longer.'],
+      ['Carrier handoff', 'After fulfillment, the carrier receives the package and tracking becomes available.'],
+      ['Delivery', 'The customer follows carrier tracking. Delivery issues are reviewed with the carrier and Printful when eligible.'],
+    ],
+    table: [
+      ['Production time', 'Separate from shipping time', 'Shown before checkout and in order emails.'],
+      ['Tracking', 'Sent after shipping label / carrier handoff', 'Customer must allow tracking to update after carrier scan.'],
+      ['Wrong address', 'Customer responsibility after fulfillment starts', 'Contact support immediately before production begins.'],
+      ['Returned package', 'Reviewed case by case', 'Reshipment may require a new shipping fee if the address was wrong.'],
+    ],
+    notice: 'Orders are made after purchase. Production time is not the same as carrier transit time, so delivery estimates must include both.',
+  },
+  refund: {
+    claimWindow: 'Misprinted, damaged, or defective item claims should be submitted within 30 days after delivery. Lost package claims should be submitted within 30 days after the estimated delivery date.',
+    covered: ['Damaged item on arrival', 'Visible print defect', 'Wrong product or wrong print sent', 'Confirmed lost shipment', 'Manufacturing defect'],
+    notCovered: ['Wrong size selected by customer', 'Changed mind after production', 'Wrong address entered by customer', 'Color expectations from screen differences', 'Normal carrier delay while tracking is active'],
+    process: [
+      ['Customer submits claim', 'Order number, checkout email, photos, and a short description are required.'],
+      ['Store reviews evidence', 'The store checks whether the issue matches Printful-eligible claim cases.'],
+      ['Supplier claim', 'If eligible, the store asks Printful for reprint or refund handling.'],
+      ['Resolution', 'Customer receives replacement, refund, or a clear reason when the claim is not covered.'],
+    ],
+  },
+  contact: {
+    channels: [
+      ['Order support', 'support@1989supply.co', 'Use for order status, address updates, tracking, refund claims, and damaged item reports.'],
+      ['Response time', '1-2 business days', 'Supplier claims and carrier reviews can take longer than first response.'],
+      ['Urgent address change', 'Before fulfillment starts', 'Send the order number and corrected address immediately.'],
+    ],
+    checklist: ['Order number', 'Checkout email', 'Full name', 'Shipping address', 'Photos for damaged/misprinted items', 'Short explanation of the issue'],
+    formLabels: ['Name', 'Email', 'Order number', 'Issue type', 'Message'],
+  },
+  'terms-privacy': {
+    dataRows: [
+      ['Contact data', 'Name, email, shipping address', 'Checkout, shipping, tracking, support'],
+      ['Order data', 'Purchased items, size/color choices, order value', 'Production, fulfillment, customer service'],
+      ['Payment data', 'Payment status and transaction reference', 'Payment confirmation and fraud prevention'],
+      ['Support data', 'Messages, photos, claim notes', 'Refund review, supplier claim, customer service'],
+    ],
+    providers: [
+      ['Printful', 'Receives order item, artwork/SKU, recipient name, address, and shipping details for production and delivery.'],
+      ['Payment processor', 'Processes payment confirmation, transaction references, and fraud checks.'],
+      ['Shipping carriers', 'Receive recipient address and package details to deliver orders and provide tracking.'],
+    ],
+    rights: ['Request order support records', 'Ask for correction of contact details', 'Request deletion where legally and operationally possible', 'Ask how order data was used for fulfillment'],
+  },
+}
+
 const productOptionGroups = {
-  Audio: [
-    {
-      name: 'Finish',
-      options: [
-        { label: 'Midnight Black', priceDelta: 0 },
-        { label: 'Chrome Silver', priceDelta: 6 },
-        { label: 'Cream Shell', priceDelta: 4 },
-      ],
-    },
-    {
-      name: 'Pack',
-      options: [
-        { label: 'Single Item', priceDelta: 0 },
-        { label: 'Gift Box', priceDelta: 8 },
-      ],
-    },
-  ],
-  Arcade: [
-    {
-      name: 'Cabinet Color',
-      options: [
-        { label: 'Token Green', priceDelta: 0 },
-        { label: 'Neon Red', priceDelta: 4 },
-        { label: 'Coin-Op Blue', priceDelta: 4 },
-      ],
-    },
-    {
-      name: 'Display',
-      options: [
-        { label: 'No Stand', priceDelta: 0 },
-        { label: 'Acrylic Stand', priceDelta: 8 },
-      ],
-    },
-  ],
   Apparel: [
     {
       name: 'Size',
@@ -542,21 +577,51 @@ const productOptionGroups = {
       ],
     },
   ],
-  Kitchen: [
+  Bags: [
     {
-      name: 'Set',
+      name: 'Color',
       options: [
-        { label: 'Single', priceDelta: 0 },
-        { label: 'Pair', priceDelta: 14 },
-        { label: 'Family Set', priceDelta: 28 },
+        { label: 'Natural Canvas', priceDelta: 0 },
+        { label: 'Black Canvas', priceDelta: 2 },
       ],
     },
     {
-      name: 'Accent',
+      name: 'Print Side',
       options: [
-        { label: 'Red Stripe', priceDelta: 0 },
-        { label: 'Blue Stripe', priceDelta: 0 },
-        { label: 'Diner Cream', priceDelta: 0 },
+        { label: 'Front', priceDelta: 0 },
+        { label: 'Front + Back', priceDelta: 6 },
+      ],
+    },
+  ],
+  Drinkware: [
+    {
+      name: 'Size',
+      options: [
+        { label: '11 oz', priceDelta: 0 },
+        { label: '15 oz', priceDelta: 4 },
+      ],
+    },
+    {
+      name: 'Finish',
+      options: [
+        { label: 'Glossy White', priceDelta: 0 },
+        { label: 'Cream Accent', priceDelta: 2 },
+      ],
+    },
+  ],
+  'Home Goods': [
+    {
+      name: 'Set',
+      options: [
+        { label: 'Set of 4', priceDelta: 0 },
+        { label: 'Set of 8', priceDelta: 16 },
+      ],
+    },
+    {
+      name: 'Finish',
+      options: [
+        { label: 'Matte', priceDelta: 0 },
+        { label: 'Glossy', priceDelta: 2 },
       ],
     },
   ],
@@ -577,19 +642,19 @@ const productOptionGroups = {
       ],
     },
   ],
-  Collectibles: [
+  Stationery: [
     {
-      name: 'Edition',
+      name: 'Pack',
       options: [
         { label: 'Standard', priceDelta: 0 },
-        { label: 'Numbered', priceDelta: 12 },
+        { label: 'Gift Pack', priceDelta: 6 },
       ],
     },
     {
-      name: 'Packaging',
+      name: 'Paper',
       options: [
-        { label: 'Display Box', priceDelta: 0 },
-        { label: 'Collector Case', priceDelta: 10 },
+        { label: 'Standard', priceDelta: 0 },
+        { label: 'Premium', priceDelta: 4 },
       ],
     },
   ],
@@ -611,15 +676,19 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [checkoutDone, setCheckoutDone] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState('paypal')
+  const [paypalDemoState, setPaypalDemoState] = useState('idle')
   const [promoCode, setPromoCode] = useState('')
   const [promoState, setPromoState] = useState('idle')
   const [addedName, setAddedName] = useState('')
   const [heroSlideIndex, setHeroSlideIndex] = useState(0)
+  const [activePolicyId, setActivePolicyId] = useState('shipping')
+  const [activeRoute, setActiveRoute] = useState('home')
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [cart, setCart] = useState([
-    { id: 'cassette-mix', name: 'Soft Rock Cassette Set', price: 28, image: productImages.cassetteMix, quantity: 1 },
+    { id: 'rewind-sticker-pack', name: 'Rewind Sticker Pack', price: 16, image: productImages.stickerPack, quantity: 1 },
   ])
 
   useEffect(() => {
@@ -628,6 +697,24 @@ function App() {
     }, 5200)
 
     return () => window.clearInterval(slideTimer)
+  }, [])
+
+  useEffect(() => {
+    const syncRoute = () => {
+      const route = window.location.hash.replace(/^#\/?/, '')
+      const policy = policyCards.find((item) => item.path === route)
+      if (policy) {
+        setActivePolicyId(policy.id)
+        setActiveRoute(policy.id)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      setActiveRoute('home')
+    }
+
+    syncRoute()
+    window.addEventListener('hashchange', syncRoute)
+    return () => window.removeEventListener('hashchange', syncRoute)
   }, [])
 
   const filteredProducts = useMemo(() => {
@@ -653,9 +740,11 @@ function App() {
   const newArrivals = products.filter((product) => newArrivalIds.includes(product.id))
   const featuredDrop = featuredDropProduct
   const shelfSets = shelfReadySets
+  const activePolicy = policyCards.find((policy) => policy.id === activePolicyId) ?? policyCards[0]
+  const activePolicyRoute = activeRoute === 'home' ? null : activePolicy
+  const activePolicyDetails = policyPageDetails[activePolicyRoute?.id]
   const activeHeroSlide = heroSlides[heroSlideIndex]
-  const hasActiveProductFilter = activeCategory !== 'All' || query.trim().length > 0
-  const visibleProducts = hasActiveProductFilter ? filteredProducts : filteredProducts.slice(0, 8)
+  const visibleProducts = filteredProducts
   const selectedOptionGroups = useMemo(() => getOptionGroups(selectedProduct), [selectedProduct])
   const selectedVariantOptions = useMemo(
     () => getSelectedOptions(selectedOptionGroups, selectedOptions),
@@ -673,12 +762,26 @@ function App() {
     setSelectedOptions(getDefaultOptions(product))
   }
 
-  const openImageInfo = (item, context = 'Product image', imageMode = item.imageMode ?? 'cutout') => {
+  const openImageInfo = (item, context = 'Product image', imageUse = item.imageUse ?? 'product') => {
     setSelectedImageInfo({
       ...item,
       context,
-      imageMode,
+      imageUse,
     })
+  }
+
+  const openPolicy = (policyId) => {
+    const policy = policyCards.find((item) => item.id === policyId)
+    if (!policy) return
+    window.location.hash = `/${policy.path}`
+  }
+
+  const openHomeSection = (sectionId) => {
+    setActiveRoute('home')
+    window.location.hash = sectionId
+    window.setTimeout(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
   }
 
   const addToCart = (item) => {
@@ -735,11 +838,17 @@ function App() {
   const openCheckout = () => {
     if (!cart.length) return
     setCheckoutDone(false)
+    setPaymentMethod('paypal')
+    setPaypalDemoState('idle')
     setCheckoutOpen(true)
   }
 
   const submitCheckout = (event) => {
     event.preventDefault()
+    if (paymentMethod === 'paypal' && paypalDemoState !== 'approved') {
+      setPaypalDemoState('required')
+      return
+    }
     setCheckoutDone(true)
     setCart([])
     setPromoCode('')
@@ -751,7 +860,7 @@ function App() {
       <header className="site-header">
         <div className="header-main">
           <a className="brand" href="#top" aria-label="Dreaming in 1989 home">
-            <img src={dreaming1989LogoImage} alt="Dreaming in 1989 Nostalgia News & Market" />
+            <img src={dreaming1989LogoImage} alt="1989 Supply Co." />
           </a>
           <div className="header-center">
             <label className="header-search">
@@ -760,7 +869,7 @@ function App() {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search memories, news, items..."
+                placeholder="Search products, tags, SKUs..."
                 aria-label="Search products"
               />
             </label>
@@ -802,16 +911,192 @@ function App() {
           <a href="#products">Best Sellers</a>
           <a href="#deals">Gift Counter</a>
           <a href="#gift-guide">Shelf Sets</a>
+          <a
+            href="#/shipping"
+            onClick={(event) => {
+              event.preventDefault()
+              openPolicy('shipping')
+            }}
+          >
+            Policies
+          </a>
           <a href="#footer">Support</a>
         </nav>
       </header>
 
       <main id="top">
+        {activePolicyRoute ? (
+          <section className="store-section policy-route-page">
+            <div className="policy-route-nav" aria-label="Policy pages">
+              {policyCards.map((policy) => (
+                <button
+                  className={activePolicyRoute.id === policy.id ? 'active' : ''}
+                  key={policy.id}
+                  type="button"
+                  onClick={() => openPolicy(policy.id)}
+                >
+                  {policy.title}
+                </button>
+              ))}
+            </div>
+            <article className="policy-route-card">
+              <div className="policy-route-head">
+                <div>
+                  <p className="receipt-label">{activePolicyRoute.label}</p>
+                  <h1>{activePolicyRoute.title}</h1>
+                </div>
+                <span>Printful policy</span>
+              </div>
+              <p>{activePolicyRoute.copy}</p>
+              <div className="policy-route-summary">
+                {activePolicyRoute.points.map((point) => (
+                  <span key={point}>{point}</span>
+                ))}
+              </div>
+              <div className="policy-route-content">
+                {activePolicyRoute.sections.map(([title, copy]) => (
+                  <section key={title}>
+                    <h2>{title}</h2>
+                    <p>{copy}</p>
+                  </section>
+                ))}
+              </div>
+              {activePolicyRoute.id === 'shipping' && (
+                <div className="policy-deep policy-deep--shipping">
+                  <div className="shipping-timeline">
+                    {activePolicyDetails.timeline.map(([title, copy], index) => (
+                      <section key={title}>
+                        <span>{String(index + 1).padStart(2, '0')}</span>
+                        <h2>{title}</h2>
+                        <p>{copy}</p>
+                      </section>
+                    ))}
+                  </div>
+                  <div className="shipping-rules">
+                    <h2>Shipping rules customers should see</h2>
+                    <div className="policy-table">
+                      {activePolicyDetails.table.map(([name, rule, action]) => (
+                        <div key={name}>
+                          <strong>{name}</strong>
+                          <span>{rule}</span>
+                          <em>{action}</em>
+                        </div>
+                      ))}
+                    </div>
+                    <p>{activePolicyDetails.notice}</p>
+                  </div>
+                </div>
+              )}
+
+              {activePolicyRoute.id === 'refund' && (
+                <div className="policy-deep policy-deep--refund">
+                  <section className="claim-window">
+                    <h2>Claim window</h2>
+                    <p>{activePolicyDetails.claimWindow}</p>
+                  </section>
+                  <div className="claim-matrix">
+                    <section>
+                      <h2>Covered</h2>
+                      {activePolicyDetails.covered.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </section>
+                    <section>
+                      <h2>Not automatic</h2>
+                      {activePolicyDetails.notCovered.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </section>
+                  </div>
+                  <div className="claim-process">
+                    {activePolicyDetails.process.map(([title, copy], index) => (
+                      <section key={title}>
+                        <b>{index + 1}</b>
+                        <h2>{title}</h2>
+                        <p>{copy}</p>
+                      </section>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activePolicyRoute.id === 'contact' && (
+                <div className="policy-deep policy-deep--contact">
+                  <div className="support-board">
+                    {activePolicyDetails.channels.map(([title, value, copy]) => (
+                      <section key={title}>
+                        <small>{title}</small>
+                        <strong>{value}</strong>
+                        <p>{copy}</p>
+                      </section>
+                    ))}
+                  </div>
+                  <section className="support-checklist">
+                    <h2>Required info before we can help</h2>
+                    <div>
+                      {activePolicyDetails.checklist.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </div>
+                  </section>
+                  <section className="support-form-preview" aria-label="Support form preview">
+                    <h2>Support form fields</h2>
+                    {activePolicyDetails.formLabels.map((label) => (
+                      <label key={label}>
+                        {label}
+                        <input disabled placeholder={label === 'Message' ? 'Describe the issue...' : label} />
+                      </label>
+                    ))}
+                  </section>
+                </div>
+              )}
+
+              {activePolicyRoute.id === 'terms-privacy' && (
+                <div className="policy-deep policy-deep--terms">
+                  <section className="data-table">
+                    <h2>Customer data we use</h2>
+                    {activePolicyDetails.dataRows.map(([type, data, purpose]) => (
+                      <div key={type}>
+                        <strong>{type}</strong>
+                        <span>{data}</span>
+                        <em>{purpose}</em>
+                      </div>
+                    ))}
+                  </section>
+                  <section className="provider-list">
+                    <h2>Providers involved</h2>
+                    {activePolicyDetails.providers.map(([name, copy]) => (
+                      <article key={name}>
+                        <h3>{name}</h3>
+                        <p>{copy}</p>
+                      </article>
+                    ))}
+                  </section>
+                  <section className="rights-list">
+                    <h2>Customer rights requests</h2>
+                    {activePolicyDetails.rights.map((item) => (
+                      <span key={item}>{item}</span>
+                    ))}
+                  </section>
+                </div>
+              )}
+              <div className="policy-route-actions">
+                <button type="button" onClick={() => openHomeSection('products')}>
+                  Back to Shop
+                </button>
+                <button type="button" onClick={() => openHomeSection('footer')}>
+                  Contact Support
+                </button>
+              </div>
+            </article>
+          </section>
+        ) : (
+          <>
         <section className="hero" aria-label="Storefront offer">
           <div className="hero-slider" aria-hidden="true">
             {heroSlides.map((slide, index) => (
               <img
-                className={`hero-slide ${index === heroSlideIndex ? 'active' : ''}`}
+                className={`media-hero hero-slide ${index === heroSlideIndex ? 'active' : ''}`}
                 key={slide.label}
                 src={slide.image}
                 alt=""
@@ -821,7 +1106,7 @@ function App() {
           <div className="hero-content">
             <p className="receipt-label">New drop ready now</p>
             <h1>Retro goods for everyday nostalgia.</h1>
-            <p>Shelf-ready gifts, apparel, audio objects, and collectibles inspired by 1989.</p>
+            <p>Made-to-order apparel, prints, desk goods, and gifts.</p>
             <div className="hero-actions">
               <a className="primary-button" href="#products">
                 Shop New Arrivals <ChevronRight size={18} />
@@ -873,16 +1158,16 @@ function App() {
 
         <section className="service-strip" aria-label="Store service benefits">
           <span>
-            <Truck size={18} /> Fast shipping
+            <Truck size={18} /> Shipping estimate
           </span>
           <span>
-            <CheckCircle2 size={18} /> Easy returns
+            <CheckCircle2 size={18} /> Refund policy
           </span>
           <span>
             <ShieldCheck size={18} /> Secure checkout
           </span>
           <span>
-            <Package size={18} /> Retro packaging
+            <Package size={18} /> Made to order
           </span>
         </section>
 
@@ -943,10 +1228,10 @@ function App() {
           </button>
           <div className="rail-divider" />
           <p className="receipt-label">Counter Pick</p>
-          <h3>Pinball Keychain</h3>
-          <p className="rail-note">Small gift, easy add-on, ships fast.</p>
-          <button type="button" onClick={() => addToCart(products.find((product) => product.id === 'pinball-keychain'))}>
-            Add $14.00
+          <h3>Rewind Sticker Pack</h3>
+          <p className="rail-note">Small gift, easy add-on, simple to ship.</p>
+          <button type="button" onClick={() => addToCart(products.find((product) => product.id === 'rewind-sticker-pack'))}>
+            Add $16.00
           </button>
         </div>
 
@@ -961,7 +1246,7 @@ function App() {
           <div className="department-grid">
             {departmentCards.map((department) => (
               <article className="department-card" key={department.name}>
-                <img src={department.image} alt={`${department.name} products`} />
+                <img className="media-banner" src={department.image} alt={`${department.name} products`} />
                 <div>
                   <h3>{department.name}</h3>
                   <p>{department.copy}</p>
@@ -987,21 +1272,24 @@ function App() {
               <p className="receipt-label">Fresh on the counter</p>
               <h2>New Arrivals</h2>
             </div>
-            <p className="section-note">Recently stocked goods across apparel, audio, kitchen, and collectibles.</p>
+            <p className="section-note">Fresh apparel, mugs, wall art, and desk goods.</p>
           </div>
           <div className="feature-product-grid">
             {newArrivals.map((product) => (
               <article className="feature-product-card" key={product.id}>
                 <button
-                  className="product-image-button feature-image-button product-image--cutout"
+                  className="media-square product-image-button feature-image-button product-image--cutout"
                   type="button"
-                  onClick={() => openImageInfo(product)}
+                  aria-label={`View ${product.name} details`}
+                  onClick={() => openProductDetail(product)}
                 >
                   <img src={product.image} alt={product.name} />
                 </button>
                 <div>
                   <p className="receipt-label">{product.category}</p>
-                  <h3>{product.name}</h3>
+                  <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
+                    {product.name}
+                  </button>
                   <p>{product.shortDetail}</p>
                   <div className="bundle-buy">
                     <strong>{formatPrice(product.price)}</strong>
@@ -1053,9 +1341,10 @@ function App() {
               {visibleProducts.map((product) => (
                 <article className="product-card" key={product.id}>
                   <button
-                    className="product-image product-image-button product-image--cutout"
+                    className="media-square product-image product-image-button product-image--cutout"
                     type="button"
-                    onClick={() => openImageInfo(product)}
+                    aria-label={`View ${product.name} details`}
+                    onClick={() => openProductDetail(product)}
                   >
                     <img src={product.image} alt={product.name} />
                     <span>{product.tag}</span>
@@ -1117,7 +1406,7 @@ function App() {
           <div className="bundle-grid">
             {bundles.map((bundle) => (
               <article className="bundle-card" key={bundle.id}>
-                <img src={bundle.image} alt={bundle.name} />
+                <img className="media-banner" src={bundle.image} alt={bundle.name} />
                 <div>
                   <p className="receipt-label">Bundle value {formatPrice(bundle.value)}</p>
                   <h3>{bundle.name}</h3>
@@ -1145,13 +1434,13 @@ function App() {
               <p className="receipt-label">Gift lanes</p>
               <h2>Gift Counter</h2>
             </div>
-            <p className="section-note">Fast gift routes with a clear budget before you start browsing.</p>
+            <p className="section-note">Gift picks by budget.</p>
           </div>
           <div className="gift-grid">
             {giftCounterItems.map((guide) => (
               <article className="gift-card" key={guide.title}>
                 <button
-                  className="gift-image-button product-image--cutout"
+                  className="media-banner gift-image-button"
                   type="button"
                   onClick={() =>
                     openImageInfo(
@@ -1160,8 +1449,10 @@ function App() {
                         name: guide.title,
                         image: guide.image,
                         category: guide.category,
+                        imageUse: guide.imageUse,
                       },
                       'Gift counter image',
+                      guide.imageUse,
                     )
                   }
                 >
@@ -1191,53 +1482,51 @@ function App() {
               <p className="receipt-label">Staff counter pick</p>
               <h2>Featured Drop</h2>
             </div>
-            <p className="section-note">A larger product moment with quick specs and a direct cart action.</p>
+            <p className="section-note">Today&apos;s pick, ready to add.</p>
           </div>
           <article className="featured-drop-card">
             <button
-              className="featured-drop-image"
+              className="featured-drop-image product-image--cutout"
               type="button"
               onClick={() =>
-                openImageInfo(
-                  {
-                    ...featuredDrop,
-                    image: featuredDropImage,
-                  },
-                  'Featured drop image',
-                  'scene',
-                )
+                openProductDetail({
+                  ...featuredDrop,
+                  image: featuredDropImage,
+                })
               }
             >
               <img src={featuredDropImage} alt={featuredDrop.name} />
             </button>
             <div className="featured-drop-copy">
               <p className="receipt-label">{featuredDrop.tag}</p>
-              <h3>{featuredDrop.name}</h3>
+              <button className="featured-title-button" type="button" onClick={() => openProductDetail(featuredDrop)}>
+                {featuredDrop.name}
+              </button>
               <p>{featuredDrop.shortDetail}</p>
               <dl className="drop-spec-list">
                 <div>
-                  <dt>Condition</dt>
-                  <dd>Excellent</dd>
+                  <dt>Type</dt>
+                  <dd>Wall poster</dd>
                 </div>
                 <div>
-                  <dt>Headphones</dt>
-                  <dd>Foam on-ear</dd>
+                  <dt>Size</dt>
+                  <dd>18x24 in</dd>
                 </div>
                 <div>
-                  <dt>Battery</dt>
-                  <dd>2 AA not included</dd>
+                  <dt>Artwork</dt>
+                  <dd>Original print</dd>
                 </div>
                 <div>
                   <dt>Ships</dt>
-                  <dd>2-4 days</dd>
+                  <dd>After production</dd>
                 </div>
                 <div>
-                  <dt>Features</dt>
-                  <dd>AM/FM radio</dd>
+                  <dt>Frame</dt>
+                  <dd>Optional</dd>
                 </div>
                 <div>
-                  <dt>Year</dt>
-                  <dd>1989</dd>
+                  <dt>Fulfillment</dt>
+                  <dd>Printful</dd>
                 </div>
               </dl>
             </div>
@@ -1271,9 +1560,9 @@ function App() {
             {shelfSets.map((set) => (
               <article className="shelf-set-card" key={set.id}>
                 <button
-                  className="shelf-set-image"
+                  className="media-banner shelf-set-image"
                   type="button"
-                  onClick={() => openImageInfo(set, 'Shelf-ready set image', set.imageMode)}
+                  onClick={() => openImageInfo(set, 'Shelf-ready set image', set.imageUse)}
                 >
                   <img src={set.image} alt={`${set.name} product set`} />
                 </button>
@@ -1293,6 +1582,35 @@ function App() {
           </div>
         </section>
 
+        <section id="policies" className="store-section policy-section">
+          <div className="section-heading">
+            <div>
+              <p className="receipt-label">Shop rules</p>
+              <h2>Store Policies</h2>
+            </div>
+            <p className="section-note">Shipping, refunds, support, and privacy.</p>
+          </div>
+          <div className="policy-grid">
+            {policyCards.map((policy) => (
+              <article className="policy-card" key={policy.id}>
+                <p className="receipt-label">{policy.label}</p>
+                <h3>{policy.title}</h3>
+                <p>{policy.copy}</p>
+                <ul>
+                  {policy.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+                <button type="button" onClick={() => openPolicy(policy.id)}>
+                  Open {policy.title}
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+
+          </>
+        )}
       </main>
 
       <footer id="footer" className="site-footer">
@@ -1311,12 +1629,12 @@ function App() {
         <div className="footer-inner">
           <div className="footer-brand">
             <p className="receipt-label">Open late since 1989-ish</p>
-            <h2>1989 Supply Co.</h2>
-            <p>Retro-inspired goods, shelf pieces, apparel, kitchen finds, and checkout-ready bundles.</p>
+          <h2>1989 Supply Co.</h2>
+            <p>Retro-inspired goods made to order and fulfilled through Printful.</p>
             <div className="footer-service-row" aria-label="Store service notes">
-              <span><Truck size={16} /> Fast shipping</span>
+              <span><Truck size={16} /> US shipping plan</span>
               <span><ShieldCheck size={16} /> Secure checkout</span>
-              <span><Package size={16} /> Retro packing</span>
+              <span><Package size={16} /> Made to order</span>
             </div>
           </div>
 
@@ -1343,6 +1661,23 @@ function App() {
             <a href="#deals">Gift counter</a>
             <a href="#gift-guide">Shelf sets</a>
             <a href="#products">Best sellers</a>
+            <a href="#policies">Policies</a>
+          </nav>
+
+          <nav className="footer-links" aria-label="Footer policy links">
+            <h3>Policies</h3>
+            {policyCards.map((policy) => (
+              <a
+                href={`#/${policy.path}`}
+                key={policy.id}
+                onClick={(event) => {
+                  event.preventDefault()
+                  openPolicy(policy.id)
+                }}
+              >
+                {policy.title}
+              </a>
+            ))}
           </nav>
 
           <form className="signup-form" onSubmit={(event) => event.preventDefault()}>
@@ -1357,9 +1692,9 @@ function App() {
 
         <div className="footer-receipt-strip">
           <span>Use REWIND10 for 10% off</span>
-          <span>Free shipping over $75</span>
-          <span>Support: hello@1989supply.test</span>
-          <span>Copyright 1989-2026 1989 Supply Co.</span>
+          <span>Made to order through Printful.</span>
+          <span>Production and shipping times are shown at checkout.</span>
+          <span>Support: support@1989supply.co</span>
         </div>
       </footer>
 
@@ -1533,7 +1868,7 @@ function App() {
                   disabled={selectedProduct.stockState === 'sold-out'}
                   onClick={addSelectedProductToCart}
                 >
-                  {selectedProduct.stockState === 'sold-out' ? 'Sold Out' : 'Add Selected to Cart'}
+                  {selectedProduct.stockState === 'sold-out' ? 'Sold Out' : 'Add to Cart'}
                 </button>
               </div>
             </div>
@@ -1558,7 +1893,7 @@ function App() {
             >
               <X size={22} />
             </button>
-            <div className={`image-info-preview image-info-preview--${selectedImageInfo.imageMode}`}>
+            <div className={`image-info-preview image-info-preview--${selectedImageInfo.imageUse}`}>
               <img src={selectedImageInfo.image} alt={selectedImageInfo.name} />
             </div>
             <div className="image-info-copy">
@@ -1572,11 +1907,11 @@ function App() {
                 </span>
                 <span>
                   <small>Display ratio</small>
-                  <strong>{selectedImageInfo.imageMode === 'scene' ? 'Scene crop' : '1:1 product frame'}</strong>
+                  <strong>{imageUseMeta[selectedImageInfo.imageUse]?.ratio ?? imageUseMeta.product.ratio}</strong>
                 </span>
                 <span>
                   <small>Background</small>
-                  <strong>{selectedImageInfo.imageMode === 'scene' ? 'Full background kept' : 'Cutout treatment'}</strong>
+                  <strong>{imageUseMeta[selectedImageInfo.imageUse]?.treatment ?? imageUseMeta.product.treatment}</strong>
                 </span>
                 <span>
                   <small>SKU</small>
@@ -1584,9 +1919,7 @@ function App() {
                 </span>
               </div>
               <p>
-                {selectedImageInfo.imageMode === 'scene'
-                  ? 'This image is treated as a full-background scene, so the environment stays visible.'
-                  : 'This image uses the product frame treatment: square ratio, object contained, and background visually minimized.'}
+                {imageUseMeta[selectedImageInfo.imageUse]?.note ?? imageUseMeta.product.note}
               </p>
               <div className="detail-actions">
                 <button className="secondary-button" type="button" onClick={() => setSelectedImageInfo(null)}>
@@ -1619,8 +1952,8 @@ function App() {
             {checkoutDone ? (
               <div className="success-state">
                 <CheckCircle2 size={48} />
-                <h2 id="checkout-title">Order placed</h2>
-                <p>Your demo order is complete. Confirmation #1989-0529.</p>
+                <h2 id="checkout-title">Order received</h2>
+                <p>Your order request is saved. Confirmation #1989-0529.</p>
                 <button
                   type="button"
                   onClick={() => {
@@ -1633,8 +1966,9 @@ function App() {
               </div>
             ) : (
               <form onSubmit={submitCheckout}>
-                <p className="receipt-label">Demo checkout</p>
-                <h2 id="checkout-title">Shipping & Payment</h2>
+                <p className="receipt-label">Secure checkout</p>
+                <h2 id="checkout-title">Shipping Details</h2>
+                <p className="checkout-note">Enter the shipping details for your made-to-order items.</p>
                 <div className="form-grid">
                   <label>
                     Full name
@@ -1657,20 +1991,60 @@ function App() {
                     <input required inputMode="numeric" placeholder="90089" />
                   </label>
                   <label className="wide">
-                    Demo card
-                    <span className="card-input">
+                    Order note
+                    <span className="card-input card-input--note">
                       <CreditCard size={18} />
-                      <input required placeholder="4242 4242 4242 4242" />
+                      <textarea placeholder="Size, color, or delivery note" rows="3" />
                     </span>
                   </label>
                 </div>
+                <section className="payment-box" aria-label="Payment method">
+                  <div className="payment-box-head">
+                    <div>
+                      <p className="receipt-label">Payment</p>
+                      <h3>Pay with PayPal</h3>
+                    </div>
+                    <strong>{formatPrice(total)}</strong>
+                  </div>
+                  <div className="payment-methods" role="radiogroup" aria-label="Choose payment method">
+                    <button
+                      className={paymentMethod === 'paypal' ? 'active' : ''}
+                      type="button"
+                      role="radio"
+                      aria-checked={paymentMethod === 'paypal'}
+                      onClick={() => {
+                        setPaymentMethod('paypal')
+                        setPaypalDemoState('idle')
+                      }}
+                    >
+                      <Wallet size={18} />
+                      PayPal
+                    </button>
+                  </div>
+                  <div className={`paypal-demo-panel paypal-demo-panel--${paypalDemoState}`}>
+                    <div>
+                      <strong>PayPal checkout demo</strong>
+                      <p>No real PayPal payment is processed in this build.</p>
+                    </div>
+                    <button
+                      className="paypal-demo-button"
+                      type="button"
+                      onClick={() => setPaypalDemoState('approved')}
+                    >
+                      {paypalDemoState === 'approved' ? 'PayPal Approved' : 'Continue with PayPal'}
+                    </button>
+                  </div>
+                  {paypalDemoState === 'required' && (
+                    <p className="payment-warning">Please approve PayPal demo before placing the order.</p>
+                  )}
+                </section>
                 <div className="review-box">
-                  <Headphones size={20} />
+                  <CreditCard size={20} />
                   <span>Review total</span>
                   <strong>{formatPrice(total)}</strong>
                 </div>
                 <button className="checkout-button" type="submit">
-                  Place Demo Order
+                  Place Order
                 </button>
               </form>
             )}
