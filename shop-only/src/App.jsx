@@ -32,6 +32,7 @@ import heroMemoryLaneImage from './assets/hero-memory-lane.png'
 import heroProductSheetImage from './assets/hero-product-sheet.png'
 import heroSupermarketImage from './assets/hero-supermarket.png'
 import heroSupermarketV2Image from './assets/hero-supermarket-v2.png'
+import introVideo from './assets/intro/dreaming-1989-intro.mp4'
 import dreaming1989LogoImage from './assets/header/dreaming-1989-logo-alpha.png'
 import vhsCassetteHeaderImage from './assets/header/vhs-cassette-header.png'
 import mallWeekendImage from './assets/mall-weekend.png'
@@ -775,6 +776,7 @@ function App() {
   const [supportMenuPosition, setSupportMenuPosition] = useState({ top: 0, left: 0 })
   const [cartExpanded, setCartExpanded] = useState(false)
   const [visitorExperience, setVisitorExperience] = useState(() => getStoredVisitorExperience())
+  const [memoryEntered, setMemoryEntered] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
@@ -791,12 +793,14 @@ function App() {
   const visitorCueTimerRef = useRef(null)
 
   useEffect(() => {
+    if (visitorExperience.showOnboarding) return undefined
+
     const slideTimer = window.setInterval(() => {
       setHeroSlideIndex((currentIndex) => (currentIndex + 1) % heroSlides.length)
     }, 5200)
 
     return () => window.clearInterval(slideTimer)
-  }, [])
+  }, [visitorExperience.showOnboarding])
 
   useEffect(() => {
     const syncRoute = () => {
@@ -943,9 +947,12 @@ function App() {
 
   const enterMemoryMarket = useCallback(() => {
     saveVisitorExperience()
+    window.scrollTo(0, 0)
     if (window.location.hash === '#intro' || window.location.search.includes('intro')) {
       window.history.replaceState(null, '', window.location.pathname || '/')
     }
+    setHeroSlideIndex(0)
+    setMemoryEntered(true)
     setVisitorExperience({
       hasVisited: true,
       showOnboarding: false,
@@ -955,10 +962,11 @@ function App() {
 
   useEffect(() => {
     if (!visitorExperience.showOnboarding) return undefined
+    window.scrollTo(0, 0)
 
     const introTimer = window.setTimeout(() => {
       enterMemoryMarket()
-    }, 5600)
+    }, 11200)
 
     return () => window.clearTimeout(introTimer)
   }, [enterMemoryMarket, visitorExperience.showOnboarding])
@@ -1139,7 +1147,7 @@ function App() {
   }
 
   return (
-    <div className="shop-app">
+    <div className={`shop-app${memoryEntered || visitorExperience.showOnboarding ? ' memory-entered' : ''}`}>
       {visitorExperience.showOnboarding && (
         <div className="memory-onboarding-backdrop" role="presentation">
           <section
@@ -1149,22 +1157,33 @@ function App() {
             aria-labelledby="memory-onboarding-title"
           >
             <div className="memory-onboarding-scene" aria-hidden="true">
-              <img className="memory-entry-image" src={heroMemoryLaneImage} alt="" />
-              <div className="memory-entry-dim" />
-              <div className="memory-entry-glow" />
+              <video
+                className="memory-entry-video"
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                poster={heroMemoryLaneImage}
+              >
+                <source src={introVideo} type="video/mp4" />
+              </video>
+            </div>
+            <div className="memory-intro-brand" aria-hidden="true">
+              <span>Dreaming in 1989</span>
             </div>
             <div className="memory-onboarding-copy">
               <p className="receipt-label">Memory lane is opening</p>
-              <h2 id="memory-onboarding-title">The shop is waking up.</h2>
-              <p>Lights on. Doors open. Good times are back on the shelf.</p>
+              <h2 id="memory-onboarding-title">Good times are back on the shelf.</h2>
+              <p>Opening memory lane...</p>
               <div className="memory-entry-progress" aria-hidden="true">
                 <span />
               </div>
-              <button className="memory-skip-button" type="button" onClick={enterMemoryMarket}>
-                Skip intro
-                <ChevronRight size={16} />
-              </button>
             </div>
+            <div className="memory-welcome" aria-hidden="true">Welcome</div>
+            <button className="memory-skip-button" type="button" onClick={enterMemoryMarket}>
+              Skip intro
+              <ChevronRight size={16} />
+            </button>
           </section>
         </div>
       )}
