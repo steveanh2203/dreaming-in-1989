@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-06-03",
+  "store": {
+    "name": "Dreaming in 1989",
+    "id": "18275392",
+    "currency": "USD"
+  },
+  "products": [
+    {
+      "localProductId": "diner-counter-mug",
+      "localSku": "SKU-1989-044",
+      "storefrontName": "Diner Counter Mug",
+      "category": "Drinkware",
+      "storefrontBasePrice": 18,
+      "storefrontAsset": "shop-only/src/assets/products-cutout/diner-mug.png",
+      "printfulCandidate": {
+        "catalogProductId": 19,
+        "name": "White Glossy Mug",
+        "technique": "sublimation",
+        "placement": "default",
+        "reason": "Best match for the current storefront mug because it supports glossy white ceramic 11 oz and 15 oz sizes."
+      },
+      "variants": [
+        {
+          "localVariantId": "diner-counter-mug-11oz-glossy-white",
+          "localOptions": {
+            "Size": "11 oz",
+            "Finish": "Glossy White"
+          },
+          "catalogVariantId": 1320,
+          "printfulName": "White Glossy Mug 11 oz",
+          "printfulBaseCost": 10.95,
+          "storefrontPrice": 18,
+          "estimatedMarginBeforeShippingFeesTax": 7.05,
+          "latestAvailability": [
+            {
+              "sellingRegion": "southeast_asia",
+              "status": "in stock"
+            }
+          ],
+          "status": "ready-for-design"
+        },
+        {
+          "localVariantId": "diner-counter-mug-15oz-glossy-white",
+          "localOptions": {
+            "Size": "15 oz",
+            "Finish": "Glossy White"
+          },
+          "catalogVariantId": 4830,
+          "printfulName": "White Glossy Mug 15 oz",
+          "printfulBaseCost": 14.25,
+          "storefrontPrice": 22,
+          "estimatedMarginBeforeShippingFeesTax": 7.75,
+          "latestAvailability": [
+            {
+              "sellingRegion": "southeast_asia",
+              "status": "not fulfillable"
+            }
+          ],
+          "status": "hold-availability"
+        }
+      ],
+      "unmappedLocalOptions": [
+        {
+          "option": "Finish",
+          "value": "Cream Accent",
+          "reason": "No exact Printful catalog match was found. Closest alternatives are color-inside mugs such as black, blue, red, and yellow variants under catalog product 403."
+        }
+      ],
+      "nextActions": [
+        "Decide whether pilot launch should use only the 11 oz glossy white mug.",
+        "Prepare final print artwork for the default sublimation placement.",
+        "Generate Printful mockups for the approved variant.",
+        "Create or sync the Printful store product after human approval."
+      ]
+    }
+  ]
+}
