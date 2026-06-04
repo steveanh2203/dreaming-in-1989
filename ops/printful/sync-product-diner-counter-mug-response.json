@@ -1,0 +1,15 @@
+{
+    "code":  200,
+    "result":  {
+                   "id":  436581797,
+                   "external_id":  "diner-counter-mug",
+                   "name":  "Diner Counter Mug",
+                   "variants":  1,
+                   "synced":  1,
+                   "thumbnail_url":  "https://raw.githubusercontent.com/steveanh2203/dreaming-in-1989/main/ops/printful/artwork/diner-counter-mug/diner-counter-club-11oz-transparent-v1.png",
+                   "is_ignored":  false
+               },
+    "extra":  [
+
+              ]
+}

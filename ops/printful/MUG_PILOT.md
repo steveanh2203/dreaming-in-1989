@@ -1,6 +1,6 @@
 # Mug Pilot - Diner Counter Mug
 
-Last checked: 2026-06-03
+Last checked: 2026-06-04
 
 ## Local Product
 
@@ -55,6 +55,25 @@ The existing repo mug assets are not print-ready:
 
 Use [artwork/diner-counter-mug/README.md](artwork/diner-counter-mug/README.md) for the print-area spec before mockup generation.
 
+Approved pilot artwork:
+
+- Transparent print file: `ops/printful/artwork/diner-counter-mug/diner-counter-club-11oz-transparent-v1.png`
+- Printful mockup task: `928541343`
+- Mockups: `ops/printful/mockups/diner-counter-mug-transparent/`
+- Creative rule: use transparent artwork so the white mug surface is the background, avoiding a rectangular sticker/decal look.
+
+## Printful Sync
+
+Created in the `Dreaming in 1989` Printful store:
+
+- Sync product ID: `436581797`
+- External product ID: `diner-counter-mug`
+- Sync variant ID: `5338415400`
+- External variant ID: `diner-counter-mug-11oz-glossy-white`
+- Printful variant ID: `1320`
+- SKU: `SKU-1989-044-11OZ`
+- Retail price: `$18.00`
+
 ## Financial Snapshot
 
 Before shipping, tax, payment processing, discounts, refunds, and ad spend:
@@ -66,4 +85,4 @@ This is not a final profit report. Final profit must include checkout revenue, s
 
 ## Next Step
 
-Use `ops/printful/scripts/check-mug-pilot.ps1` to re-check live API price and availability before creating a mockup or store product.
+Keep the pilot to `11 oz / Glossy White` until the `15 oz` availability hold is resolved. Before real checkout automation, create a draft test order only after explicit human approval.

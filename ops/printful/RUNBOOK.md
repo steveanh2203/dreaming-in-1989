@@ -17,6 +17,10 @@
 ## Phase 3: Mockups
 
 - Upload or reference design files.
+- Use transparent-background PNG artwork by default for merch designs applied to mugs, pillows, apparel, totes, and similar products.
+- Avoid printing a full rectangular colored background unless the user explicitly approves a poster/sticker/label look.
+- Let the product blank provide the base color where possible, such as using the white mug surface as the artwork background.
+- Keep intentional fills inside the design, but remove broad paper/cream/tan background fields that make the artwork look pasted on.
 - Generate mockup tasks.
 - Retrieve mockup results.
 - Save approved images into the storefront asset workflow.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-06-03",
+  "updatedAt": "2026-06-04",
   "store": {
     "name": "Dreaming in 1989",
     "id": "18275392",
@@ -13,7 +13,19 @@
       "storefrontName": "Diner Counter Mug",
       "category": "Drinkware",
       "storefrontBasePrice": 18,
-      "storefrontAsset": "shop-only/src/assets/products-cutout/diner-mug.png",
+      "storefrontAsset": "shop-only/src/assets/products-cutout/diner-mug-transparent-mockup.jpg",
+      "approvedArtwork": {
+        "file": "ops/printful/artwork/diner-counter-mug/diner-counter-club-11oz-transparent-v1.png",
+        "publicUrl": "https://raw.githubusercontent.com/steveanh2203/dreaming-in-1989/main/ops/printful/artwork/diner-counter-mug/diner-counter-club-11oz-transparent-v1.png",
+        "mockupTaskId": 928541343,
+        "mockupFolder": "ops/printful/mockups/diner-counter-mug-transparent",
+        "backgroundPolicy": "transparent-background approved; avoid broad cream/tan background rectangles"
+      },
+      "printfulSync": {
+        "syncProductId": 436581797,
+        "externalId": "diner-counter-mug",
+        "syncedVariants": 1
+      },
       "printfulCandidate": {
         "catalogProductId": 19,
         "name": "White Glossy Mug",
@@ -24,6 +36,8 @@
       "variants": [
         {
           "localVariantId": "diner-counter-mug-11oz-glossy-white",
+          "syncVariantId": 5338415400,
+          "externalId": "diner-counter-mug-11oz-glossy-white",
           "localOptions": {
             "Size": "11 oz",
             "Finish": "Glossy White"

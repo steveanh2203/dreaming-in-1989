@@ -39,7 +39,13 @@ These are product display assets, not print files.
 ## Needed Before Printful Mockup / Product Creation
 
 - [ ] Final mug wrap artwork at print size
-- [ ] Transparent or clean background if required by design
+- [ ] Transparent PNG background for the broad artwork field, so the white mug surface remains the background
+- [ ] No cream/tan/paper rectangle behind the full design unless the user intentionally approves a sticker/label look
+- [ ] White-background and checkerboard previews for review when transparency is used
 - [ ] Design approved for safe margins around the handle gap
 - [ ] File checked before upload to Printful
+
+## Creative Direction Rule
+
+For this mug and future merch artwork, prefer direct-to-product graphics over poster-like blocks. The design should feel printed on the product surface, not like a rectangular decal placed on top of it. Keep intentional color fills inside letters, signs, objects, and decorative elements, but remove the broad background field around the composition before generating Printful mockups.
 

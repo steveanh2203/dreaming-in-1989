@@ -54,7 +54,7 @@ import under25LineupImage from './assets/gift-counter/under-25-lineup-v2.png'
 import albumWallPrintImage from './assets/products-cutout/album-wall-print.png'
 import arcadePosterImage from './assets/products-cutout/arcade-poster.png'
 import cartoonPinPackImage from './assets/products-cutout/cartoon-pin-pack.png'
-import dinerMugImage from './assets/products-cutout/diner-mug.png'
+import dinerMugImage from './assets/products-cutout/diner-mug-transparent-mockup.jpg'
 import dinerTrayImage from './assets/products-cutout/diner-tray.png'
 import mallToteImage from './assets/products-cutout/mall-tote.png'
 import rewindTeeImage from './assets/products-cutout/rewind-tee.png'
@@ -607,14 +607,12 @@ const productOptionGroups = {
       name: 'Size',
       options: [
         { label: '11 oz', priceDelta: 0 },
-        { label: '15 oz', priceDelta: 4 },
       ],
     },
     {
       name: 'Finish',
       options: [
         { label: 'Glossy White', priceDelta: 0 },
-        { label: 'Cream Accent', priceDelta: 2 },
       ],
     },
   ],
@@ -687,16 +685,47 @@ const demoCustomerOrders = [
     date: 'May 29, 2026',
     status: 'In production',
     total: 64,
-    items: ['Rewind Club Tee', 'Rewind Sticker Pack'],
+    items: [
+      { name: 'Rewind Club Tee', quantity: 1, price: 30, optionSummary: 'Size: M / Color: Washed Black / Fit: Classic' },
+      { name: 'Rewind Sticker Pack', quantity: 1, price: 16 },
+    ],
+    subtotal: 46,
+    discount: 0,
+    shipping: 7.95,
+    fulfillment: 'Printful draft ready',
+    tracking: 'Preparing label',
+    timeline: [
+      { label: 'Order received', detail: 'Demo checkout captured and saved to customer dashboard.', done: true },
+      { label: 'Printful review', detail: 'Order payload is waiting for human approval before fulfillment.', done: true },
+      { label: 'In production', detail: 'Print file and product variant are queued for production.', done: true },
+      { label: 'Shipped', detail: 'Carrier tracking appears here after Printful ships.', done: false },
+    ],
   },
   {
     id: '1989-0517',
     date: 'May 17, 2026',
     status: 'Delivered',
     total: 42,
-    items: ['Diner Counter Mug', 'Mall Weekend Tote'],
+    items: [
+      { name: 'Diner Counter Mug', quantity: 1, price: 18, optionSummary: 'Size: 11 oz / Finish: Glossy White' },
+      { name: 'Mall Weekend Tote', quantity: 1, price: 24, optionSummary: 'Color: Natural Canvas / Print Side: Front' },
+    ],
+    subtotal: 42,
+    discount: 0,
+    shipping: 0,
+    fulfillment: 'Delivered through Printful',
+    tracking: 'USPS 1989 0517 DEMO',
+    timeline: [
+      { label: 'Order received', detail: 'Checkout completed.', done: true },
+      { label: 'In production', detail: 'Printful produced the made-to-order items.', done: true },
+      { label: 'Shipped', detail: 'Carrier received the package.', done: true },
+      { label: 'Delivered', detail: 'Package marked delivered.', done: true },
+    ],
   },
 ]
+
+const formatOrderItems = (items) =>
+  items.map((item) => (typeof item === 'string' ? item : `${item.quantity ?? 1}x ${item.name}`)).join(', ')
 
 const getStoredCustomer = () => {
   try {
@@ -775,6 +804,9 @@ function App() {
   const [supportMenuOpen, setSupportMenuOpen] = useState(false)
   const [supportMenuPosition, setSupportMenuPosition] = useState({ top: 0, left: 0 })
   const [cartExpanded, setCartExpanded] = useState(false)
+  const [accountTab, setAccountTab] = useState('orders')
+  const [selectedOrderId, setSelectedOrderId] = useState(null)
+  const [supportDraftType, setSupportDraftType] = useState('Tracking question')
   const [visitorExperience, setVisitorExperience] = useState(() => getStoredVisitorExperience())
   const [memoryEntered, setMemoryEntered] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -910,6 +942,11 @@ function App() {
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const featuredDropImage = featuredDrop.image
+  const customerOrders = customer?.orders?.length ? customer.orders : demoCustomerOrders
+  const selectedAccountOrder =
+    customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? demoCustomerOrders[0]
+  const activeOrderCount = customerOrders.filter((order) => order.status !== 'Delivered').length
+  const deliveredOrderCount = customerOrders.length - activeOrderCount
 
   const openProductDetail = (product) => {
     setSelectedProduct(product)
@@ -1080,6 +1117,12 @@ function App() {
     setAuthOpen(true)
   }
 
+  const openAccountDashboard = (tab = 'orders') => {
+    setAccountTab(tab)
+    setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? demoCustomerOrders[0]?.id)
+    setAccountOpen(true)
+  }
+
   const handleAuthSubmit = (event) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -1095,6 +1138,8 @@ function App() {
 
     setCustomer(nextCustomer)
     saveStoredCustomer(nextCustomer)
+    setAccountTab('orders')
+    setSelectedOrderId(nextCustomer.orders[0]?.id ?? null)
     setAuthOpen(false)
     setAccountOpen(true)
   }
@@ -1119,21 +1164,54 @@ function App() {
       setPaypalDemoState('required')
       return
     }
-    if (customer) {
-      const completedOrder = {
-        id: `1989-${String(Math.floor(Date.now() / 1000)).slice(-4)}`,
-        date: 'Today',
-        status: 'Order received',
-        total,
-        items: cart.map((item) => item.name),
-      }
-      const nextCustomer = {
-        ...customer,
-        orders: [completedOrder, ...(customer.orders ?? demoCustomerOrders)],
-      }
-      setCustomer(nextCustomer)
-      saveStoredCustomer(nextCustomer)
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get('email') ?? customer?.email ?? 'demo@1989supply.co').trim()
+    const name = String(formData.get('name') ?? customer?.name ?? 'Retro Shopper').trim()
+    const shippingAddress = [
+      formData.get('address'),
+      formData.get('city'),
+      formData.get('zip'),
+    ]
+      .map((value) => String(value ?? '').trim())
+      .filter(Boolean)
+      .join(', ')
+    const nextOrderNumber = 530 + (customer?.orders?.length ?? 0)
+    const completedOrder = {
+      id: `1989-${String(nextOrderNumber).padStart(4, '0')}`,
+      date: 'Today',
+      status: 'Order received',
+      subtotal,
+      discount,
+      shipping,
+      total,
+      items: cart.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        optionSummary: item.optionSummary,
+      })),
+      payment: paymentMethod === 'paypal' ? 'PayPal demo approved' : 'Demo payment',
+      fulfillment: 'Printful draft pending',
+      tracking: 'Tracking appears after fulfillment',
+      shippingAddress,
+      timeline: [
+        { label: 'Order received', detail: 'Demo checkout saved to the customer dashboard.', done: true },
+        { label: 'Payment demo', detail: 'PayPal demo approval completed. No real payment was captured.', done: true },
+        { label: 'Printful draft', detail: 'Next real step is creating a draft order after human approval.', done: false },
+        { label: 'Production', detail: 'Production begins only after the Printful order is confirmed.', done: false },
+        { label: 'Tracking', detail: 'Carrier tracking appears here after shipment.', done: false },
+      ],
     }
+    const nextCustomer = {
+      name,
+      email,
+      joined: customer?.joined ?? 'June 2026',
+      orders: [completedOrder, ...(customer?.orders?.length ? customer.orders : demoCustomerOrders)],
+    }
+    setCustomer(nextCustomer)
+    saveStoredCustomer(nextCustomer)
+    setSelectedOrderId(completedOrder.id)
+    setAccountTab('orders')
     setCheckoutDone(true)
     setCart([])
     setPromoCode('')
@@ -1188,7 +1266,12 @@ function App() {
         </div>
       )}
 
-      {visitorExperience.showReturnCue && !visitorExperience.showOnboarding && (
+      {visitorExperience.showReturnCue &&
+        !visitorExperience.showOnboarding &&
+        !accountOpen &&
+        !authOpen &&
+        !checkoutOpen &&
+        !selectedProduct && (
         <div className="returning-memory-ticket" role="status">
           <span>Welcome back</span>
           <strong>Your memory lane is still open.</strong>
@@ -1232,7 +1315,7 @@ function App() {
           <div className="header-checkout">
             {customer ? (
               <div className="account-menu">
-                <button className="account-button" type="button" onClick={() => setAccountOpen(true)}>
+                <button className="account-button" type="button" onClick={() => openAccountDashboard('orders')}>
                   <User size={17} />
                   <span>Hi, {customer.name.split(' ')[0]}</span>
                 </button>
@@ -2256,7 +2339,7 @@ function App() {
       {accountOpen && customer && (
         <div className="modal-backdrop" role="presentation" onClick={() => setAccountOpen(false)}>
           <section
-            className="account-modal"
+            className="account-modal account-dashboard-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="account-title"
@@ -2277,32 +2360,179 @@ function App() {
               <span>
                 <Mail size={18} />
                 Account email
+                <small>{customer.email}</small>
               </span>
               <span>
                 <History size={18} />
-                {(customer.orders ?? demoCustomerOrders).length} orders
+                {customerOrders.length} orders
+                <small>{activeOrderCount} active</small>
               </span>
               <span>
                 <Package size={18} />
                 Joined {customer.joined}
+                <small>{deliveredOrderCount} delivered</small>
               </span>
             </div>
-            <div className="order-history">
-              <div className="account-section-heading">
-                <h3>Order history</h3>
-                <small>Recent account activity</small>
-              </div>
-              {(customer.orders ?? demoCustomerOrders).map((order) => (
-                <article className="order-card" key={order.id}>
-                  <div>
-                    <strong>#{order.id}</strong>
-                    <span>{order.date} / {order.status}</span>
-                    <small>{order.items.join(', ')}</small>
-                  </div>
-                  <em>{formatPrice(order.total)}</em>
-                </article>
+            <div className="account-tabs" role="tablist" aria-label="Customer dashboard sections">
+              {[
+                ['orders', 'My Orders'],
+                ['tracking', 'Tracking'],
+                ['support', 'Support'],
+              ].map(([tabId, label]) => (
+                <button
+                  className={accountTab === tabId ? 'active' : ''}
+                  key={tabId}
+                  type="button"
+                  role="tab"
+                  aria-selected={accountTab === tabId}
+                  onClick={() => setAccountTab(tabId)}
+                >
+                  {label}
+                </button>
               ))}
             </div>
+
+            {accountTab === 'orders' && (
+              <div className="customer-dashboard-grid">
+                <div className="order-history">
+                  <div className="account-section-heading">
+                    <h3>My Orders</h3>
+                    <small>Recent activity</small>
+                  </div>
+                  {customerOrders.map((order) => (
+                    <button
+                      className={`order-card ${selectedAccountOrder?.id === order.id ? 'active' : ''}`}
+                      key={order.id}
+                      type="button"
+                      onClick={() => setSelectedOrderId(order.id)}
+                    >
+                      <div>
+                        <strong>#{order.id}</strong>
+                        <span>{order.date} / {order.status}</span>
+                        <small>{formatOrderItems(order.items)}</small>
+                      </div>
+                      <em>{formatPrice(order.total)}</em>
+                    </button>
+                  ))}
+                </div>
+
+                <section className="order-detail-panel" aria-label="Selected order details">
+                  <div className="account-section-heading">
+                    <h3>Order Detail</h3>
+                    <small>{selectedAccountOrder.status}</small>
+                  </div>
+                  <div className="order-detail-receipt">
+                    <div>
+                      <span>Order</span>
+                      <strong>#{selectedAccountOrder.id}</strong>
+                    </div>
+                    <div>
+                      <span>Total</span>
+                      <strong>{formatPrice(selectedAccountOrder.total)}</strong>
+                    </div>
+                    <div>
+                      <span>Fulfillment</span>
+                      <strong>{selectedAccountOrder.fulfillment ?? 'Printful demo flow'}</strong>
+                    </div>
+                    <div>
+                      <span>Tracking</span>
+                      <strong>{selectedAccountOrder.tracking ?? 'Pending shipment'}</strong>
+                    </div>
+                  </div>
+                  <div className="order-line-items">
+                    {(selectedAccountOrder.items ?? []).map((item) => (
+                      <div className="order-line-item" key={`${selectedAccountOrder.id}-${typeof item === 'string' ? item : item.name}`}>
+                        <span>{typeof item === 'string' ? item : `${item.quantity ?? 1}x ${item.name}`}</span>
+                        <strong>{typeof item === 'string' ? 'Saved item' : formatPrice((item.price ?? 0) * (item.quantity ?? 1))}</strong>
+                        {typeof item !== 'string' && item.optionSummary && <small>{item.optionSummary}</small>}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="order-timeline">
+                    {(selectedAccountOrder.timeline ?? []).map((step) => (
+                      <div className={`timeline-step ${step.done ? 'done' : ''}`} key={`${selectedAccountOrder.id}-${step.label}`}>
+                        <span>{step.done ? <CheckCircle2 size={16} /> : <Package size={16} />}</span>
+                        <div>
+                          <strong>{step.label}</strong>
+                          <small>{step.detail}</small>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {accountTab === 'tracking' && (
+              <section className="tracking-panel">
+                <div className="account-section-heading">
+                  <h3>Tracking Center</h3>
+                  <small>Demo statuses</small>
+                </div>
+                {customerOrders.map((order) => (
+                  <article className="tracking-card" key={`tracking-${order.id}`}>
+                    <Truck size={22} />
+                    <div>
+                      <strong>#{order.id}</strong>
+                      <span>{order.status}</span>
+                      <small>{order.tracking ?? 'Tracking appears after Printful ships.'}</small>
+                    </div>
+                    <button type="button" onClick={() => {
+                      setSelectedOrderId(order.id)
+                      setAccountTab('orders')
+                    }}>
+                      View
+                    </button>
+                  </article>
+                ))}
+              </section>
+            )}
+
+            {accountTab === 'support' && (
+              <section className="support-panel">
+                <div className="account-section-heading">
+                  <h3>Support Desk</h3>
+                  <small>Refund / tracking / address help</small>
+                </div>
+                <div className="support-grid">
+                  <div className="support-ticket-preview">
+                    <p className="receipt-label">Draft ticket</p>
+                    <h4>{supportDraftType}</h4>
+                    <p>Order #{selectedAccountOrder.id}</p>
+                    <small>
+                      This is a dashboard demo. It prepares the support request shape without sending email or creating a supplier claim.
+                    </small>
+                  </div>
+                  <form className="support-form">
+                    <label>
+                      Issue type
+                      <select value={supportDraftType} onChange={(event) => setSupportDraftType(event.target.value)}>
+                        <option>Tracking question</option>
+                        <option>Address change</option>
+                        <option>Damaged or misprinted item</option>
+                        <option>Refund request</option>
+                      </select>
+                    </label>
+                    <label>
+                      Order
+                      <select value={selectedAccountOrder.id} onChange={(event) => setSelectedOrderId(event.target.value)}>
+                        {customerOrders.map((order) => (
+                          <option key={`support-${order.id}`} value={order.id}>#{order.id}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="wide">
+                      Message
+                      <textarea rows="4" placeholder="Tell us what happened. Add photos before a real claim." />
+                    </label>
+                    <button className="checkout-button" type="button">
+                      Save Draft Request
+                    </button>
+                  </form>
+                </div>
+              </section>
+            )}
+
             <div className="account-actions">
               <button className="secondary-button" type="button" onClick={() => setAccountOpen(false)}>
                 Back to Shop
@@ -2480,16 +2710,28 @@ function App() {
               <div className="success-state">
                 <CheckCircle2 size={48} />
                 <h2 id="checkout-title">Order received</h2>
-                <p>Your order request is saved. Confirmation #1989-0529.</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCheckoutOpen(false)
-                    setCartOpen(false)
-                  }}
-                >
-                  Back to Shop
-                </button>
+                <p>Your order request is saved to the customer dashboard. No real payment or Printful order was created.</p>
+                <div className="success-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCheckoutOpen(false)
+                      setCartOpen(false)
+                    }}
+                  >
+                    Back to Shop
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCheckoutOpen(false)
+                      setCartOpen(false)
+                      openAccountDashboard('orders')
+                    }}
+                  >
+                    View Dashboard
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={submitCheckout}>
@@ -2499,23 +2741,23 @@ function App() {
                 <div className="form-grid">
                   <label>
                     Full name
-                    <input required placeholder="Marty McFly" />
+                    <input name="name" required placeholder="Marty McFly" />
                   </label>
                   <label>
                     Email
-                    <input required type="email" placeholder="marty@example.com" />
+                    <input name="email" required type="email" placeholder="marty@example.com" />
                   </label>
                   <label className="wide">
                     Address
-                    <input required placeholder="1989 Supply Street" />
+                    <input name="address" required placeholder="1989 Supply Street" />
                   </label>
                   <label>
                     City
-                    <input required placeholder="Hill Valley" />
+                    <input name="city" required placeholder="Hill Valley" />
                   </label>
                   <label>
                     ZIP
-                    <input required inputMode="numeric" placeholder="90089" />
+                    <input name="zip" required inputMode="numeric" placeholder="90089" />
                   </label>
                   <label className="wide">
                     Order note

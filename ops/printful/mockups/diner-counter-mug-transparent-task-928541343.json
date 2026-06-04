@@ -1,0 +1,60 @@
+{
+    "data":  [
+                 {
+                     "id":  928541343,
+                     "status":  "completed",
+                     "catalog_variant_mockups":  [
+                                                     {
+                                                         "catalog_variant_id":  1320,
+                                                         "mockups":  [
+                                                                         {
+                                                                             "placement":  "default",
+                                                                             "display_name":  "Print file",
+                                                                             "technique":  "sublimation",
+                                                                             "style_id":  10421,
+                                                                             "mockup_url":  "https://printful-upload.s3-accelerate.amazonaws.com/tmp/c7b808f39e65395c62b4a0992b78f63a/white-glossy-mug-white-11-oz-handle-on-right-6a20fa0d051d7.jpg",
+                                                                             "view":  "Handle on Right"
+                                                                         },
+                                                                         {
+                                                                             "placement":  "default",
+                                                                             "display_name":  "Print file",
+                                                                             "technique":  "sublimation",
+                                                                             "style_id":  10422,
+                                                                             "mockup_url":  "https://printful-upload.s3-accelerate.amazonaws.com/tmp/d38e235de768471d9c764e7b721371be/white-glossy-mug-white-11-oz-handle-on-left-6a20fa0d05442.jpg",
+                                                                             "view":  "Handle on Left"
+                                                                         },
+                                                                         {
+                                                                             "placement":  "default",
+                                                                             "display_name":  "Print file",
+                                                                             "technique":  "sublimation",
+                                                                             "style_id":  10423,
+                                                                             "mockup_url":  "https://printful-upload.s3-accelerate.amazonaws.com/tmp/9b14c3f79321248ce58e08174a44c453/white-glossy-mug-white-11-oz-front-view-6a20fa0d054d5.jpg",
+                                                                             "view":  "Front view"
+                                                                         }
+                                                                     ]
+                                                     }
+                                                 ],
+                     "failure_reasons":  [
+
+                                         ],
+                     "_links":  {
+                                    "self":  {
+                                                 "href":  "https://api.printful.com/v2/mockup-tasks?id=928541343"
+                                             }
+                                }
+                 }
+             ],
+    "extra":  [
+
+              ],
+    "paging":  {
+                   "total":  1,
+                   "limit":  20,
+                   "offset":  0
+               },
+    "_links":  {
+                   "self":  {
+                                "href":  "https://api.printful.com/v2/mockup-tasks?limit=20"
+                            }
+               }
+}
