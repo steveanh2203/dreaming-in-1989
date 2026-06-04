@@ -6,7 +6,6 @@ import {
   CreditCard,
   Gift,
   Heart,
-  History,
   Home,
   Image,
   LogIn,
@@ -681,31 +680,33 @@ const visitorStorageKey = 'dreaming-1989-visitor'
 
 const demoCustomerOrders = [
   {
-    id: '1989-0529',
-    date: 'May 29, 2026',
-    status: 'In production',
-    total: 64,
+    id: 'DI1989-10425',
+    date: 'May 18, 2025',
+    status: 'Delivered',
+    total: 64.89,
     items: [
-      { name: 'Rewind Club Tee', quantity: 1, price: 30, optionSummary: 'Size: M / Color: Washed Black / Fit: Classic' },
-      { name: 'Rewind Sticker Pack', quantity: 1, price: 16 },
+      { name: 'Mall Soft Cotton Tee', quantity: 1, price: 29.99, optionSummary: 'Black / Large', image: productImages.rewindTee },
+      { name: 'Blockbuster Sticker Pack', quantity: 1, price: 8.99, optionSummary: 'Multi', image: productImages.stickerPack },
+      { name: 'Vintage 1989 Dad Hat', quantity: 1, price: 19.99, optionSummary: 'Navy', image: productImages.deskCalendar },
     ],
-    subtotal: 46,
+    subtotal: 58.97,
     discount: 0,
-    shipping: 7.95,
-    fulfillment: 'Printful draft ready',
-    tracking: 'Preparing label',
+    shipping: 5.92,
+    fulfillment: 'Delivered through Printful',
+    tracking: 'USPS DI1989 10425 DEMO',
     timeline: [
-      { label: 'Order received', detail: 'Demo checkout captured and saved to customer dashboard.', done: true },
-      { label: 'Printful review', detail: 'Order payload is waiting for human approval before fulfillment.', done: true },
-      { label: 'In production', detail: 'Print file and product variant are queued for production.', done: true },
-      { label: 'Shipped', detail: 'Carrier tracking appears here after Printful ships.', done: false },
+      { label: 'Order received', detail: 'May 18, 2025', done: true },
+      { label: 'Printful review', detail: 'May 19, 2025', done: true },
+      { label: 'In production', detail: 'May 20, 2025', done: true },
+      { label: 'Shipped', detail: 'May 21, 2025', done: true },
+      { label: 'Delivered', detail: 'May 23, 2025', done: true },
     ],
   },
   {
-    id: '1989-0517',
-    date: 'May 17, 2026',
-    status: 'Delivered',
-    total: 42,
+    id: 'DI1989-10387',
+    date: 'May 02, 2025',
+    status: 'Shipped',
+    total: 37.45,
     items: [
       { name: 'Diner Counter Mug', quantity: 1, price: 18, optionSummary: 'Size: 11 oz / Finish: Glossy White' },
       { name: 'Mall Weekend Tote', quantity: 1, price: 24, optionSummary: 'Color: Natural Canvas / Print Side: Front' },
@@ -722,15 +723,128 @@ const demoCustomerOrders = [
       { label: 'Delivered', detail: 'Package marked delivered.', done: true },
     ],
   },
+  {
+    id: 'DI1989-10291',
+    date: 'Apr 22, 2025',
+    status: 'Delivered',
+    total: 89.9,
+    items: [
+      { name: 'Arcade Night Poster', quantity: 1, price: 32, optionSummary: '18x24 / Matte' },
+      { name: 'Mall Weekend Hoodie', quantity: 1, price: 54, optionSummary: 'Ash Gray / Large' },
+    ],
+    subtotal: 86,
+    discount: 4.05,
+    shipping: 7.95,
+    fulfillment: 'Delivered through Printful',
+    tracking: 'USPS DI1989 10291 DEMO',
+    timeline: [
+      { label: 'Order received', detail: 'Apr 22, 2025', done: true },
+      { label: 'Printful review', detail: 'Apr 23, 2025', done: true },
+      { label: 'In production', detail: 'Apr 24, 2025', done: true },
+      { label: 'Shipped', detail: 'Apr 26, 2025', done: true },
+      { label: 'Delivered', detail: 'Apr 29, 2025', done: true },
+    ],
+  },
+  {
+    id: 'DI1989-10176',
+    date: 'Apr 10, 2025',
+    status: 'Delivered',
+    total: 45,
+    items: [
+      { name: 'Video Rental Notebook', quantity: 1, price: 22, optionSummary: 'Lined' },
+      { name: 'Rewind Sticker Pack', quantity: 1, price: 16, optionSummary: 'Multi' },
+    ],
+    subtotal: 38,
+    discount: 0,
+    shipping: 7,
+    fulfillment: 'Delivered through Printful',
+    tracking: 'USPS DI1989 10176 DEMO',
+    timeline: [
+      { label: 'Order received', detail: 'Apr 10, 2025', done: true },
+      { label: 'Printful review', detail: 'Apr 11, 2025', done: true },
+      { label: 'In production', detail: 'Apr 12, 2025', done: true },
+      { label: 'Shipped', detail: 'Apr 14, 2025', done: true },
+      { label: 'Delivered', detail: 'Apr 17, 2025', done: true },
+    ],
+  },
+  {
+    id: 'DI1989-10033',
+    date: 'Mar 28, 2025',
+    status: 'Cancelled',
+    total: 19.99,
+    items: [
+      { name: 'Retro Desk Calendar', quantity: 1, price: 19.99, optionSummary: 'Desk size' },
+    ],
+    subtotal: 19.99,
+    discount: 0,
+    shipping: 0,
+    fulfillment: 'Cancelled before production',
+    tracking: 'No tracking',
+    timeline: [
+      { label: 'Order received', detail: 'Mar 28, 2025', done: true },
+      { label: 'Cancelled', detail: 'Mar 28, 2025', done: true },
+    ],
+  },
 ]
 
-const formatOrderItems = (items) =>
-  items.map((item) => (typeof item === 'string' ? item : `${item.quantity ?? 1}x ${item.name}`)).join(', ')
+const accountCoupons = [
+  { code: 'REWIND10', offer: '10% off', detail: 'Your order', expires: 'Jun 30, 2026', tone: 'red' },
+  { code: 'FREESHIP75', offer: 'Free shipping', detail: 'Over $75', expires: 'Jul 31, 2026', tone: 'blue' },
+  { code: 'MALLDROP15', offer: '15% off', detail: 'New drops', expires: 'Aug 15, 2026', tone: 'red' },
+]
+
+const accountPromotions = [
+  { title: 'Birthday reward', value: 'Ready', copy: 'Your birthday reward is waiting!', art: 'cake', action: 'View Reward' },
+  { title: 'Loyalty stamp card', value: '5 of 6', copy: '5 of 6 stamps earned', art: 'stamps', action: 'View Progress' },
+  { title: 'Store credit', value: '$28.47', copy: 'Available Balance', art: 'register', action: 'View Credit' },
+]
+
+const accountAddresses = [
+  {
+    label: 'Primary',
+    name: 'Alex Taylor',
+    lines: ['123 Arcade Way', 'Floor 2', 'Santa Monica, CA 90401', 'United States', '(310) 555-1989'],
+  },
+  {
+    label: 'Gift',
+    name: 'Alex Taylor',
+    lines: ['742 Evergreen Terrace', 'Apt. 5', 'Springfield, IL 62701', 'United States', '(217) 555-1989'],
+  },
+]
+
+const recentlyViewedIds = [
+  'rewind-club-tee',
+  'mall-weekend-hoodie',
+  'arcade-night-poster',
+  'mall-weekend-tote',
+  'retro-desk-calendar',
+]
+
+const getAccountLineItemImage = (item) => {
+  if (typeof item === 'string') return productImages.stickerPack
+  if (item.image) return item.image
+  const itemName = item.name.toLowerCase()
+  if (itemName.includes('tee')) return productImages.rewindTee
+  if (itemName.includes('hoodie')) return productImages.rewindHoodie
+  if (itemName.includes('sticker')) return productImages.stickerPack
+  if (itemName.includes('mug')) return productImages.dinerMug
+  if (itemName.includes('tote')) return productImages.mallTote
+  if (itemName.includes('poster')) return productImages.arcadePoster
+  if (itemName.includes('notebook')) return productImages.notebook
+  if (itemName.includes('calendar')) return productImages.deskCalendar
+  return productImages.wallCanvas
+}
 
 const getStoredCustomer = () => {
   try {
     const savedCustomer = window.localStorage.getItem('dreaming-1989-customer')
-    return savedCustomer ? JSON.parse(savedCustomer) : null
+    if (!savedCustomer) return null
+    const parsedCustomer = JSON.parse(savedCustomer)
+    const hasCurrentDemoOrders = parsedCustomer?.orders?.some((order) => String(order.id).startsWith('DI1989-'))
+    return {
+      ...parsedCustomer,
+      orders: hasCurrentDemoOrders ? parsedCustomer.orders : demoCustomerOrders,
+    }
   } catch {
     return null
   }
@@ -806,7 +920,9 @@ function App() {
   const [cartExpanded, setCartExpanded] = useState(false)
   const [accountTab, setAccountTab] = useState('orders')
   const [selectedOrderId, setSelectedOrderId] = useState(null)
-  const [supportDraftType, setSupportDraftType] = useState('Tracking question')
+  const [profileNotice, setProfileNotice] = useState('')
+  const [securityNotice, setSecurityNotice] = useState('')
+  const [copiedCoupon, setCopiedCoupon] = useState('')
   const [visitorExperience, setVisitorExperience] = useState(() => getStoredVisitorExperience())
   const [memoryEntered, setMemoryEntered] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -945,8 +1061,7 @@ function App() {
   const customerOrders = customer?.orders?.length ? customer.orders : demoCustomerOrders
   const selectedAccountOrder =
     customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? demoCustomerOrders[0]
-  const activeOrderCount = customerOrders.filter((order) => order.status !== 'Delivered').length
-  const deliveredOrderCount = customerOrders.length - activeOrderCount
+  const recentlyViewedProducts = products.filter((product) => recentlyViewedIds.includes(product.id))
 
   const openProductDetail = (product) => {
     setSelectedProduct(product)
@@ -1148,6 +1263,27 @@ function App() {
     setCustomer(null)
     saveStoredCustomer(null)
     setAccountOpen(false)
+  }
+
+  const saveProfileDraft = () => {
+    setProfileNotice('Profile draft saved locally.')
+  }
+
+  const updatePasswordDraft = () => {
+    setSecurityNotice('Password change saved for production handoff.')
+  }
+
+  const sendResetLinkDraft = () => {
+    setSecurityNotice('Reset link is ready to send from the production email service.')
+  }
+
+  const copyCouponCode = async (code) => {
+    setCopiedCoupon(code)
+    try {
+      await navigator.clipboard.writeText(code)
+    } catch {
+      // Clipboard support can be blocked in some local browser contexts.
+    }
   }
 
   const openCheckout = () => {
@@ -2337,209 +2473,306 @@ function App() {
       )}
 
       {accountOpen && customer && (
-        <div className="modal-backdrop" role="presentation" onClick={() => setAccountOpen(false)}>
+        <div className="modal-backdrop account-screen-backdrop" role="presentation">
           <section
-            className="account-modal account-dashboard-modal"
-            role="dialog"
-            aria-modal="true"
+            className="account-modal account-dashboard-modal account-screen account-portal"
+            role="region"
             aria-labelledby="account-title"
-            onClick={(event) => event.stopPropagation()}
           >
-            <button className="modal-close" type="button" aria-label="Close account" onClick={() => setAccountOpen(false)}>
-              <X size={22} />
-            </button>
-            <div className="account-head">
-              <div>
-                <p className="receipt-label">My account</p>
-                <h2 id="account-title">{customer.name}</h2>
-                <p>{customer.email}</p>
-              </div>
-              <div className="account-stamp">Customer</div>
-            </div>
-            <div className="account-summary-grid">
-              <span>
-                <Mail size={18} />
-                Account email
-                <small>{customer.email}</small>
-              </span>
-              <span>
-                <History size={18} />
-                {customerOrders.length} orders
-                <small>{activeOrderCount} active</small>
-              </span>
-              <span>
-                <Package size={18} />
-                Joined {customer.joined}
-                <small>{deliveredOrderCount} delivered</small>
-              </span>
-            </div>
-            <div className="account-tabs" role="tablist" aria-label="Customer dashboard sections">
-              {[
-                ['orders', 'My Orders'],
-                ['tracking', 'Tracking'],
-                ['support', 'Support'],
-              ].map(([tabId, label]) => (
-                <button
-                  className={accountTab === tabId ? 'active' : ''}
-                  key={tabId}
-                  type="button"
-                  role="tab"
-                  aria-selected={accountTab === tabId}
-                  onClick={() => setAccountTab(tabId)}
-                >
-                  {label}
+            <header className="account-portal-header">
+              <button className="account-brand-button" type="button" onClick={() => setAccountOpen(false)}>
+                <img src={dreaming1989LogoImage} alt="Dreaming in 1989" />
+              </button>
+              <nav className="account-portal-nav" aria-label="Account dashboard">
+                {[
+                  ['dashboard', 'Dashboard', 'account-dashboard'],
+                  ['orders', 'Orders', 'account-orders'],
+                  ['addresses', 'Addresses', 'account-addresses'],
+                  ['payments', 'Payments', 'account-security'],
+                  ['wishlist', 'Wishlist', 'account-recent'],
+                  ['settings', 'Account Settings', 'account-security'],
+                ].map(([tabId, label, targetId]) => (
+                  <button
+                    className={accountTab === tabId ? 'active' : ''}
+                    key={tabId}
+                    type="button"
+                    onClick={() => {
+                      setAccountTab(tabId)
+                      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </nav>
+              <div className="account-portal-actions">
+                <button type="button" onClick={() => {
+                  setAccountOpen(false)
+                  setCartOpen(true)
+                }}>
+                  <ShoppingCart size={18} />
+                  Cart ({itemCount})
                 </button>
-              ))}
-            </div>
+                <button type="button" onClick={() => setAccountOpen(false)}>
+                  <ChevronRight size={18} />
+                  Back to Shop
+                </button>
+                <button type="button" onClick={logoutCustomer}>
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </div>
+            </header>
 
-            {accountTab === 'orders' && (
-              <div className="customer-dashboard-grid">
-                <div className="order-history">
-                  <div className="account-section-heading">
-                    <h3>My Orders</h3>
-                    <small>Recent activity</small>
+            <div className="account-portal-grid account-center-grid" id="account-dashboard">
+              <aside className="account-panel account-menu-panel">
+                <div className="account-mini-profile">
+                  <div className="account-mini-avatar" aria-hidden="true">
+                    <User size={34} />
                   </div>
-                  {customerOrders.map((order) => (
+                  <div>
+                    <h2 id="account-title">{customer.name}</h2>
+                    <span>{customer.email}</span>
+                    <em>Rewind Club</em>
+                  </div>
+                </div>
+                <div className="account-profile-actions">
+                  <button type="button" onClick={saveProfileDraft}>
+                    <User size={16} />
+                    Edit Profile
+                  </button>
+                  <button type="button" onClick={saveProfileDraft}>
+                    <Image size={16} />
+                    Upload Photo
+                  </button>
+                  {profileNotice && <small>{profileNotice}</small>}
+                </div>
+                <nav className="account-side-menu" aria-label="Customer account menu">
+                  {[
+                    ['dashboard', 'Overview', Home],
+                    ['orders', 'Orders', Package],
+                    ['addresses', 'Addresses', Mail],
+                    ['wishlist', 'Wishlist', Heart],
+                    ['rewards', 'Rewards', Gift],
+                    ['settings', 'Account Settings', ShieldCheck],
+                    ['support', 'Support', Truck],
+                  ].map(([tabId, label, Icon]) => (
                     <button
-                      className={`order-card ${selectedAccountOrder?.id === order.id ? 'active' : ''}`}
-                      key={order.id}
+                      className={accountTab === tabId ? 'active' : ''}
+                      key={tabId}
                       type="button"
-                      onClick={() => setSelectedOrderId(order.id)}
+                      onClick={() => {
+                        setAccountTab(tabId)
+                        document.getElementById(
+                          tabId === 'addresses' ? 'account-addresses' : tabId === 'settings' ? 'account-security' : 'account-orders',
+                        )?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                      }}
                     >
-                      <div>
-                        <strong>#{order.id}</strong>
-                        <span>{order.date} / {order.status}</span>
-                        <small>{formatOrderItems(order.items)}</small>
-                      </div>
-                      <em>{formatPrice(order.total)}</em>
+                      <Icon size={18} />
+                      {label}
                     </button>
                   ))}
+                  <button type="button" onClick={logoutCustomer}>
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                </nav>
+                <div className="account-vhs-card account-vhs-card-compact">
+                  <img src={vhsCassetteHeaderImage} alt="Dreaming in 1989 VHS membership card" />
+                </div>
+              </aside>
+
+              <main className="account-main-column account-center-column">
+                <section className="account-panel account-summary-panel">
+                  <div className="account-summary-stat">
+                    <ShoppingBag size={28} />
+                    <strong>{customerOrders.length}</strong>
+                    <span>Total orders</span>
+                  </div>
+                  <div className="account-summary-stat">
+                    <Wallet size={28} />
+                    <strong>{formatPrice(customerOrders.reduce((sum, order) => sum + order.total, 0))}</strong>
+                    <span>Total spent</span>
+                  </div>
+                  <div className="account-summary-stat account-summary-progress">
+                    <Gift size={28} />
+                    <strong>Rewind Club</strong>
+                    <span>$40.88 to next reward</span>
+                    <div><i /></div>
+                  </div>
+                </section>
+
+                <section className="account-panel account-orders-panel account-orders-compact" id="account-orders">
+                  <div className="account-panel-title">
+                    Recent Orders
+                    <button type="button">View All Orders <ChevronRight size={15} /></button>
+                  </div>
+                  <div className="account-order-table">
+                    {customerOrders.map((order) => {
+                      const firstItem = order.items?.[0]
+                      const itemLabel = typeof firstItem === 'string' ? firstItem : firstItem?.name
+                      const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : '1 item'
+
+                      return (
+                        <button
+                          className={`account-order-table-row ${selectedAccountOrder?.id === order.id ? 'active' : ''}`}
+                          key={order.id}
+                          type="button"
+                          onClick={() => setSelectedOrderId(order.id)}
+                        >
+                          <div className="account-order-id">
+                            <strong>#{order.id}</strong>
+                            <span>{order.date}</span>
+                          </div>
+                          <img src={getAccountLineItemImage(firstItem)} alt={itemLabel} />
+                          <div className="account-order-item">
+                            <strong>{itemLabel}</strong>
+                            <span>{itemCountLabel}</span>
+                          </div>
+                          <em className={`status-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>{order.status}</em>
+                          <b>{formatPrice(order.total)}</b>
+                          <span className="account-view-detail">View Detail <ChevronRight size={14} /></span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </section>
+
+                <div className="account-lower-grid">
+                  <section className="account-panel account-security-panel" id="account-security">
+                    <div className="account-panel-title">Security</div>
+                    <div className="account-security-grid">
+                      <form className="account-settings-form" onSubmit={(event) => {
+                        event.preventDefault()
+                        updatePasswordDraft()
+                      }}>
+                        <h3><ShieldCheck size={18} /> Change Password</h3>
+                        <label>
+                          Current Password
+                          <input type="password" placeholder="Current password" />
+                        </label>
+                        <label>
+                          New Password
+                          <input type="password" placeholder="New password" />
+                        </label>
+                        <label>
+                          Confirm New Password
+                          <input type="password" placeholder="Confirm password" />
+                        </label>
+                        <button className="checkout-button" type="submit">Update Password</button>
+                      </form>
+                      <div className="account-reset-card">
+                        <h3><Mail size={18} /> Reset Password</h3>
+                        <p>Send a secure reset link to {customer.email}.</p>
+                        <button className="account-outline-red-button" type="button" onClick={sendResetLinkDraft}>
+                          Send Reset Link
+                        </button>
+                        {securityNotice && <small className="account-inline-notice">{securityNotice}</small>}
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="account-panel account-addresses-card" id="account-addresses">
+                    <div className="account-panel-title">
+                      Saved Addresses
+                      <button type="button">Manage <ChevronRight size={15} /></button>
+                    </div>
+                    <div className="account-address-grid">
+                      {accountAddresses.map((address) => (
+                        <article className="account-address-card" key={address.label}>
+                          <span>{address.label}</span>
+                          <strong>{address.name}</strong>
+                          {address.lines.slice(0, 3).map((line) => <small key={line}>{line}</small>)}
+                        </article>
+                      ))}
+                      <button className="account-add-address" type="button">
+                        <Plus size={24} />
+                        Add New Address
+                      </button>
+                    </div>
+                  </section>
                 </div>
 
-                <section className="order-detail-panel" aria-label="Selected order details">
-                  <div className="account-section-heading">
-                    <h3>Order Detail</h3>
-                    <small>{selectedAccountOrder.status}</small>
+                <section className="account-panel account-recent-card" id="account-recent">
+                  <div className="account-panel-title">
+                    Recently Viewed
+                    <button type="button">View All <ChevronRight size={15} /></button>
                   </div>
-                  <div className="order-detail-receipt">
-                    <div>
-                      <span>Order</span>
-                      <strong>#{selectedAccountOrder.id}</strong>
-                    </div>
-                    <div>
-                      <span>Total</span>
-                      <strong>{formatPrice(selectedAccountOrder.total)}</strong>
-                    </div>
-                    <div>
-                      <span>Fulfillment</span>
-                      <strong>{selectedAccountOrder.fulfillment ?? 'Printful demo flow'}</strong>
-                    </div>
-                    <div>
-                      <span>Tracking</span>
-                      <strong>{selectedAccountOrder.tracking ?? 'Pending shipment'}</strong>
-                    </div>
-                  </div>
-                  <div className="order-line-items">
-                    {(selectedAccountOrder.items ?? []).map((item) => (
-                      <div className="order-line-item" key={`${selectedAccountOrder.id}-${typeof item === 'string' ? item : item.name}`}>
-                        <span>{typeof item === 'string' ? item : `${item.quantity ?? 1}x ${item.name}`}</span>
-                        <strong>{typeof item === 'string' ? 'Saved item' : formatPrice((item.price ?? 0) * (item.quantity ?? 1))}</strong>
-                        {typeof item !== 'string' && item.optionSummary && <small>{item.optionSummary}</small>}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="order-timeline">
-                    {(selectedAccountOrder.timeline ?? []).map((step) => (
-                      <div className={`timeline-step ${step.done ? 'done' : ''}`} key={`${selectedAccountOrder.id}-${step.label}`}>
-                        <span>{step.done ? <CheckCircle2 size={16} /> : <Package size={16} />}</span>
-                        <div>
-                          <strong>{step.label}</strong>
-                          <small>{step.detail}</small>
-                        </div>
-                      </div>
+                  <div className="account-recent-grid">
+                    {recentlyViewedProducts.map((product) => (
+                      <button key={`recent-${product.id}`} type="button" onClick={() => openProductDetail(product)}>
+                        <img src={product.image} alt={product.name} />
+                        <strong>{product.name}</strong>
+                        <span>{formatPrice(product.price)}</span>
+                      </button>
                     ))}
                   </div>
                 </section>
-              </div>
-            )}
+              </main>
 
-            {accountTab === 'tracking' && (
-              <section className="tracking-panel">
-                <div className="account-section-heading">
-                  <h3>Tracking Center</h3>
-                  <small>Demo statuses</small>
-                </div>
-                {customerOrders.map((order) => (
-                  <article className="tracking-card" key={`tracking-${order.id}`}>
-                    <Truck size={22} />
-                    <div>
-                      <strong>#{order.id}</strong>
-                      <span>{order.status}</span>
-                      <small>{order.tracking ?? 'Tracking appears after Printful ships.'}</small>
-                    </div>
-                    <button type="button" onClick={() => {
-                      setSelectedOrderId(order.id)
-                      setAccountTab('orders')
-                    }}>
-                      View
-                    </button>
-                  </article>
-                ))}
-              </section>
-            )}
-
-            {accountTab === 'support' && (
-              <section className="support-panel">
-                <div className="account-section-heading">
-                  <h3>Support Desk</h3>
-                  <small>Refund / tracking / address help</small>
-                </div>
-                <div className="support-grid">
-                  <div className="support-ticket-preview">
-                    <p className="receipt-label">Draft ticket</p>
-                    <h4>{supportDraftType}</h4>
-                    <p>Order #{selectedAccountOrder.id}</p>
-                    <small>
-                      This is a dashboard demo. It prepares the support request shape without sending email or creating a supplier claim.
-                    </small>
+              <aside className="account-side-column account-rewards-column">
+                <section className="account-panel account-rewards-panel">
+                  <div className="account-panel-title">
+                    Rewards & Coupons
+                    <button type="button">View All <ChevronRight size={15} /></button>
                   </div>
-                  <form className="support-form">
-                    <label>
-                      Issue type
-                      <select value={supportDraftType} onChange={(event) => setSupportDraftType(event.target.value)}>
-                        <option>Tracking question</option>
-                        <option>Address change</option>
-                        <option>Damaged or misprinted item</option>
-                        <option>Refund request</option>
-                      </select>
-                    </label>
-                    <label>
-                      Order
-                      <select value={selectedAccountOrder.id} onChange={(event) => setSelectedOrderId(event.target.value)}>
-                        {customerOrders.map((order) => (
-                          <option key={`support-${order.id}`} value={order.id}>#{order.id}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="wide">
-                      Message
-                      <textarea rows="4" placeholder="Tell us what happened. Add photos before a real claim." />
-                    </label>
-                    <button className="checkout-button" type="button">
-                      Save Draft Request
-                    </button>
-                  </form>
-                </div>
-              </section>
-            )}
+                  <div className="account-coupon-stack">
+                    {accountCoupons.slice(0, 2).map((coupon) => (
+                      <article className={`account-coupon-ticket ${coupon.tone}`} key={coupon.code}>
+                        <div>
+                          <strong>{coupon.code}</strong>
+                          <span>Active</span>
+                        </div>
+                        <div>
+                          <b>{coupon.offer}</b>
+                          <small>{coupon.detail}</small>
+                          <em>Exp. {coupon.expires}</em>
+                        </div>
+                        <button type="button" onClick={() => copyCouponCode(coupon.code)}>
+                          {copiedCoupon === coupon.code ? 'Copied' : 'Copy'}
+                        </button>
+                      </article>
+                    ))}
+                  </div>
+                  <div className="account-promo-grid account-reward-grid">
+                    {accountPromotions.map((promo) => (
+                      <article className="account-promo-card" key={promo.title}>
+                        <div className={`account-promo-art ${promo.art}`} aria-hidden="true">
+                          {promo.art === 'stamps' && Array.from({ length: 6 }).map((_, index) => (
+                            <span className={index < 5 ? 'filled' : ''} key={`stamp-${index}`} />
+                          ))}
+                        </div>
+                        <strong>{promo.title}</strong>
+                        <b>{promo.value}</b>
+                        <p>{promo.copy}</p>
+                        <button type="button">{promo.action}</button>
+                      </article>
+                    ))}
+                  </div>
+                </section>
 
-            <div className="account-actions">
-              <button className="secondary-button" type="button" onClick={() => setAccountOpen(false)}>
-                Back to Shop
-              </button>
-              <button className="checkout-button" type="button" onClick={logoutCustomer}>
-                Logout
-              </button>
+                <section className="account-panel account-support-card">
+                  <div className="account-panel-title">Support Center</div>
+                  <div className="account-support-content">
+                    <div>
+                      {[
+                        ['Browse Help', 'Common questions'],
+                        ['Contact Support', 'Talk to our team'],
+                        ['Order Issues', 'Get order help'],
+                      ].map(([title, copy]) => (
+                        <button type="button" key={title} onClick={() => setAccountTab('support')}>
+                          <Truck size={17} />
+                          <span>
+                            <strong>{title}</strong>
+                            <small>{copy}</small>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <img src={mallWeekendImage} alt="Retro mall support desk" />
+                  </div>
+                </section>
+              </aside>
             </div>
           </section>
         </div>
