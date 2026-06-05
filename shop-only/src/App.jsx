@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   CreditCard,
+  Download,
+  FileText,
   Gift,
   Heart,
   Home,
@@ -13,7 +16,9 @@ import {
   Mail,
   Minus,
   Package,
+  PackageCheck,
   Plus,
+  RefreshCcw,
   Search,
   ShieldCheck,
   ShoppingBag,
@@ -678,6 +683,147 @@ const formatPrice = (value) => `$${value.toFixed(2)}`
 const collapsedCartItemCount = 2
 const visitorStorageKey = 'dreaming-1989-visitor'
 
+const escapePdfText = (value) =>
+  String(value ?? '')
+    .replace(/[\\()]/g, (match) => `\\${match}`)
+    .replace(/[^\x20-\x7E]/g, '-')
+
+const wrapPdfLine = (line, maxLength = 86) => {
+  const words = String(line ?? '').split(/\s+/).filter(Boolean)
+  if (!words.length) return ['']
+  const lines = []
+  let currentLine = ''
+
+  words.forEach((word) => {
+    const nextLine = currentLine ? `${currentLine} ${word}` : word
+    if (nextLine.length > maxLength && currentLine) {
+      lines.push(currentLine)
+      currentLine = word
+    } else {
+      currentLine = nextLine
+    }
+  })
+
+  if (currentLine) lines.push(currentLine)
+  return lines
+}
+
+const createReceiptPdfBlob = (order, customer) => {
+  const orderItems = order?.items ?? []
+  const customerName = customer?.name ?? 'Retro Shopper'
+  const customerEmail = customer?.email ?? 'demo@1989supply.co'
+  const shippingAddress = order?.shippingAddress || '123 Nostalgia Lane, Suite 7B, Retro City, CA 90210'
+  const subtotal = order?.subtotal ?? order?.total ?? 0
+  const discount = order?.discount ?? 0
+  const shipping = order?.shipping ?? 0
+  const total = order?.total ?? subtotal - discount + shipping
+  const receiptLines = [
+    'DREAMING IN 1989 - CUSTOMER RECEIPT',
+    '1989 Supply Co. / Made-to-order retro goods',
+    '',
+    `Order: #${order?.id ?? 'DRAFT'}`,
+    `Date: ${order?.date ?? 'Today'}`,
+    `Status: ${order?.status ?? 'Order received'}`,
+    `Customer: ${customerName}`,
+    `Email: ${customerEmail}`,
+    `Payment: ${order?.payment ?? 'PayPal'}`,
+    `Fulfillment: ${order?.fulfillment ?? 'Printful draft pending'}`,
+    `Tracking: ${order?.tracking ?? 'Tracking appears after fulfillment'}`,
+    `Shipping address: ${shippingAddress}`,
+    '',
+    'ITEMS',
+    '-----',
+    ...orderItems.flatMap((item) => {
+      const itemName = typeof item === 'string' ? item : item.name
+      const itemQuantity = typeof item === 'string' ? 1 : item.quantity
+      const itemPrice = typeof item === 'string' ? 0 : item.price
+      const optionSummary = typeof item === 'string' ? '' : item.optionSummary
+      const lineTotal = itemQuantity * itemPrice
+      return [
+        `${itemQuantity} x ${itemName} - ${formatPrice(itemPrice)} each - ${formatPrice(lineTotal)}`,
+        optionSummary ? `   Options: ${optionSummary}` : '',
+      ].filter(Boolean)
+    }),
+    '',
+    'TOTALS',
+    '------',
+    `Subtotal: ${formatPrice(subtotal)}`,
+    `Discount: ${discount ? `-${formatPrice(discount)}` : '$0.00'}`,
+    `Shipping: ${formatPrice(shipping)}`,
+    'Tax: $0.00',
+    `Total: ${formatPrice(total)}`,
+    '',
+    'ORDER PROGRESS',
+    '--------------',
+    ...((order?.timeline ?? []).map((step) => `${step.done ? '[x]' : '[ ]'} ${step.label}: ${step.detail}`)),
+    '',
+    'Support: support@1989supply.co',
+    'No real payment or Printful order is created in demo mode.',
+  ].flatMap((line) => wrapPdfLine(line))
+
+  const pageWidth = 612
+  const pageHeight = 792
+  const left = 54
+  const top = 742
+  const lineHeight = 15
+  const linesPerPage = 47
+  const pages = []
+
+  for (let index = 0; index < receiptLines.length; index += linesPerPage) {
+    pages.push(receiptLines.slice(index, index + linesPerPage))
+  }
+
+  const objects = [
+    { id: 1, body: '<< /Type /Catalog /Pages 2 0 R >>' },
+    { id: 2, body: '' },
+    { id: 3, body: '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>' },
+  ]
+
+  pages.forEach((pageLines, pageIndex) => {
+    const pageObjectId = 4 + pageIndex * 2
+    const contentObjectId = pageObjectId + 1
+    const content = [
+      'BT',
+      '/F1 10 Tf',
+      `${left} ${top} Td`,
+      ...pageLines.flatMap((line, lineIndex) => [
+        lineIndex ? `0 -${lineHeight} Td` : '',
+        `(${escapePdfText(line)}) Tj`,
+      ]).filter(Boolean),
+      'ET',
+    ].join('\n')
+
+    objects.push({
+      id: pageObjectId,
+      body: `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentObjectId} 0 R >>`,
+    })
+    objects.push({
+      id: contentObjectId,
+      body: `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    })
+  })
+
+  objects[1].body = `<< /Type /Pages /Kids [${pages.map((_, pageIndex) => `${4 + pageIndex * 2} 0 R`).join(' ')}] /Count ${pages.length} >>`
+  objects.sort((firstObject, secondObject) => firstObject.id - secondObject.id)
+
+  let pdf = '%PDF-1.4\n'
+  const offsets = [0]
+
+  objects.forEach((object) => {
+    offsets[object.id] = pdf.length
+    pdf += `${object.id} 0 obj\n${object.body}\nendobj\n`
+  })
+
+  const xrefOffset = pdf.length
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
+  for (let id = 1; id <= objects.length; id += 1) {
+    pdf += `${String(offsets[id]).padStart(10, '0')} 00000 n \n`
+  }
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`
+
+  return new Blob([pdf], { type: 'application/pdf' })
+}
+
 const demoCustomerOrders = [
   {
     id: 'DI1989-10425',
@@ -793,24 +939,117 @@ const accountCoupons = [
   { code: 'MALLDROP15', offer: '15% off', detail: 'New drops', expires: 'Aug 15, 2026', tone: 'red' },
 ]
 
-const accountPromotions = [
-  { title: 'Birthday reward', value: 'Ready', copy: 'Your birthday reward is waiting!', art: 'cake', action: 'View Reward' },
-  { title: 'Loyalty stamp card', value: '5 of 6', copy: '5 of 6 stamps earned', art: 'stamps', action: 'View Progress' },
-  { title: 'Store credit', value: '$28.47', copy: 'Available Balance', art: 'register', action: 'View Credit' },
-]
-
-const accountAddresses = [
+const defaultAccountAddresses = [
   {
+    id: 'primary-address',
     label: 'Primary',
     name: 'Alex Taylor',
     lines: ['123 Arcade Way', 'Floor 2', 'Santa Monica, CA 90401', 'United States', '(310) 555-1989'],
   },
   {
+    id: 'gift-address',
     label: 'Gift',
     name: 'Alex Taylor',
     lines: ['742 Evergreen Terrace', 'Apt. 5', 'Springfield, IL 62701', 'United States', '(217) 555-1989'],
   },
 ]
+
+const emptyAddressDraft = {
+  id: '',
+  label: 'Saved',
+  name: '',
+  line1: '',
+  line2: '',
+  cityState: '',
+  country: 'United States',
+  phone: '',
+}
+
+const shippingCountries = [
+  { code: 'US', flag: '🇺🇸', name: 'United States' },
+  { code: 'CA', flag: '🇨🇦', name: 'Canada' },
+  { code: 'GB', flag: '🇬🇧', name: 'United Kingdom' },
+  { code: 'AU', flag: '🇦🇺', name: 'Australia' },
+  { code: 'NZ', flag: '🇳🇿', name: 'New Zealand' },
+  { code: 'DE', flag: '🇩🇪', name: 'Germany' },
+  { code: 'FR', flag: '🇫🇷', name: 'France' },
+  { code: 'IT', flag: '🇮🇹', name: 'Italy' },
+  { code: 'ES', flag: '🇪🇸', name: 'Spain' },
+  { code: 'NL', flag: '🇳🇱', name: 'Netherlands' },
+  { code: 'BE', flag: '🇧🇪', name: 'Belgium' },
+  { code: 'SE', flag: '🇸🇪', name: 'Sweden' },
+  { code: 'NO', flag: '🇳🇴', name: 'Norway' },
+  { code: 'DK', flag: '🇩🇰', name: 'Denmark' },
+  { code: 'IE', flag: '🇮🇪', name: 'Ireland' },
+  { code: 'JP', flag: '🇯🇵', name: 'Japan' },
+  { code: 'KR', flag: '🇰🇷', name: 'South Korea' },
+  { code: 'SG', flag: '🇸🇬', name: 'Singapore' },
+  { code: 'HK', flag: '🇭🇰', name: 'Hong Kong' },
+  { code: 'TW', flag: '🇹🇼', name: 'Taiwan' },
+  { code: 'MY', flag: '🇲🇾', name: 'Malaysia' },
+  { code: 'TH', flag: '🇹🇭', name: 'Thailand' },
+  { code: 'PH', flag: '🇵🇭', name: 'Philippines' },
+  { code: 'MX', flag: '🇲🇽', name: 'Mexico' },
+  { code: 'BR', flag: '🇧🇷', name: 'Brazil' },
+]
+
+const getShippingCountry = (countryName) =>
+  shippingCountries.find((country) => country.name === countryName) ?? shippingCountries[0]
+
+const getFlagImageUrl = (countryCode, width = 40) => `https://flagcdn.com/w${width}/${countryCode.toLowerCase()}.png`
+
+const normalizeAccountAddresses = (addresses) => {
+  const sourceAddresses = Array.isArray(addresses) ? addresses : defaultAccountAddresses
+
+  return sourceAddresses.map((address, index) => ({
+    id: address.id ?? `address-${index + 1}`,
+    label: address.label || 'Saved',
+    name: address.name || 'Retro Shopper',
+    lines: Array.isArray(address.lines) ? address.lines.map((line) => String(line ?? '').trim()) : [],
+  }))
+}
+
+const getAddressDraft = (address = emptyAddressDraft) => ({
+  id: address.id ?? '',
+  label: address.label ?? 'Saved',
+  name: address.name ?? '',
+  line1: address.lines?.[0] ?? '',
+  line2: address.lines?.[1] ?? '',
+  cityState: address.lines?.[2] ?? '',
+  country: getShippingCountry(address.lines?.[3]).name,
+  phone: address.lines?.[4] ?? '',
+})
+
+const getNextAddressId = (addresses) => {
+  let nextNumber = addresses.length + 1
+  while (addresses.some((address) => address.id === `address-${nextNumber}`)) {
+    nextNumber += 1
+  }
+  return `address-${nextNumber}`
+}
+
+const getOrderProgressTimeline = (order) => {
+  const timeline = order?.timeline ?? []
+  if (!timeline.length) return []
+
+  const normalizedStatus = String(order?.status ?? '').toLowerCase()
+  const statusLabelMap = [
+    ['cancelled', 'cancelled'],
+    ['delivered', 'delivered'],
+    ['shipped', 'shipped'],
+    ['production', 'in production'],
+    ['review', 'printful review'],
+    ['received', 'order received'],
+  ]
+  const currentLabel = statusLabelMap.find(([statusKey]) => normalizedStatus.includes(statusKey))?.[1]
+  const currentIndex = currentLabel
+    ? timeline.findIndex((step) => step.label.toLowerCase() === currentLabel)
+    : -1
+  const lastDoneIndex = timeline.findLastIndex((step) => step.done)
+  const progressIndex = currentIndex >= 0 ? currentIndex : Math.max(lastDoneIndex, 0)
+
+  return timeline.slice(0, progressIndex + 1).map((step) => ({ ...step, done: true }))
+}
 
 const recentlyViewedIds = [
   'rewind-club-tee',
@@ -818,6 +1057,16 @@ const recentlyViewedIds = [
   'arcade-night-poster',
   'mall-weekend-tote',
   'retro-desk-calendar',
+  'diner-counter-mug',
+  'video-rental-notebook',
+  'memory-lane-canvas',
+]
+
+const wishlistIds = [
+  'diner-counter-mug',
+  'mall-weekend-tote',
+  'arcade-night-poster',
+  'memory-lane-canvas',
 ]
 
 const getAccountLineItemImage = (item) => {
@@ -844,6 +1093,7 @@ const getStoredCustomer = () => {
     return {
       ...parsedCustomer,
       orders: hasCurrentDemoOrders ? parsedCustomer.orders : demoCustomerOrders,
+      addresses: normalizeAccountAddresses(parsedCustomer.addresses),
     }
   } catch {
     return null
@@ -921,8 +1171,20 @@ function App() {
   const [accountTab, setAccountTab] = useState('orders')
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [profileNotice, setProfileNotice] = useState('')
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false)
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
   const [securityNotice, setSecurityNotice] = useState('')
+  const [addressNotice, setAddressNotice] = useState('')
+  const [addressManageMode, setAddressManageMode] = useState(false)
+  const [addressEditorMode, setAddressEditorMode] = useState('idle')
+  const [addressDraft, setAddressDraft] = useState(emptyAddressDraft)
+  const [addressCountry, setAddressCountry] = useState(emptyAddressDraft.country)
+  const [addressCountryMenuOpen, setAddressCountryMenuOpen] = useState(false)
+  const [ordersExpanded, setOrdersExpanded] = useState(false)
   const [copiedCoupon, setCopiedCoupon] = useState('')
+  const [couponsExpanded, setCouponsExpanded] = useState(false)
+  const [orderDetailOpen, setOrderDetailOpen] = useState(false)
+  const [orderDetailNotice, setOrderDetailNotice] = useState('')
   const [visitorExperience, setVisitorExperience] = useState(() => getStoredVisitorExperience())
   const [memoryEntered, setMemoryEntered] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -934,11 +1196,13 @@ function App() {
   ])
   const cartButtonRef = useRef(null)
   const floatingCartButtonRef = useRef(null)
+  const recentCarouselRef = useRef(null)
   const supportButtonRef = useRef(null)
   const flyTimerRef = useRef(null)
   const noticeTimerRef = useRef(null)
   const cartFeedbackCounterRef = useRef(0)
   const visitorCueTimerRef = useRef(null)
+  const pageScrollLockRef = useRef(null)
 
   useEffect(() => {
     if (visitorExperience.showOnboarding) return undefined
@@ -1017,6 +1281,54 @@ function App() {
     }
   }, [supportMenuOpen, updateSupportMenuPosition])
 
+  useEffect(() => {
+    const overlayOpen =
+      cartOpen ||
+      checkoutOpen ||
+      authOpen ||
+      accountOpen ||
+      profileEditorOpen ||
+      logoutConfirmOpen ||
+      addressEditorMode !== 'idle' ||
+      orderDetailOpen ||
+      Boolean(selectedProduct) ||
+      Boolean(selectedImageInfo)
+
+    if (overlayOpen && !pageScrollLockRef.current) {
+      pageScrollLockRef.current = {
+        bodyOverflow: document.body.style.overflow,
+        htmlOverflow: document.documentElement.style.overflow,
+      }
+      document.body.style.overflow = 'hidden'
+      document.documentElement.style.overflow = 'hidden'
+    }
+
+    if (!overlayOpen && pageScrollLockRef.current) {
+      document.body.style.overflow = pageScrollLockRef.current.bodyOverflow
+      document.documentElement.style.overflow = pageScrollLockRef.current.htmlOverflow
+      pageScrollLockRef.current = null
+    }
+
+    return () => {
+      if (pageScrollLockRef.current) {
+        document.body.style.overflow = pageScrollLockRef.current.bodyOverflow
+        document.documentElement.style.overflow = pageScrollLockRef.current.htmlOverflow
+        pageScrollLockRef.current = null
+      }
+    }
+  }, [
+    accountOpen,
+    addressEditorMode,
+    authOpen,
+    cartOpen,
+    checkoutOpen,
+    logoutConfirmOpen,
+    orderDetailOpen,
+    profileEditorOpen,
+    selectedImageInfo,
+    selectedProduct,
+  ])
+
   const filteredProducts = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
     return products.filter((product) => {
@@ -1059,9 +1371,19 @@ function App() {
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const featuredDropImage = featuredDrop.image
   const customerOrders = customer?.orders?.length ? customer.orders : demoCustomerOrders
+  const hasOrderToggle = customerOrders.length > 3
+  const visibleCustomerOrders = ordersExpanded ? customerOrders : customerOrders.slice(0, 3)
   const selectedAccountOrder =
     customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? demoCustomerOrders[0]
+  const detailOrder = orderDetailOpen ? selectedAccountOrder : null
+  const detailOrderProgressTimeline = getOrderProgressTimeline(detailOrder)
+  const detailOrderProgressTone = detailOrder?.status?.toLowerCase().includes('cancelled') ? 'cancelled' : 'standard'
+  const savedAddresses = normalizeAccountAddresses(customer?.addresses)
+  const addressEditorOpen = addressEditorMode !== 'idle'
   const recentlyViewedProducts = products.filter((product) => recentlyViewedIds.includes(product.id))
+  const wishlistProducts = products.filter((product) => wishlistIds.includes(product.id))
+  const visibleAccountCoupons = couponsExpanded ? accountCoupons : accountCoupons.slice(0, 2)
+  const hasAccountCouponToggle = accountCoupons.length > 2
 
   const openProductDetail = (product) => {
     setSelectedProduct(product)
@@ -1073,6 +1395,15 @@ function App() {
       ...item,
       context,
       imageUse,
+    })
+  }
+
+  const scrollRecentCarousel = (direction) => {
+    const carousel = recentCarouselRef.current
+    if (!carousel) return
+    carousel.scrollBy({
+      left: direction * Math.max(carousel.clientWidth * 0.82, 220),
+      behavior: 'smooth',
     })
   }
 
@@ -1238,6 +1569,12 @@ function App() {
     setAccountOpen(true)
   }
 
+  const openOrderDetail = (order) => {
+    setSelectedOrderId(order.id)
+    setOrderDetailNotice('')
+    setOrderDetailOpen(true)
+  }
+
   const handleAuthSubmit = (event) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -1249,6 +1586,7 @@ function App() {
       email,
       joined: customer?.joined ?? 'June 2026',
       orders: customer?.orders?.length ? customer.orders : demoCustomerOrders,
+      addresses: normalizeAccountAddresses(customer?.addresses),
     }
 
     setCustomer(nextCustomer)
@@ -1259,14 +1597,129 @@ function App() {
     setAccountOpen(true)
   }
 
+  const requestLogout = () => {
+    setLogoutConfirmOpen(true)
+  }
+
   const logoutCustomer = () => {
     setCustomer(null)
     saveStoredCustomer(null)
     setAccountOpen(false)
+    setLogoutConfirmOpen(false)
   }
 
-  const saveProfileDraft = () => {
-    setProfileNotice('Profile draft saved locally.')
+  const openProfileEditor = () => {
+    setProfileNotice('')
+    setProfileEditorOpen(true)
+  }
+
+  const updateCustomerProfile = (updates) => {
+    const nextCustomer = {
+      ...customer,
+      ...updates,
+    }
+    setCustomer(nextCustomer)
+    saveStoredCustomer(nextCustomer)
+    return nextCustomer
+  }
+
+  const saveCustomerAddresses = (nextAddresses, notice) => {
+    updateCustomerProfile({ addresses: normalizeAccountAddresses(nextAddresses) })
+    setAddressNotice(notice)
+    setAddressManageMode(true)
+  }
+
+  const openAddAddress = () => {
+    setAddressDraft(emptyAddressDraft)
+    setAddressCountry(emptyAddressDraft.country)
+    setAddressCountryMenuOpen(false)
+    setAddressEditorMode('add')
+    setAddressManageMode(true)
+    setAddressNotice('')
+  }
+
+  const openEditAddress = (address) => {
+    const nextDraft = getAddressDraft(address)
+    setAddressDraft(nextDraft)
+    setAddressCountry(nextDraft.country)
+    setAddressCountryMenuOpen(false)
+    setAddressEditorMode('edit')
+    setAddressManageMode(true)
+    setAddressNotice('')
+  }
+
+  const closeAddressEditor = () => {
+    setAddressDraft(emptyAddressDraft)
+    setAddressCountry(emptyAddressDraft.country)
+    setAddressCountryMenuOpen(false)
+    setAddressEditorMode('idle')
+  }
+
+  const submitAddressForm = (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const nextAddress = {
+      id: addressDraft.id || getNextAddressId(savedAddresses),
+      label: String(formData.get('label') ?? 'Saved').trim() || 'Saved',
+      name: String(formData.get('name') ?? '').trim(),
+      lines: [
+        formData.get('line1'),
+        formData.get('line2'),
+        formData.get('cityState'),
+        formData.get('country'),
+        formData.get('phone'),
+      ].map((value) => String(value ?? '').trim()),
+    }
+
+    const nextAddresses =
+      addressEditorMode === 'edit'
+        ? savedAddresses.map((address) => (address.id === nextAddress.id ? nextAddress : address))
+        : [...savedAddresses, nextAddress]
+
+    saveCustomerAddresses(nextAddresses, addressEditorMode === 'edit' ? 'Address updated.' : 'Address added.')
+    closeAddressEditor()
+  }
+
+  const deleteAddress = (addressId) => {
+    const address = savedAddresses.find((item) => item.id === addressId)
+    if (!address) return
+    if (!window.confirm(`Delete ${address.label} address?`)) return
+    const nextAddresses = savedAddresses.filter((item) => item.id !== addressId)
+    saveCustomerAddresses(nextAddresses, 'Address deleted.')
+    if (addressDraft.id === addressId) closeAddressEditor()
+  }
+
+  const setPrimaryAddress = (addressId) => {
+    const nextAddresses = savedAddresses.map((address) => {
+      if (address.id === addressId) return { ...address, label: 'Primary' }
+      if (address.label.toLowerCase() === 'primary') return { ...address, label: 'Saved' }
+      return address
+    })
+    saveCustomerAddresses(nextAddresses, 'Primary address updated.')
+  }
+
+  const submitProfileUpdate = (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const nextName = String(formData.get('name') ?? '').trim()
+    const nextEmail = String(formData.get('email') ?? '').trim()
+    updateCustomerProfile({
+      name: nextName || customer.name,
+      email: nextEmail || customer.email,
+    })
+    setProfileEditorOpen(false)
+    setProfileNotice('Profile updated.')
+  }
+
+  const uploadProfilePhoto = (event) => {
+    const [file] = event.currentTarget.files ?? []
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      updateCustomerProfile({ avatar: String(reader.result) })
+      setProfileNotice('Profile photo updated.')
+    }
+    reader.readAsDataURL(file)
   }
 
   const updatePasswordDraft = () => {
@@ -1275,6 +1728,43 @@ function App() {
 
   const sendResetLinkDraft = () => {
     setSecurityNotice('Reset link is ready to send from the production email service.')
+  }
+
+  const reorderAccountOrder = (order) => {
+    if (!order?.items?.length) return
+    const reorderItems = order.items.map((item, index) => {
+      const itemName = typeof item === 'string' ? item : item.name
+      const itemPrice = typeof item === 'string' ? 0 : item.price
+      return {
+        id: `reorder-${order.id}-${index}-${Date.now()}`,
+        name: itemName,
+        price: itemPrice,
+        image: getAccountLineItemImage(item),
+        quantity: typeof item === 'string' ? 1 : item.quantity,
+        optionSummary: typeof item === 'string' ? '' : item.optionSummary,
+      }
+    })
+    setCart((currentCart) => [...currentCart, ...reorderItems])
+    setCartOpen(true)
+    setOrderDetailNotice('Items were added to your cart.')
+  }
+
+  const showOrderActionNotice = (message) => {
+    setOrderDetailNotice(message)
+  }
+
+  const downloadOrderReceipt = (order) => {
+    if (!order) return
+    const receiptBlob = createReceiptPdfBlob(order, customer)
+    const receiptUrl = URL.createObjectURL(receiptBlob)
+    const receiptLink = document.createElement('a')
+    receiptLink.href = receiptUrl
+    receiptLink.download = `receipt-${order.id}.pdf`
+    document.body.appendChild(receiptLink)
+    receiptLink.click()
+    receiptLink.remove()
+    window.setTimeout(() => URL.revokeObjectURL(receiptUrl), 1000)
+    setOrderDetailNotice(`Downloaded receipt-${order.id}.pdf.`)
   }
 
   const copyCouponCode = async (code) => {
@@ -1343,6 +1833,7 @@ function App() {
       email,
       joined: customer?.joined ?? 'June 2026',
       orders: [completedOrder, ...(customer?.orders?.length ? customer.orders : demoCustomerOrders)],
+      addresses: normalizeAccountAddresses(customer?.addresses),
     }
     setCustomer(nextCustomer)
     saveStoredCustomer(nextCustomer)
@@ -1455,7 +1946,7 @@ function App() {
                   <User size={17} />
                   <span>Hi, {customer.name.split(' ')[0]}</span>
                 </button>
-                <button className="logout-button" type="button" onClick={logoutCustomer}>
+                <button className="logout-button" type="button" onClick={requestLogout}>
                   <LogOut size={15} />
                   Logout
                 </button>
@@ -2489,8 +2980,8 @@ function App() {
                   ['orders', 'Orders', 'account-orders'],
                   ['addresses', 'Addresses', 'account-addresses'],
                   ['payments', 'Payments', 'account-security'],
-                  ['wishlist', 'Wishlist', 'account-recent'],
-                  ['settings', 'Account Settings', 'account-security'],
+                  ['wishlist', 'Wishlist', 'account-dashboard'],
+                  ['settings', 'Account Settings', 'account-dashboard'],
                 ].map(([tabId, label, targetId]) => (
                   <button
                     className={accountTab === tabId ? 'active' : ''}
@@ -2517,7 +3008,7 @@ function App() {
                   <ChevronRight size={18} />
                   Back to Shop
                 </button>
-                <button type="button" onClick={logoutCustomer}>
+                <button type="button" onClick={requestLogout}>
                   <LogOut size={18} />
                   Logout
                 </button>
@@ -2528,7 +3019,7 @@ function App() {
               <aside className="account-panel account-menu-panel">
                 <div className="account-mini-profile">
                   <div className="account-mini-avatar" aria-hidden="true">
-                    <User size={34} />
+                    {customer.avatar ? <img src={customer.avatar} alt="" /> : <User size={34} />}
                   </div>
                   <div>
                     <h2 id="account-title">{customer.name}</h2>
@@ -2537,25 +3028,23 @@ function App() {
                   </div>
                 </div>
                 <div className="account-profile-actions">
-                  <button type="button" onClick={saveProfileDraft}>
+                  <button type="button" onClick={openProfileEditor}>
                     <User size={16} />
                     Edit Profile
                   </button>
-                  <button type="button" onClick={saveProfileDraft}>
+                  <label className="account-upload-button">
                     <Image size={16} />
                     Upload Photo
-                  </button>
+                    <input accept="image/*" type="file" onChange={uploadProfilePhoto} />
+                  </label>
                   {profileNotice && <small>{profileNotice}</small>}
                 </div>
                 <nav className="account-side-menu" aria-label="Customer account menu">
                   {[
                     ['dashboard', 'Overview', Home],
                     ['orders', 'Orders', Package],
-                    ['addresses', 'Addresses', Mail],
                     ['wishlist', 'Wishlist', Heart],
-                    ['rewards', 'Rewards', Gift],
                     ['settings', 'Account Settings', ShieldCheck],
-                    ['support', 'Support', Truck],
                   ].map(([tabId, label, Icon]) => (
                     <button
                       className={accountTab === tabId ? 'active' : ''}
@@ -2564,7 +3053,7 @@ function App() {
                       onClick={() => {
                         setAccountTab(tabId)
                         document.getElementById(
-                          tabId === 'addresses' ? 'account-addresses' : tabId === 'settings' ? 'account-security' : 'account-orders',
+                          tabId === 'settings' || tabId === 'wishlist' ? 'account-dashboard' : 'account-orders',
                         )?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                       }}
                     >
@@ -2572,7 +3061,7 @@ function App() {
                       {label}
                     </button>
                   ))}
-                  <button type="button" onClick={logoutCustomer}>
+                  <button type="button" onClick={requestLogout}>
                     <LogOut size={18} />
                     Logout
                   </button>
@@ -2583,141 +3072,219 @@ function App() {
               </aside>
 
               <main className="account-main-column account-center-column">
-                <section className="account-panel account-summary-panel">
-                  <div className="account-summary-stat">
-                    <ShoppingBag size={28} />
-                    <strong>{customerOrders.length}</strong>
-                    <span>Total orders</span>
-                  </div>
-                  <div className="account-summary-stat">
-                    <Wallet size={28} />
-                    <strong>{formatPrice(customerOrders.reduce((sum, order) => sum + order.total, 0))}</strong>
-                    <span>Total spent</span>
-                  </div>
-                  <div className="account-summary-stat account-summary-progress">
-                    <Gift size={28} />
-                    <strong>Rewind Club</strong>
-                    <span>$40.88 to next reward</span>
-                    <div><i /></div>
-                  </div>
-                </section>
-
-                <section className="account-panel account-orders-panel account-orders-compact" id="account-orders">
-                  <div className="account-panel-title">
-                    Recent Orders
-                    <button type="button">View All Orders <ChevronRight size={15} /></button>
-                  </div>
-                  <div className="account-order-table">
-                    {customerOrders.map((order) => {
-                      const firstItem = order.items?.[0]
-                      const itemLabel = typeof firstItem === 'string' ? firstItem : firstItem?.name
-                      const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : '1 item'
-
-                      return (
-                        <button
-                          className={`account-order-table-row ${selectedAccountOrder?.id === order.id ? 'active' : ''}`}
-                          key={order.id}
-                          type="button"
-                          onClick={() => setSelectedOrderId(order.id)}
-                        >
-                          <div className="account-order-id">
-                            <strong>#{order.id}</strong>
-                            <span>{order.date}</span>
-                          </div>
-                          <img src={getAccountLineItemImage(firstItem)} alt={itemLabel} />
-                          <div className="account-order-item">
-                            <strong>{itemLabel}</strong>
-                            <span>{itemCountLabel}</span>
-                          </div>
-                          <em className={`status-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>{order.status}</em>
-                          <b>{formatPrice(order.total)}</b>
-                          <span className="account-view-detail">View Detail <ChevronRight size={14} /></span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </section>
-
-                <div className="account-lower-grid">
-                  <section className="account-panel account-security-panel" id="account-security">
-                    <div className="account-panel-title">Security</div>
-                    <div className="account-security-grid">
-                      <form className="account-settings-form" onSubmit={(event) => {
-                        event.preventDefault()
-                        updatePasswordDraft()
-                      }}>
-                        <h3><ShieldCheck size={18} /> Change Password</h3>
-                        <label>
-                          Current Password
-                          <input type="password" placeholder="Current password" />
-                        </label>
-                        <label>
-                          New Password
-                          <input type="password" placeholder="New password" />
-                        </label>
-                        <label>
-                          Confirm New Password
-                          <input type="password" placeholder="Confirm password" />
-                        </label>
-                        <button className="checkout-button" type="submit">Update Password</button>
-                      </form>
-                      <div className="account-reset-card">
-                        <h3><Mail size={18} /> Reset Password</h3>
-                        <p>Send a secure reset link to {customer.email}.</p>
-                        <button className="account-outline-red-button" type="button" onClick={sendResetLinkDraft}>
-                          Send Reset Link
-                        </button>
-                        {securityNotice && <small className="account-inline-notice">{securityNotice}</small>}
+                {accountTab === 'settings' ? (
+                  <div className="account-lower-grid account-settings-tab">
+                    <section className="account-panel account-security-panel" id="account-security">
+                      <div className="account-panel-title">Security</div>
+                      <div className="account-security-grid">
+                        <form className="account-settings-form" onSubmit={(event) => {
+                          event.preventDefault()
+                          updatePasswordDraft()
+                        }}>
+                          <h3><ShieldCheck size={18} /> Change Password</h3>
+                          <label>
+                            Current Password
+                            <input type="password" placeholder="Current password" />
+                          </label>
+                          <label>
+                            New Password
+                            <input type="password" placeholder="New password" />
+                          </label>
+                          <label>
+                            Confirm New Password
+                            <input type="password" placeholder="Confirm password" />
+                          </label>
+                          <button className="checkout-button" type="submit">Update Password</button>
+                        </form>
+                        <div className="account-reset-card">
+                          <h3><Mail size={18} /> Reset Password</h3>
+                          <p>Send a secure reset link to {customer.email}.</p>
+                          <button className="account-outline-red-button" type="button" onClick={sendResetLinkDraft}>
+                            Send Reset Link
+                          </button>
+                          {securityNotice && <small className="account-inline-notice">{securityNotice}</small>}
+                        </div>
                       </div>
-                    </div>
-                  </section>
+                    </section>
 
-                  <section className="account-panel account-addresses-card" id="account-addresses">
+                    <section className="account-panel account-addresses-card" id="account-addresses">
+                      <div className="account-panel-title">
+                        Saved Addresses
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextManageMode = !addressManageMode
+                            setAddressManageMode(nextManageMode)
+                            setAddressNotice('')
+                            if (!nextManageMode) closeAddressEditor()
+                          }}
+                        >
+                          {addressManageMode ? 'Done' : 'Manage'} <ChevronRight size={15} />
+                        </button>
+                      </div>
+                      <div className="account-address-grid">
+                        {savedAddresses.map((address) => (
+                          <article className="account-address-card" key={address.id}>
+                            <span>{address.label}</span>
+                            <strong>{address.name}</strong>
+                            {address.lines.filter(Boolean).map((line) => <small key={line}>{line}</small>)}
+                            {addressManageMode && (
+                              <div className="account-address-actions">
+                                <button type="button" onClick={() => openEditAddress(address)}>Edit</button>
+                                {address.label.toLowerCase() !== 'primary' && (
+                                  <button type="button" onClick={() => setPrimaryAddress(address.id)}>Set Primary</button>
+                                )}
+                                <button type="button" onClick={() => deleteAddress(address.id)}>Delete</button>
+                              </div>
+                            )}
+                          </article>
+                        ))}
+                        {!savedAddresses.length && (
+                          <p className="account-empty-address">No saved addresses yet.</p>
+                        )}
+                      <button className="account-add-address" type="button" onClick={openAddAddress}>
+                          <Plus size={24} />
+                          Add New Address
+                        </button>
+                      </div>
+                      {addressNotice && <small className="account-inline-notice account-address-notice">{addressNotice}</small>}
+                    </section>
+                  </div>
+                ) : accountTab === 'wishlist' ? (
+                  <section className="account-panel account-wishlist-panel" id="account-wishlist">
                     <div className="account-panel-title">
-                      Saved Addresses
-                      <button type="button">Manage <ChevronRight size={15} /></button>
+                      Wishlist
+                      <span className="account-panel-count">{wishlistProducts.length} saved <Heart size={15} /></span>
                     </div>
-                    <div className="account-address-grid">
-                      {accountAddresses.map((address) => (
-                        <article className="account-address-card" key={address.label}>
-                          <span>{address.label}</span>
-                          <strong>{address.name}</strong>
-                          {address.lines.slice(0, 3).map((line) => <small key={line}>{line}</small>)}
+                    <div className="account-wishlist-grid">
+                      {wishlistProducts.map((product) => (
+                        <article className="account-wishlist-card" key={`wishlist-${product.id}`}>
+                          <button className="account-wishlist-image" type="button" onClick={() => openProductDetail(product)}>
+                            <img src={product.image} alt={product.name} />
+                          </button>
+                          <div className="account-wishlist-copy">
+                            <span>{product.category}</span>
+                            <h3>{product.name}</h3>
+                            <p>{product.shortDetail}</p>
+                            <strong>{formatPrice(product.price)}</strong>
+                          </div>
+                          <div className="account-wishlist-actions">
+                            <button type="button" onClick={() => openProductDetail(product)}>
+                              View Detail
+                            </button>
+                            <button type="button" onClick={(event) => addToCart(product, event)}>
+                              Add to Cart
+                            </button>
+                          </div>
                         </article>
                       ))}
-                      <button className="account-add-address" type="button">
-                        <Plus size={24} />
-                        Add New Address
-                      </button>
                     </div>
                   </section>
-                </div>
+                ) : (
+                  <>
+                    <section className="account-panel account-summary-panel">
+                      <div className="account-summary-stat">
+                        <ShoppingBag size={28} />
+                        <strong>{customerOrders.length}</strong>
+                        <span>Total orders</span>
+                      </div>
+                      <div className="account-summary-stat">
+                        <Wallet size={28} />
+                        <strong>{formatPrice(customerOrders.reduce((sum, order) => sum + order.total, 0))}</strong>
+                        <span>Total spent</span>
+                      </div>
+                      <div className="account-summary-stat account-summary-progress">
+                        <Gift size={28} />
+                        <strong>Rewind Club</strong>
+                        <span>$40.88 to next reward</span>
+                        <div><i /></div>
+                      </div>
+                    </section>
 
-                <section className="account-panel account-recent-card" id="account-recent">
-                  <div className="account-panel-title">
-                    Recently Viewed
-                    <button type="button">View All <ChevronRight size={15} /></button>
-                  </div>
-                  <div className="account-recent-grid">
-                    {recentlyViewedProducts.map((product) => (
-                      <button key={`recent-${product.id}`} type="button" onClick={() => openProductDetail(product)}>
-                        <img src={product.image} alt={product.name} />
-                        <strong>{product.name}</strong>
-                        <span>{formatPrice(product.price)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
+                    <section className="account-panel account-orders-panel account-orders-compact" id="account-orders">
+                      <div className="account-panel-title">
+                        Recent Orders
+                        {hasOrderToggle && (
+                          <button type="button" onClick={() => setOrdersExpanded((currentValue) => !currentValue)}>
+                            {ordersExpanded ? 'Show Less' : 'Show More'} <ChevronDown size={15} />
+                          </button>
+                        )}
+                      </div>
+                      <div className="account-order-table">
+                        {visibleCustomerOrders.map((order) => {
+                          const firstItem = order.items?.[0]
+                          const itemLabel = typeof firstItem === 'string' ? firstItem : firstItem?.name
+                          const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : '1 item'
+
+                          return (
+                            <button
+                              className={`account-order-table-row ${selectedAccountOrder?.id === order.id ? 'active' : ''}`}
+                              key={order.id}
+                              type="button"
+                              onClick={() => openOrderDetail(order)}
+                            >
+                              <div className="account-order-id">
+                                <strong>#{order.id}</strong>
+                                <span>{order.date}</span>
+                              </div>
+                              <img src={getAccountLineItemImage(firstItem)} alt={itemLabel} />
+                              <div className="account-order-item">
+                                <strong>{itemLabel}</strong>
+                                <span>{itemCountLabel}</span>
+                              </div>
+                              <em className={`status-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>{order.status}</em>
+                              <b>{formatPrice(order.total)}</b>
+                              <span className="account-view-detail">View Detail <ChevronRight size={14} /></span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </section>
+
+                    <section className="account-panel account-recent-card" id="account-recent">
+                      <div className="account-panel-title">
+                        Recently Viewed
+                        <button type="button">View All <ChevronRight size={15} /></button>
+                      </div>
+                      <div className="account-recent-carousel">
+                        <button
+                          className="account-recent-arrow account-recent-arrow-left"
+                          type="button"
+                          aria-label="Previous recently viewed products"
+                          onClick={() => scrollRecentCarousel(-1)}
+                        >
+                          <ChevronLeft size={22} />
+                        </button>
+                        <div className="account-recent-grid" ref={recentCarouselRef}>
+                          {recentlyViewedProducts.map((product) => (
+                            <button key={`recent-${product.id}`} type="button" onClick={() => openProductDetail(product)}>
+                              <img src={product.image} alt={product.name} />
+                              <strong>{product.name}</strong>
+                              <span>{formatPrice(product.price)}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          className="account-recent-arrow account-recent-arrow-right"
+                          type="button"
+                          aria-label="Next recently viewed products"
+                          onClick={() => scrollRecentCarousel(1)}
+                        >
+                          <ChevronRight size={22} />
+                        </button>
+                      </div>
+                    </section>
+                  </>
+                )}
               </main>
 
               <aside className="account-side-column account-rewards-column">
                 <section className="account-panel account-rewards-panel">
                   <div className="account-panel-title">
-                    Rewards & Coupons
-                    <button type="button">View All <ChevronRight size={15} /></button>
+                    Coupons
                   </div>
                   <div className="account-coupon-stack">
-                    {accountCoupons.slice(0, 2).map((coupon) => (
+                    {visibleAccountCoupons.map((coupon) => (
                       <article className={`account-coupon-ticket ${coupon.tone}`} key={coupon.code}>
                         <div>
                           <strong>{coupon.code}</strong>
@@ -2734,21 +3301,15 @@ function App() {
                       </article>
                     ))}
                   </div>
-                  <div className="account-promo-grid account-reward-grid">
-                    {accountPromotions.map((promo) => (
-                      <article className="account-promo-card" key={promo.title}>
-                        <div className={`account-promo-art ${promo.art}`} aria-hidden="true">
-                          {promo.art === 'stamps' && Array.from({ length: 6 }).map((_, index) => (
-                            <span className={index < 5 ? 'filled' : ''} key={`stamp-${index}`} />
-                          ))}
-                        </div>
-                        <strong>{promo.title}</strong>
-                        <b>{promo.value}</b>
-                        <p>{promo.copy}</p>
-                        <button type="button">{promo.action}</button>
-                      </article>
-                    ))}
-                  </div>
+                  {hasAccountCouponToggle && (
+                    <button
+                      className="account-coupon-toggle"
+                      type="button"
+                      onClick={() => setCouponsExpanded((isExpanded) => !isExpanded)}
+                    >
+                      {couponsExpanded ? 'Show less' : 'Show more'}
+                    </button>
+                  )}
                 </section>
 
                 <section className="account-panel account-support-card">
@@ -2774,6 +3335,341 @@ function App() {
                 </section>
               </aside>
             </div>
+          </section>
+        </div>
+      )}
+
+      {logoutConfirmOpen && customer && (
+        <div className="modal-backdrop logout-confirm-backdrop" role="presentation" onClick={() => setLogoutConfirmOpen(false)}>
+          <section
+            className="logout-confirm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="logout-confirm-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="modal-close" type="button" aria-label="Close logout confirmation" onClick={() => setLogoutConfirmOpen(false)}>
+              <X size={22} />
+            </button>
+            <LogOut size={30} />
+            <p className="receipt-label">Account session</p>
+            <h2 id="logout-confirm-title">Log Out?</h2>
+            <p>Are you sure you want to log out of {customer.email}?</p>
+            <div className="logout-confirm-actions">
+              <button type="button" onClick={() => setLogoutConfirmOpen(false)}>Cancel</button>
+              <button type="button" onClick={logoutCustomer}>
+                <LogOut size={18} />
+                Logout
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {addressEditorOpen && (
+        <div className="modal-backdrop address-editor-backdrop" role="presentation" onClick={closeAddressEditor}>
+          <section
+            className="address-editor-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="address-editor-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="modal-close" type="button" aria-label="Close address editor" onClick={closeAddressEditor}>
+              <X size={22} />
+            </button>
+            <p className="receipt-label">Shipping address</p>
+            <h2 id="address-editor-title">{addressEditorMode === 'edit' ? 'Edit Address' : 'Add Address'}</h2>
+            <form
+              className="account-address-form"
+              key={`${addressEditorMode}-${addressDraft.id}`}
+              onSubmit={submitAddressForm}
+            >
+              <label>
+                Label
+                <select name="label" defaultValue={addressDraft.label}>
+                  <option>Primary</option>
+                  <option>Gift</option>
+                  <option>Home</option>
+                  <option>Office</option>
+                  <option>Saved</option>
+                </select>
+              </label>
+              <label>
+                Full Name
+                <input name="name" required defaultValue={addressDraft.name} placeholder="Alex Taylor" />
+              </label>
+              <label>
+                Address Line 1
+                <input name="line1" required defaultValue={addressDraft.line1} placeholder="123 Arcade Way" />
+              </label>
+              <label>
+                Address Line 2
+                <input name="line2" defaultValue={addressDraft.line2} placeholder="Floor, suite, apartment" />
+              </label>
+              <label>
+                City / State / ZIP
+                <input name="cityState" required defaultValue={addressDraft.cityState} placeholder="Santa Monica, CA 90401" />
+              </label>
+              <label>
+                Country
+                <div className="account-country-select">
+                  <input name="country" readOnly type="hidden" value={addressCountry} />
+                  <button
+                    aria-expanded={addressCountryMenuOpen}
+                    className="account-country-trigger"
+                    type="button"
+                    onClick={() => setAddressCountryMenuOpen((currentValue) => !currentValue)}
+                  >
+                    <img
+                      src={getFlagImageUrl(getShippingCountry(addressCountry).code)}
+                      srcSet={`${getFlagImageUrl(getShippingCountry(addressCountry).code, 80)} 2x`}
+                      alt=""
+                    />
+                    <span>{getShippingCountry(addressCountry).name}</span>
+                    <ChevronDown size={17} />
+                  </button>
+                  {addressCountryMenuOpen && (
+                    <div className="account-country-menu" role="listbox" aria-label="Shipping countries">
+                      {shippingCountries.map((country) => (
+                        <button
+                          className={addressCountry === country.name ? 'active' : ''}
+                          key={country.code}
+                          type="button"
+                          onClick={() => {
+                            setAddressCountry(country.name)
+                            setAddressCountryMenuOpen(false)
+                          }}
+                          role="option"
+                          aria-selected={addressCountry === country.name}
+                        >
+                          <img
+                            src={getFlagImageUrl(country.code)}
+                            srcSet={`${getFlagImageUrl(country.code, 80)} 2x`}
+                            alt=""
+                          />
+                          <span>{country.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <small className="account-country-note">Vietnam is not available for shipping.</small>
+              </label>
+              <label>
+                Phone
+                <input name="phone" defaultValue={addressDraft.phone} placeholder="(310) 555-1989" />
+              </label>
+              <div className="account-address-form-actions">
+                <button className="checkout-button" type="submit">
+                  {addressEditorMode === 'edit' ? 'Save Address' : 'Create Address'}
+                </button>
+                <button type="button" onClick={closeAddressEditor}>Cancel</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
+      {profileEditorOpen && customer && (
+        <div className="modal-backdrop profile-editor-backdrop" role="presentation" onClick={() => setProfileEditorOpen(false)}>
+          <section
+            className="profile-editor-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-editor-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button className="modal-close" type="button" aria-label="Close profile editor" onClick={() => setProfileEditorOpen(false)}>
+              <X size={22} />
+            </button>
+            <p className="receipt-label">Account profile</p>
+            <h2 id="profile-editor-title">Edit Profile</h2>
+            <form className="profile-editor-form" onSubmit={submitProfileUpdate}>
+              <label>
+                Full Name
+                <input name="name" required defaultValue={customer.name} />
+              </label>
+              <label>
+                Email
+                <input name="email" required type="email" defaultValue={customer.email} />
+              </label>
+              <div className="profile-editor-actions">
+                <button className="checkout-button" type="submit">Save Profile</button>
+                <button type="button" onClick={() => setProfileEditorOpen(false)}>Cancel</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
+
+      {detailOrder && (
+        <div className="modal-backdrop order-detail-backdrop" role="presentation" onClick={() => setOrderDetailOpen(false)}>
+          <section
+            className="order-detail-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="order-detail-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="order-detail-header">
+              <div>
+                <p className="receipt-label">Customer receipt</p>
+                <h2 id="order-detail-title">Order Detail</h2>
+              </div>
+              <div className="order-detail-header-actions">
+                <span className={`order-detail-status status-${detailOrder.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {detailOrder.status}
+                </span>
+                <button type="button" aria-label="Close order detail" onClick={() => setOrderDetailOpen(false)}>
+                  <X size={20} />
+                </button>
+              </div>
+            </header>
+
+            <div className="order-detail-summary">
+              <div className="order-detail-summary-main">
+                <FileText size={24} />
+                <span>
+                  <strong>#{detailOrder.id}</strong>
+                  <small>Placed on {detailOrder.date}</small>
+                </span>
+              </div>
+              <div>
+                <small>Total</small>
+                <strong>{formatPrice(detailOrder.total)}</strong>
+              </div>
+              <div>
+                <small>Payment</small>
+                <strong>{detailOrder.payment ?? 'PayPal'}</strong>
+              </div>
+              <div>
+                <small>Fulfillment</small>
+                <strong>Printful</strong>
+              </div>
+            </div>
+
+            <div className="order-detail-body">
+              <section className="order-detail-items">
+                <div className="order-detail-section-title">
+                  Items ({detailOrder.items?.length ?? 0})
+                </div>
+                <div className="order-detail-item-head">
+                  <span>Item</span>
+                  <span>Qty</span>
+                  <span>Unit Price</span>
+                  <span>Total</span>
+                </div>
+                <div className="order-detail-item-list">
+                  {detailOrder.items?.map((item, index) => {
+                    const itemName = typeof item === 'string' ? item : item.name
+                    const itemQuantity = typeof item === 'string' ? 1 : item.quantity
+                    const itemPrice = typeof item === 'string' ? 0 : item.price
+                    const lineTotal = itemPrice * itemQuantity
+
+                    return (
+                      <div className="order-detail-item-row" key={`${itemName}-${index}`}>
+                        <img src={getAccountLineItemImage(item)} alt={itemName} />
+                        <div>
+                          <strong>{itemName}</strong>
+                          <small>{typeof item === 'string' ? 'Demo item' : item.optionSummary}</small>
+                        </div>
+                        <span>{itemQuantity}</span>
+                        <span>{formatPrice(itemPrice)}</span>
+                        <b>{formatPrice(lineTotal)}</b>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="order-detail-totals">
+                  <span>Subtotal</span>
+                  <strong>{formatPrice(detailOrder.subtotal ?? detailOrder.total)}</strong>
+                  <span>Discount</span>
+                  <strong>{detailOrder.discount ? `-${formatPrice(detailOrder.discount)}` : '$0.00'}</strong>
+                  <span>Shipping</span>
+                  <strong>{formatPrice(detailOrder.shipping ?? 0)}</strong>
+                  <span>Tax</span>
+                  <strong>$0.00</strong>
+                  <span>Total</span>
+                  <strong>{formatPrice(detailOrder.total)}</strong>
+                </div>
+              </section>
+
+              <aside className="order-detail-delivery">
+                <div className="order-detail-section-title">Delivery Information</div>
+                <div className="order-detail-info-block">
+                  <Mail size={17} />
+                  <div>
+                    <strong>Shipping Address</strong>
+                    <p>{customer.name}<br />123 Nostalgia Lane, Suite 7B<br />Retro City, CA 90210<br />United States</p>
+                  </div>
+                </div>
+                <div className="order-detail-info-block">
+                  <Truck size={17} />
+                  <div>
+                    <strong>Shipping Method</strong>
+                    <p>Standard Shipping (Printful)<br />Tracking updates appear after shipment.</p>
+                  </div>
+                </div>
+                <div className="order-detail-info-block">
+                  <Package size={17} />
+                  <div>
+                    <strong>Tracking Number</strong>
+                    <p>{detailOrder.tracking}</p>
+                    <button type="button" onClick={() => showOrderActionNotice('Tracking demo is ready for production carrier links.')}>
+                      Track Package
+                    </button>
+                  </div>
+                </div>
+                <div className="order-detail-info-block">
+                  <PackageCheck size={17} />
+                  <div>
+                    <strong>Printful Status</strong>
+                    <p>{detailOrder.fulfillment}</p>
+                  </div>
+                </div>
+              </aside>
+            </div>
+
+            <section className="order-detail-progress">
+              <div className="order-detail-section-title">Order Progress</div>
+              <div
+                className={`order-detail-timeline order-detail-timeline-${detailOrderProgressTone}`}
+                style={{ '--timeline-steps': Math.max(detailOrderProgressTimeline.length, 1) }}
+              >
+                {detailOrderProgressTimeline.map((step, index) => (
+                  <div
+                    className={`order-detail-step ${step.done ? 'done' : ''} ${index < detailOrderProgressTimeline.length - 1 ? 'connected' : ''}`}
+                    key={`${detailOrder.id}-${step.label}`}
+                  >
+                    <span><CheckCircle2 size={18} /></span>
+                    <strong>{step.label}</strong>
+                    <small>{step.detail}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {orderDetailNotice && <p className="order-detail-notice">{orderDetailNotice}</p>}
+
+            <footer className="order-detail-footer">
+              <button className="order-detail-primary" type="button" onClick={() => reorderAccountOrder(detailOrder)}>
+                <RefreshCcw size={17} /> Reorder
+              </button>
+              <button type="button" onClick={() => showOrderActionNotice('Tracking demo is ready for production carrier links.')}>
+                <Truck size={17} /> Track Package
+              </button>
+              <button type="button" onClick={() => {
+                setOrderDetailOpen(false)
+                setAccountTab('support')
+              }}>
+                <Mail size={17} /> Contact Support
+              </button>
+              <button type="button" onClick={() => downloadOrderReceipt(detailOrder)}>
+                <Download size={17} /> Download Receipt
+              </button>
+              <button type="button" onClick={() => setOrderDetailOpen(false)}>Close</button>
+            </footer>
           </section>
         </div>
       )}
