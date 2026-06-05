@@ -32,6 +32,25 @@
   color: inherit;
 }
 
+.receipt-label,
+.order-line-label,
+.account-panel-title,
+.coupon-code,
+.promo-card-label,
+.product-sku,
+.product-tag,
+.tape-label,
+.dashboard-kicker {
+  font-family: var(--font-stamp);
+}
+
+.shop-app.account-route-active > .site-header,
+.shop-app.account-route-active > main,
+.shop-app.account-route-active > .site-footer,
+.shop-app.account-route-active > .floating-cart-button {
+  display: none;
+}
+
 .site-header {
   position: relative;
   z-index: 30;
@@ -185,7 +204,7 @@
   z-index: 1;
   margin-left: 29px;
   color: #19100a;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: clamp(23px, 1.8vw, 34px);
   font-style: italic;
   font-weight: 700;
@@ -213,7 +232,7 @@
   z-index: 2;
   padding: 4px 11px;
   color: #f8d25e;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 10px;
   line-height: 1;
   letter-spacing: 0.7px;
@@ -273,8 +292,8 @@
   min-height: 50px;
   padding: 0 13px;
   color: #1f120d;
-  font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: 14px;
+  font-family: var(--font-retro);
+  font-size: 16px;
   font-weight: 800;
   text-decoration: none;
   text-transform: uppercase;
@@ -311,6 +330,8 @@
 .primary-nav .support-menu-trigger {
   width: 100%;
   gap: 7px;
+  font-family: var(--font-retro);
+  font-weight: 800;
   border-right: 1px solid #52351f;
 }
 
@@ -379,7 +400,9 @@
 }
 
 .primary-nav .support-submenu span {
+  font-family: var(--font-retro);
   font-size: 13px;
+  font-weight: 800;
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -387,7 +410,7 @@
 .primary-nav .support-submenu small {
   margin-top: 3px;
   color: #5e3f25;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 11px;
   font-weight: 700;
   line-height: 1.25;
@@ -425,7 +448,7 @@
   min-height: 34px;
   padding: 0 11px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -501,7 +524,7 @@
 .header-tagline {
   margin: 0;
   color: #1f120d;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   font-style: italic;
   font-weight: 700;
@@ -520,7 +543,7 @@
   min-height: 24px;
   padding: 0 10px;
   color: #1f120d;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
   background: #c9a36f;
   border: 1px solid #6a4325;
@@ -553,7 +576,7 @@
   min-height: 86px;
   padding: 12px 9px 13px;
   color: #1f120d;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-weight: 800;
   text-transform: uppercase;
   background:
@@ -623,7 +646,7 @@
   gap: 1px;
   padding: 3px 6px;
   color: #1f120d;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
   text-align: center;
   background: transparent;
@@ -653,7 +676,7 @@
   right: 10px;
   bottom: 7px;
   color: #f3e6c7;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
 }
 
@@ -751,7 +774,7 @@
 .shop-app.memory-entered .primary-nav button {
   min-height: 42px;
   padding: 0 16px;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .shop-app.memory-entered .primary-nav .home-tab {
@@ -770,6 +793,7 @@
 .hero-slider {
   position: absolute;
   inset: 0;
+  overflow: hidden;
 }
 
 .hero-slide {
@@ -809,7 +833,7 @@
 .sku {
   margin: 0;
   color: var(--muted);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   line-height: 1.25;
   text-transform: uppercase;
@@ -827,7 +851,7 @@
 .product-detail-modal h2,
 .checkout-modal h2 {
   margin: 0;
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -845,7 +869,7 @@
   max-width: 520px;
   margin: var(--space-4) 0 var(--space-5);
   color: #ffe4ba;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 18px;
   line-height: 1.5;
 }
@@ -893,7 +917,7 @@
   flex-direction: column;
   padding: 31px 22px 30px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   background:
     linear-gradient(90deg, rgba(31, 18, 13, 0.05) 1px, transparent 1px),
     linear-gradient(180deg, #f8ebcf 0%, #eedab6 100%);
@@ -1115,7 +1139,7 @@
 }
 
 .service-strip {
-  width: min(1488px, calc(100% - 144px));
+  width: min(1440px, calc(100% - 48px));
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-3);
@@ -1174,7 +1198,7 @@
 
 .service-ticket strong {
   color: var(--ink);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 17px;
   font-weight: 800;
   line-height: 1.1;
@@ -1182,7 +1206,7 @@
 
 .service-ticket small {
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
   line-height: 1.2;
   text-transform: uppercase;
@@ -1193,7 +1217,7 @@
 }
 
 .store-section {
-  width: min(1488px, calc(100% - 144px));
+  width: min(1440px, calc(100% - 48px));
   margin: var(--space-6) auto;
 }
 
@@ -1215,7 +1239,7 @@
   max-width: 300px;
   margin: 0;
   color: #ebc697;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
 }
 
 .product-search {
@@ -1232,27 +1256,24 @@
 .category-bar button {
   position: relative;
   overflow: hidden;
+  min-height: 38px;
   padding: 0 var(--space-4);
-  color: var(--cream);
-  font-family: Inter, system-ui, sans-serif;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 13px;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
-  background:
-    linear-gradient(rgba(255, 242, 216, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, #16443f 0%, #0a2624 100%);
-  background-size: 100% 7px, auto;
-  border: 2px solid #8a512f;
-  box-shadow: inset 0 1px 0 rgba(255, 242, 216, 0.22), 0 3px 0 #3e2418;
+  background: var(--paper-soft);
+  border: 1px solid rgba(117, 70, 41, 0.55);
+  border-radius: 5px;
+  box-shadow: none;
 }
 
 .category-bar button.active {
   color: var(--cream);
-  background:
-    linear-gradient(rgba(255, 242, 216, 0.1) 1px, transparent 1px),
-    linear-gradient(180deg, #d6362d 0%, #741919 100%);
-  background-size: 100% 7px, auto;
-  border-color: var(--amber);
+  background: linear-gradient(180deg, var(--red), var(--red-dark));
+  border-color: var(--red-dark);
 }
 
 .product-grid {
@@ -1288,27 +1309,6 @@
   display: flex;
   flex-direction: column;
   padding: var(--space-3);
-}
-
-.product-card::before,
-.feature-product-card::before {
-  content: '📌';
-  position: absolute;
-  z-index: 5;
-  right: 12px;
-  width: 30px;
-  height: 30px;
-  font-size: 24px;
-  line-height: 1;
-  text-align: center;
-  filter: drop-shadow(2px 3px 0 rgba(48, 35, 24, 0.48));
-  pointer-events: none;
-  transform: rotate(16deg);
-  transform-origin: 60% 40%;
-}
-
-.product-card::before {
-  top: 13px;
 }
 
 .product-image {
@@ -1434,7 +1434,7 @@
 .empty-cart h3 {
   margin: 6px 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 19px;
   line-height: 1.22;
 }
@@ -1445,7 +1445,7 @@
   margin: 6px 0;
   padding: 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 19px;
   font-weight: 700;
   line-height: 1.22;
@@ -1464,7 +1464,7 @@
 .empty-cart p {
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.45;
 }
@@ -1505,7 +1505,7 @@
   overflow: hidden;
   padding: 0 var(--space-4);
   color: var(--cream);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0;
@@ -1632,7 +1632,7 @@
 .mini-product-card h3 {
   margin: 0 0 var(--space-2);
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 21px;
   line-height: 1.2;
 }
@@ -1652,7 +1652,7 @@
 .deal-banner p {
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.45;
 }
@@ -1673,10 +1673,6 @@
   display: grid;
   grid-template-rows: auto 1fr;
   overflow: hidden;
-}
-
-.feature-product-card::before {
-  top: 8px;
 }
 
 .feature-image-button {
@@ -1712,7 +1708,7 @@
 .store-note h2 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -1973,7 +1969,7 @@
   margin: var(--space-4) 0;
   padding: var(--space-3);
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   list-style: none;
   background: var(--paper-soft);
@@ -2044,7 +2040,7 @@
 .featured-title-button {
   margin: var(--space-2) 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 34px;
   font-weight: 700;
   line-height: 1.1;
@@ -2064,7 +2060,7 @@
 .featured-drop-copy > p:not(.receipt-label) {
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.5;
 }
 
@@ -2092,7 +2088,7 @@
 .drop-spec-list dt {
   margin-bottom: 5px;
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -2169,7 +2165,7 @@
   margin-top: var(--space-2);
   padding: var(--space-2);
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 15px;
   font-weight: 800;
   line-height: 1.15;
@@ -2227,7 +2223,7 @@
 .shelf-set-card h3 {
   margin: 0 0 var(--space-2);
   color: var(--amber);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 18px;
   line-height: 1.15;
 }
@@ -2242,7 +2238,7 @@
 .shelf-set-card p:not(.receipt-label) {
   margin: 0;
   color: rgba(255, 242, 216, 0.82);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 12px;
   line-height: 1.32;
 }
@@ -2270,7 +2266,7 @@
   place-items: center;
   min-height: 36px;
   padding: 0 6px;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 800;
   white-space: nowrap;
@@ -2288,7 +2284,7 @@
   min-height: 36px;
   padding: 0;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 800;
   line-height: 1;
@@ -2334,7 +2330,7 @@
 .policy-card h3 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 22px;
   line-height: 1.12;
 }
@@ -2342,7 +2338,7 @@
 .policy-card p:not(.receipt-label) {
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -2353,7 +2349,7 @@
   margin: auto 0 0;
   padding: var(--space-3);
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   list-style: none;
   background: var(--paper-soft);
@@ -2429,7 +2425,7 @@
 .policy-route-head h1 {
   margin: var(--space-2) 0 0;
   color: var(--ink);
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 64px;
   font-weight: 400;
   line-height: 0.95;
@@ -2441,7 +2437,7 @@
   align-items: center;
   padding: 0 10px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -2454,7 +2450,7 @@
   max-width: 920px;
   margin: var(--space-5) 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 17px;
   line-height: 1.65;
 }
@@ -2469,7 +2465,7 @@
 .policy-route-summary span {
   padding: var(--space-3);
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   line-height: 1.35;
   background: var(--paper-soft);
@@ -2493,14 +2489,14 @@
 .policy-route-content h2 {
   margin: 0 0 var(--space-3);
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 20px;
 }
 
 .policy-route-content p {
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -2533,7 +2529,7 @@
 .policy-deep h3 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.2;
 }
 
@@ -2548,7 +2544,7 @@
 .policy-deep p {
   margin: var(--space-2) 0 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.58;
 }
@@ -2579,7 +2575,7 @@
   place-items: center;
   margin-bottom: var(--space-3);
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   background: var(--red);
   border: 1px solid var(--red-dark);
@@ -2625,7 +2621,7 @@
 .data-table span,
 .data-table em {
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 13px;
   font-style: normal;
   line-height: 1.45;
@@ -2698,7 +2694,7 @@
   display: block;
   margin-bottom: var(--space-2);
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
   text-transform: uppercase;
 }
@@ -2739,7 +2735,7 @@
   display: grid;
   gap: 7px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -2806,7 +2802,7 @@
 .policy-page h3 {
   margin: var(--space-1) 0 0;
   color: var(--ink);
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 42px;
   font-weight: 400;
   line-height: 1;
@@ -2818,7 +2814,7 @@
   align-items: center;
   padding: 0 10px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
@@ -2831,7 +2827,7 @@
   max-width: 920px;
   margin: var(--space-4) 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.6;
 }
 
@@ -2851,14 +2847,14 @@
 .policy-page-grid h4 {
   margin: 0 0 var(--space-2);
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 18px;
 }
 
 .policy-page-grid p {
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -2874,8 +2870,8 @@
 .site-footer {
   position: relative;
   z-index: 24;
-  width: 100vw;
-  margin: var(--space-7) calc(50% - 50vw) 0;
+  width: 100%;
+  margin: var(--space-7) 0 0;
   padding: 0;
   overflow: hidden;
   color: var(--cream);
@@ -2907,7 +2903,7 @@
   min-height: 34px;
   padding: 0 12px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   line-height: 1;
   text-transform: uppercase;
@@ -2975,7 +2971,7 @@
 .footer-inner {
   position: relative;
   z-index: 1;
-  width: min(1488px, calc(100% - 144px));
+  width: min(1440px, calc(100% - 48px));
   display: grid;
   grid-template-columns: minmax(320px, 1.2fr) minmax(128px, 0.48fr) minmax(128px, 0.48fr) minmax(150px, 0.56fr) minmax(300px, 0.92fr);
   gap: var(--space-5);
@@ -3001,7 +2997,7 @@
   display: block;
   margin: 0 0 var(--space-3);
   color: var(--amber);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 16px;
   font-weight: 700;
 }
@@ -3010,7 +3006,7 @@
   margin: var(--space-3) 0 0;
   max-width: 560px;
   color: rgba(255, 242, 216, 0.78);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.5;
 }
 
@@ -3085,249 +3081,10 @@
   gap: var(--space-5);
   padding: var(--space-3) var(--space-4);
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   background: var(--amber);
   border-top: 2px dashed rgba(117, 70, 41, 0.72);
-}
-
-.memory-onboarding-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  overflow: hidden;
-  background: #040c0b;
-  animation: memory-intro-shell 11000ms ease-in-out forwards;
-}
-
-.memory-onboarding-backdrop::before,
-.memory-onboarding-backdrop::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.memory-onboarding-backdrop::before {
-  display: none;
-}
-
-.memory-onboarding-backdrop::after {
-  display: none;
-}
-
-.memory-onboarding {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  min-height: 100vh;
-  overflow: hidden;
-  color: var(--cream);
-  background: #040c0b;
-}
-
-.memory-onboarding::before {
-  content: '';
-  position: absolute;
-  inset: 28px;
-  z-index: 4;
-  pointer-events: none;
-  border: 1px solid rgba(246, 209, 147, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(85, 231, 255, 0.08);
-}
-
-.memory-onboarding::after {
-  content: 'Opening 1989';
-  position: absolute;
-  top: 52px;
-  right: 56px;
-  z-index: 5;
-  padding: 10px 14px 8px;
-  color: #f6d193;
-  font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: 14px;
-  line-height: 1;
-  text-transform: uppercase;
-  background: rgba(8, 35, 33, 0.78);
-  border: 1px solid rgba(246, 209, 147, 0.44);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.26);
-}
-
-.memory-onboarding-scene {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.memory-entry-video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  filter: none;
-  transform: none;
-}
-
-.memory-onboarding-scene::before {
-  display: none;
-}
-
-.memory-onboarding-scene::after {
-  display: none;
-}
-
-.memory-intro-brand {
-  position: absolute;
-  top: clamp(42px, 6vw, 76px);
-  left: clamp(42px, 7vw, 118px);
-  z-index: 6;
-  color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: clamp(15px, 1.3vw, 22px);
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0;
-  text-shadow: 0 0 20px rgba(85, 231, 255, 0.28), 0 6px 24px rgba(0, 0, 0, 0.7);
-  animation: memory-brand-reveal 11000ms ease-in-out forwards;
-}
-
-.memory-onboarding-copy {
-  position: absolute;
-  left: clamp(42px, 7vw, 118px);
-  bottom: clamp(62px, 8vw, 112px);
-  z-index: 6;
-  display: grid;
-  gap: 14px;
-  width: min(560px, calc(100vw - 520px));
-  min-width: 440px;
-  opacity: 0;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.34), 0 14px 38px rgba(0, 0, 0, 0.58);
-  animation: memory-copy-rise 11000ms ease-in-out forwards;
-}
-
-.memory-onboarding-copy h2 {
-  margin: 0;
-  color: var(--cream);
-  font-family: 'Abril Fatface', Georgia, serif;
-  font-size: clamp(44px, 4.8vw, 76px);
-  font-weight: 400;
-  line-height: 0.94;
-}
-
-.memory-onboarding-copy > p:not(.receipt-label) {
-  margin: 0;
-  max-width: 560px;
-  color: #fff0cf;
-  font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1.48;
-}
-
-.memory-entry-progress {
-  position: relative;
-  width: min(340px, 100%);
-  height: 8px;
-  overflow: hidden;
-  background: rgba(255, 240, 207, 0.22);
-  border: 1px solid rgba(246, 209, 147, 0.5);
-  border-radius: 999px;
-  box-shadow: 0 0 22px rgba(255, 178, 75, 0.16);
-}
-
-.memory-entry-progress span {
-  position: absolute;
-  inset: 0;
-  width: 0;
-  background: linear-gradient(90deg, #e2382f, #ffb24b, #55e7ff);
-  border-radius: inherit;
-  animation: memory-progress-fill 3800ms ease-in-out 5200ms forwards;
-}
-
-.memory-welcome {
-  position: absolute;
-  inset: 0;
-  z-index: 7;
-  display: grid;
-  place-items: center;
-  padding-top: 4vh;
-  color: #fff0cf;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(92px, 11vw, 178px);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  opacity: 0;
-  pointer-events: none;
-  text-shadow:
-    0 0 18px rgba(255, 178, 75, 0.42),
-    0 10px 36px rgba(0, 0, 0, 0.7);
-  animation: memory-welcome-reveal 11000ms ease-in-out forwards;
-}
-
-.memory-skip-button {
-  position: absolute;
-  right: clamp(34px, 5vw, 88px);
-  bottom: clamp(34px, 5vw, 88px);
-  z-index: 8;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-width: 150px;
-  min-height: 42px;
-  padding: 0 14px;
-  color: #f6d193;
-  font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  background: rgba(8, 35, 33, 0.76);
-  border: 1px solid rgba(246, 209, 147, 0.44);
-  border-radius: 4px;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.46);
-}
-
-.memory-skip-button:hover {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-}
-
-.returning-memory-ticket {
-  position: fixed;
-  top: 264px;
-  left: max(24px, calc((100vw - 1488px) / 2 + 24px));
-  z-index: 80;
-  display: grid;
-  gap: 4px;
-  max-width: 280px;
-  padding: 13px 16px;
-  color: var(--ink);
-  background:
-    linear-gradient(90deg, rgba(117, 70, 41, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, #fff0cf, #dfbd82);
-  background-size: 7px 100%, auto;
-  border: 2px solid var(--wood);
-  border-radius: 5px;
-  box-shadow: 0 6px 0 rgba(31, 18, 13, 0.32), 0 16px 28px rgba(0, 0, 0, 0.34);
-  animation: returning-ticket-in 2800ms ease-in-out both;
-}
-
-.returning-memory-ticket span {
-  color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-}
-
-.returning-memory-ticket strong {
-  font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 15px;
-  line-height: 1.28;
 }
 
 .floating-cart-button {
@@ -3343,7 +3100,7 @@
   min-height: 58px;
   padding: 6px 12px 7px 9px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
   background:
     repeating-linear-gradient(0deg, rgba(117, 70, 41, 0.08) 0 1px, transparent 1px 9px),
@@ -3370,7 +3127,7 @@
   min-width: 24px;
   height: 24px;
   color: var(--cream);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 900;
   line-height: 1;
@@ -3391,7 +3148,7 @@
 
 .floating-cart-copy strong {
   color: var(--ink);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 900;
   line-height: 1;
@@ -3498,7 +3255,7 @@
 }
 
 .cart-mini-modal strong {
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -3562,17 +3319,6 @@
   }
 }
 
-@keyframes memory-intro-shell {
-  0%,
-  94% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
 @keyframes header-settle-in {
   from {
     opacity: 0;
@@ -3609,185 +3355,6 @@
   }
 }
 
-@keyframes memory-camera-push {
-  0% {
-    filter: saturate(0.92) contrast(0.98) brightness(0.82);
-    transform: scale(1.04);
-  }
-
-  30% {
-    filter: saturate(1.1) contrast(1.06) brightness(1.08);
-  }
-
-  100% {
-    filter: saturate(1.16) contrast(1.08) brightness(1.18);
-    transform: scale(1.12) translate3d(-1.2vw, -0.9vh, 0);
-  }
-}
-
-@keyframes memory-lights-on {
-  0% {
-    opacity: 0.58;
-  }
-
-  18% {
-    opacity: 0.46;
-  }
-
-  24% {
-    opacity: 0.24;
-  }
-
-  31% {
-    opacity: 0.32;
-  }
-
-  44%,
-  100% {
-    opacity: 0.12;
-  }
-}
-
-@keyframes memory-glow-rise {
-  0%,
-  16% {
-    opacity: 0;
-  }
-
-  28% {
-    opacity: 0.4;
-  }
-
-  100% {
-    opacity: 0.62;
-  }
-}
-
-@keyframes memory-dim-lift {
-  0% {
-    opacity: 0.72;
-  }
-
-  45% {
-    opacity: 0.34;
-  }
-
-  100% {
-    opacity: 0.18;
-  }
-}
-
-@keyframes memory-neon-pulse {
-  0%,
-  18% {
-    opacity: 0;
-  }
-
-  24%,
-  30% {
-    opacity: 0.38;
-  }
-
-  33% {
-    opacity: 0.12;
-  }
-
-  45%,
-  100% {
-    opacity: 0.44;
-  }
-}
-
-@keyframes memory-brand-reveal {
-  0%,
-  14% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  22%,
-  40% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  55%,
-  100% {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes memory-copy-rise {
-  0%,
-  26% {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  36%,
-  58% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  68%,
-  100% {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-}
-
-@keyframes memory-welcome-reveal {
-  0%,
-  62% {
-    opacity: 0;
-    filter: blur(8px);
-    transform: scale(0.96) translateY(14px);
-  }
-
-  70%,
-  92% {
-    opacity: 1;
-    filter: blur(0);
-    transform: scale(1) translateY(0);
-  }
-
-  100% {
-    opacity: 0;
-    filter: blur(3px);
-    transform: scale(1.03) translateY(-10px);
-  }
-}
-
-@keyframes memory-progress-fill {
-  from {
-    width: 0;
-  }
-
-  to {
-    width: 100%;
-  }
-}
-
-@keyframes returning-ticket-in {
-  0% {
-    opacity: 0;
-    transform: translateY(-12px) rotate(-2deg);
-  }
-
-  12%,
-  82% {
-    opacity: 1;
-    transform: translateY(0) rotate(-2deg);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-10px) rotate(-2deg);
-  }
-}
-
 .drawer-backdrop,
 .modal-backdrop {
   position: fixed;
@@ -3815,7 +3382,7 @@
   flex-direction: column;
   overflow-y: auto;
   padding: var(--space-4);
-  transform: translateX(110%);
+  transform: translateX(calc(100% + 24px));
   transition: transform 220ms ease;
 }
 
@@ -3906,7 +3473,7 @@
   margin: 0 auto var(--space-4);
   padding: 0;
   color: var(--red-dark);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 900;
   text-decoration: underline;
@@ -3939,7 +3506,7 @@
   display: block;
   margin-bottom: var(--space-2);
   color: var(--muted);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -4162,7 +3729,7 @@
 .image-info-copy h2 {
   margin: var(--space-2) 52px var(--space-4) 0;
   color: var(--ink);
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 42px;
   font-weight: 400;
   line-height: 1;
@@ -4171,7 +3738,7 @@
 .image-info-copy > p:not(.receipt-label) {
   margin: var(--space-4) 0 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.5;
 }
 
@@ -4192,7 +3759,7 @@
 
 .image-info-grid small {
   color: var(--muted);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -4251,7 +3818,7 @@
   max-width: 560px;
   margin: 0 0 var(--space-4);
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.5;
 }
 
@@ -4269,7 +3836,7 @@
 .detail-meta span,
 .selected-variant span {
   color: var(--muted);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   text-transform: uppercase;
 }
@@ -4300,7 +3867,7 @@
 .option-group legend {
   padding: 0 var(--space-2);
   color: var(--muted);
-  font-family: 'Special Elite', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -4360,7 +3927,7 @@
 .account-modal h2 {
   margin: 0 0 var(--space-3);
   color: var(--ink);
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 42px;
   font-weight: 400;
   line-height: 1;
@@ -4449,7 +4016,7 @@
   align-self: start;
   padding: 9px 13px;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   text-transform: uppercase;
   background: var(--red);
@@ -4479,7 +4046,7 @@
 
 .account-summary-grid small {
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -4499,13 +4066,13 @@
 .account-section-heading h3 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 20px;
 }
 
 .account-section-heading small {
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -4525,7 +4092,7 @@
 .account-tabs button {
   padding: 10px 14px;
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-weight: 900;
   text-transform: uppercase;
   background: rgba(255, 247, 221, 0.7);
@@ -4615,7 +4182,7 @@
 .tracking-card small,
 .support-ticket-preview small {
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   text-transform: uppercase;
 }
@@ -4718,7 +4285,7 @@
 
 .support-ticket-preview h4 {
   margin: var(--space-2) 0;
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 22px;
 }
 
@@ -4775,10 +4342,11 @@
   top: 0;
   z-index: 3;
   display: grid;
-  grid-template-columns: 230px minmax(0, 1fr) auto;
+  grid-template-columns: 230px minmax(0, auto);
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-5);
-  min-height: 108px;
+  min-height: 92px;
   padding: 18px clamp(24px, 3vw, 44px);
   color: var(--cream);
   background:
@@ -4801,39 +4369,23 @@
   height: auto;
 }
 
-.account-portal-nav,
 .account-portal-actions {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.account-portal-nav {
-  justify-content: center;
-}
-
-.account-portal-nav button,
 .account-portal-actions button {
   min-height: 44px;
   padding: 0 14px;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 900;
   letter-spacing: 0;
   text-transform: uppercase;
   background: transparent;
   border: 0;
-}
-
-.account-portal-nav button.active {
-  color: var(--pine);
-  background:
-    linear-gradient(90deg, rgba(117, 70, 41, 0.1) 1px, transparent 1px),
-    linear-gradient(180deg, #fff4d8, #e8c994);
-  background-size: 7px 100%, auto;
-  border: 2px solid rgba(117, 70, 41, 0.7);
-  border-radius: 4px;
 }
 
 .account-portal-actions {
@@ -4901,7 +4453,7 @@
   min-height: 44px;
   padding: 0 var(--space-4);
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-weight: 900;
   text-transform: uppercase;
   background: #073329;
@@ -4913,7 +4465,7 @@
   align-items: center;
   gap: 4px;
   color: var(--cream);
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
@@ -4948,7 +4500,7 @@
 .account-profile-card h2 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 30px;
   font-weight: 900;
   line-height: 1.1;
@@ -4964,7 +4516,7 @@
   width: calc(100% - 40px);
   padding: var(--space-4) 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   line-height: 1.45;
   text-align: center;
   border-top: 2px dashed rgba(117, 70, 41, 0.38);
@@ -4981,7 +4533,7 @@
   width: calc(100% - 40px);
   min-height: 42px;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-weight: 900;
   text-transform: uppercase;
   background: #073329;
@@ -5032,7 +4584,7 @@
   max-width: 170px;
   padding: 8px 10px;
   color: var(--red-dark);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-weight: 900;
   line-height: 1.15;
   text-align: center;
@@ -5133,7 +4685,7 @@
 .account-receipt-card p,
 .account-receipt-line small {
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
 }
 
 .account-receipt-head strong {
@@ -5151,7 +4703,7 @@
   align-self: start;
   padding: 6px 9px;
   color: #17603f;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-style: normal;
   font-weight: 900;
   text-transform: uppercase;
@@ -5249,7 +4801,7 @@
 .account-timeline-step strong {
   display: block;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
   text-transform: uppercase;
 }
@@ -5284,7 +4836,7 @@
   gap: var(--space-2);
   margin: 0;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 15px;
   text-transform: uppercase;
 }
@@ -5342,7 +4894,7 @@
   top: 50%;
   right: 14px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-weight: 900;
   transform: translateY(-50%);
   writing-mode: vertical-rl;
@@ -5351,7 +4903,7 @@
 .account-coupon-ticket strong {
   display: block;
   color: var(--red);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 30px;
   line-height: 1;
 }
@@ -5393,7 +4945,7 @@
   min-height: 34px;
   padding: 0 12px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-weight: 900;
   text-transform: uppercase;
   background: rgba(255, 247, 221, 0.72);
@@ -5406,7 +4958,7 @@
   min-height: 38px;
   margin: 0 14px 14px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-weight: 900;
   text-transform: uppercase;
   background: rgba(255, 247, 221, 0.72);
@@ -5518,7 +5070,7 @@
 }
 
 .account-promo-card strong {
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -5629,7 +5181,7 @@
   min-height: 34px;
   padding: 0 8px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 11px;
   font-weight: 900;
   text-align: center;
@@ -5660,7 +5212,7 @@
 .account-add-address {
   place-items: center;
   color: var(--muted);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-weight: 900;
   text-align: center;
   text-transform: uppercase;
@@ -5687,7 +5239,7 @@
 .account-address-form h3 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 15px;
   text-transform: uppercase;
 }
@@ -5724,7 +5276,7 @@
   min-height: 42px;
   padding: 0 12px;
   color: var(--ink);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 900;
   text-align: left;
@@ -5777,7 +5329,7 @@
   min-height: 38px;
   padding: 6px 8px;
   color: var(--ink);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
   font-weight: 800;
   text-align: left;
@@ -5816,7 +5368,7 @@
   min-height: 34px;
   padding: 0 12px;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
@@ -5922,7 +5474,7 @@
   min-height: 40px;
   padding: 0 12px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 13px;
   font-weight: 900;
   text-align: center;
@@ -6022,9 +5574,9 @@
 
 @media (max-width: 1500px) {
   .account-portal-header {
-    grid-template-columns: 180px minmax(0, 1fr) auto;
+    grid-template-columns: 180px minmax(0, auto);
     gap: var(--space-3);
-    min-height: 92px;
+    min-height: 82px;
     padding: 14px 20px;
   }
 
@@ -6032,12 +5584,10 @@
     width: 170px;
   }
 
-  .account-portal-nav,
   .account-portal-actions {
     gap: var(--space-2);
   }
 
-  .account-portal-nav button,
   .account-portal-actions button {
     min-height: 38px;
     padding: 0 10px;
@@ -6092,7 +5642,8 @@
 }
 
 .account-center-grid.account-portal-grid {
-  grid-template-columns: 270px minmax(0, 1fr) 390px;
+  grid-template-columns: 240px minmax(0, 1fr) 390px;
+  align-items: stretch;
   gap: 18px;
   width: min(1760px, calc(100% - 40px));
   padding: 22px 0 30px;
@@ -6103,20 +5654,78 @@
   min-width: 0;
 }
 
+.account-center-column--overview,
+.account-rewards-column--overview {
+  display: contents;
+}
+
+.account-center-column--overview > .account-panel,
+.account-rewards-column--overview > .account-panel {
+  height: 100%;
+}
+
+.account-center-column--overview .account-summary-panel {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.account-center-column--overview .account-orders-panel {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.account-center-column--overview .account-recent-card {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.account-rewards-column--overview .account-rewards-panel {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+}
+
+.account-rewards-column--overview .account-support-card {
+  grid-column: 3;
+  grid-row: 3;
+}
+
+.account-center-column--orders,
+.account-center-column--settings {
+  grid-column: 2 / -1;
+  grid-row: 1;
+  align-self: start;
+}
+
+.account-center-column--wishlist {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.account-rewards-column--wishlist {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+}
+
 .account-menu-panel {
   position: sticky;
   top: 126px;
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  align-self: start;
   display: grid;
-  gap: 14px;
-  padding: 14px;
+  align-content: start;
+  gap: 10px;
+  padding: 10px;
 }
 
 .account-mini-profile {
   display: grid;
-  grid-template-columns: 58px 1fr;
-  gap: 12px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 10px;
   align-items: center;
-  padding-bottom: 14px;
+  padding-bottom: 10px;
   border-bottom: 2px dashed rgba(117, 70, 41, 0.34);
 }
 
@@ -6124,8 +5733,8 @@
   overflow: hidden;
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
+  width: 46px;
+  height: 46px;
   color: var(--cream);
   background:
     linear-gradient(180deg, rgba(189, 42, 37, 0.94) 0 28%, #e88c30 28% 48%, #e3bd45 48% 64%, #2f754b 64% 78%, #f2e4c4 78% 100%);
@@ -6142,25 +5751,25 @@
 .account-mini-profile h2 {
   margin: 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
-  font-size: 20px;
+  font-family: var(--font-editorial);
+  font-size: 18px;
   line-height: 1.1;
 }
 
 .account-mini-profile span {
   margin-top: 3px;
   color: #17603f;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
   word-break: break-word;
 }
 
 .account-mini-profile em {
   width: max-content;
-  margin-top: 8px;
-  padding: 4px 8px;
+  margin-top: 6px;
+  padding: 3px 7px;
   color: var(--cream);
-  font-size: 11px;
+  font-size: 10px;
   font-style: normal;
   font-weight: 900;
   text-transform: uppercase;
@@ -6170,13 +5779,13 @@
 
 .account-side-menu {
   display: grid;
-  gap: 7px;
+  gap: 6px;
 }
 
 .account-profile-actions {
   display: grid;
-  gap: 8px;
-  padding-bottom: 14px;
+  gap: 7px;
+  padding-bottom: 10px;
   border-bottom: 2px dashed rgba(117, 70, 41, 0.28);
 }
 
@@ -6186,9 +5795,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 38px;
+  height: 40px;
+  min-height: 0;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
+  font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
   background: #073329;
@@ -6277,7 +5888,7 @@
 .profile-editor-actions > button:last-child {
   min-height: 44px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-weight: 900;
   text-transform: uppercase;
   background: rgba(255, 247, 221, 0.72);
@@ -6348,7 +5959,7 @@
   min-height: 44px;
   padding: 0 14px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-ui);
   font-weight: 900;
   text-transform: uppercase;
   background: rgba(255, 247, 221, 0.72);
@@ -6404,12 +6015,13 @@
 .account-side-menu button {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 42px;
-  padding: 0 12px;
+  gap: 9px;
+  height: 38px;
+  min-height: 0;
+  padding: 0 10px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
-  font-size: 14px;
+  font-family: var(--font-ui);
+  font-size: 13px;
   font-weight: 900;
   text-align: left;
   text-transform: uppercase;
@@ -6427,11 +6039,11 @@
 
 .account-vhs-card-compact {
   width: 100%;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .account-vhs-card-compact img {
-  height: 88px;
+  height: 72px;
 }
 
 .account-summary-panel {
@@ -6499,6 +6111,89 @@
 
 .account-orders-compact .account-panel-title {
   min-height: 52px;
+}
+
+.account-order-filter-bar {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+  padding: 0 14px;
+  background: rgba(255, 249, 233, 0.72);
+  border-bottom: 2px solid rgba(117, 70, 41, 0.22);
+}
+
+.account-order-filter-bar button {
+  position: relative;
+  min-height: 46px;
+  color: rgba(31, 18, 13, 0.58);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 900;
+  background: transparent;
+  border: 0;
+}
+
+.account-order-filter-bar button.active {
+  color: var(--red);
+}
+
+.account-order-filter-bar button.active::after {
+  content: '';
+  position: absolute;
+  right: 24px;
+  bottom: 0;
+  left: 24px;
+  height: 3px;
+  background: var(--red);
+}
+
+.account-order-history-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: rgba(255, 249, 233, 0.72);
+  border-bottom: 2px dashed rgba(117, 70, 41, 0.24);
+}
+
+.account-order-history-toolbar strong {
+  color: var(--ink);
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.account-date-range-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 42px;
+  padding: 0 14px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 800;
+  background: rgba(255, 247, 221, 0.86);
+  border: 2px solid rgba(117, 70, 41, 0.34);
+  border-radius: 6px;
+}
+
+.account-date-range-control input {
+  width: 134px;
+  min-width: 0;
+  color: inherit;
+  font: inherit;
+  background: transparent;
+  border: 0;
+}
+
+.account-date-range-control input:focus {
+  outline: 2px solid rgba(193, 39, 45, 0.34);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.account-date-range-control svg {
+  flex: 0 0 auto;
 }
 
 .account-order-table {
@@ -6630,7 +6325,7 @@
 .order-detail-header h2 {
   margin: 0;
   color: var(--cream);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 24px;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -6764,7 +6459,7 @@
 
 .order-detail-section-title {
   color: var(--pine);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 14px;
   font-weight: 900;
   text-transform: uppercase;
@@ -6777,7 +6472,7 @@
   margin-top: 14px;
   padding-bottom: 9px;
   color: var(--pine);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
@@ -6881,7 +6576,7 @@
   margin-top: 8px;
   padding: 0 12px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
@@ -6955,7 +6650,7 @@
 
 .order-detail-step strong {
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   line-height: 1.2;
   text-transform: uppercase;
@@ -6994,7 +6689,7 @@
   min-height: 42px;
   padding: 0 10px;
   color: var(--ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   font-weight: 900;
   text-transform: uppercase;
@@ -7146,6 +6841,455 @@
   gap: 16px;
 }
 
+.account-settings-tab {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.account-settings-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 26px;
+  color: var(--ink);
+  font-family: var(--font-retro-typewriter);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.account-settings-breadcrumb strong {
+  color: var(--red);
+}
+
+.account-settings-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 18px;
+  min-height: 112px;
+  padding: 16px 22px;
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 247, 221, 0.96), rgba(244, 224, 184, 0.94));
+  background-size: 7px 100%, auto;
+  border: 3px solid rgba(117, 70, 41, 0.78);
+  border-radius: 8px;
+  box-shadow: 0 4px 0 rgba(31, 18, 13, 0.16);
+}
+
+.account-settings-id-card {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 66px;
+  color: #073329;
+  background:
+    linear-gradient(180deg, rgba(255, 247, 221, 0.96), rgba(230, 200, 150, 0.86));
+  border: 4px solid #073329;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 2px rgba(7, 51, 41, 0.18);
+}
+
+.account-settings-id-card::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 18px;
+  margin-top: -78px;
+  background: #073329;
+  border: 2px solid rgba(255, 247, 221, 0.86);
+  border-radius: 5px;
+}
+
+.account-settings-hero-copy {
+  min-width: 0;
+}
+
+.account-settings-hero-copy h2 {
+  margin: 0 0 8px;
+  color: #073329;
+  font-family: var(--font-retro-display);
+  font-size: clamp(30px, 3.1vw, 46px);
+  line-height: 1.05;
+  text-transform: uppercase;
+  border-bottom: 2px dotted rgba(117, 70, 41, 0.36);
+}
+
+.account-settings-hero-copy dl,
+.account-settings-info-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+}
+
+.account-settings-hero-copy dl > div,
+.account-settings-info-card dl > div {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px dashed rgba(117, 70, 41, 0.36);
+}
+
+.account-settings-hero-copy dt,
+.account-settings-info-card dt {
+  color: #073329;
+  font-family: var(--font-retro-typewriter);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.account-settings-hero-copy dd,
+.account-settings-info-card dd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-retro-typewriter);
+  font-weight: 900;
+}
+
+.account-settings-hero-copy dd svg {
+  color: var(--red);
+}
+
+.account-settings-star {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--cream);
+  background: #d39b28;
+  border-radius: 50%;
+  box-shadow: inset 0 -4px 0 rgba(117, 70, 41, 0.28);
+}
+
+.account-settings-progress {
+  display: block;
+  width: min(210px, 100%);
+  height: 11px;
+  overflow: hidden;
+  background: rgba(255, 247, 221, 0.88);
+  border: 2px solid rgba(117, 70, 41, 0.52);
+  border-radius: 99px;
+}
+
+.account-settings-progress i {
+  display: block;
+  width: 75%;
+  height: 100%;
+  background: #d39b28;
+}
+
+.account-settings-control-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(320px, 1fr);
+  gap: 14px;
+}
+
+.account-settings-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 16px;
+  color: #073329;
+  border-bottom: 2px dotted rgba(117, 70, 41, 0.34);
+}
+
+.account-settings-section-title h3 {
+  margin: 0;
+  color: #073329;
+  font-family: var(--font-retro-typewriter);
+  font-size: 20px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.account-settings-section-title svg {
+  flex: 0 0 auto;
+}
+
+.account-settings-tab .account-security-panel,
+.account-settings-tab .account-settings-info-card,
+.account-settings-tab .account-reset-card,
+.account-settings-tab .account-addresses-card {
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 247, 221, 0.96), rgba(244, 224, 184, 0.92));
+  background-size: 7px 100%, auto;
+  border-color: rgba(117, 70, 41, 0.72);
+  border-radius: 7px;
+}
+
+.account-settings-tab .account-settings-form {
+  gap: 10px;
+  padding: 14px 16px 15px;
+  border: 0;
+}
+
+.account-settings-tab .account-settings-form label {
+  grid-template-columns: 164px minmax(0, 1fr);
+  color: #23493f;
+  font-family: var(--font-retro-typewriter);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.account-settings-tab .account-settings-form input {
+  min-height: 34px;
+  font-family: var(--font-retro-grotesk);
+  font-weight: 900;
+  background: rgba(255, 251, 239, 0.76);
+}
+
+.account-settings-tab .account-settings-form .checkout-button {
+  justify-self: center;
+  width: min(320px, 100%);
+  min-height: 42px;
+  margin-top: 4px;
+  font-family: var(--font-retro-grotesk);
+  font-size: 15px;
+  text-transform: uppercase;
+}
+
+.account-settings-info-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.account-settings-info-card {
+  padding-bottom: 12px;
+}
+
+.account-settings-info-card dl {
+  grid-template-columns: 1fr 1fr;
+  padding: 8px 16px 0;
+}
+
+.account-settings-info-card dl > div {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.account-settings-tab .account-reset-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px 12px;
+}
+
+.account-settings-tab .account-reset-card .account-settings-section-title {
+  padding: 0;
+}
+
+.account-settings-tab .account-reset-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.account-settings-tab .account-reset-card .account-outline-red-button {
+  width: 190px;
+  min-height: 42px;
+  font-family: var(--font-retro-grotesk);
+}
+
+.account-settings-tab .account-inline-notice {
+  grid-column: 1 / -1;
+}
+
+.account-addresses-title {
+  justify-content: space-between;
+  min-height: 50px;
+}
+
+.account-addresses-title > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-addresses-title button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 14px;
+  color: var(--red-dark);
+  font-family: var(--font-retro-grotesk);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: rgba(255, 247, 221, 0.72);
+  border: 2px solid var(--red);
+  border-radius: 3px;
+}
+
+.account-settings-tab .account-address-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 14px;
+}
+
+.account-settings-tab .account-address-card {
+  position: relative;
+  min-height: 150px;
+  padding: 18px 16px 18px 118px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.05) 1px, transparent 1px),
+    rgba(255, 247, 221, 0.72);
+  background-size: 7px 100%, auto;
+  border: 2px solid rgba(117, 70, 41, 0.52);
+}
+
+.account-settings-tab .account-address-card span {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  min-width: 92px;
+  margin: 0;
+  padding: 6px 12px 6px 14px;
+  font-family: var(--font-stamp);
+  background: #0b4b37;
+  clip-path: polygon(0 0, 84% 0, 100% 50%, 84% 100%, 0 100%);
+}
+
+.account-settings-tab .account-address-card:nth-child(2n) span {
+  background: #c58b22;
+}
+
+.account-settings-tab .account-address-card strong {
+  font-family: var(--font-retro-typewriter);
+  font-size: 17px;
+}
+
+.account-settings-tab .account-address-card small {
+  color: #4f2d1d;
+  font-family: var(--font-retro-typewriter);
+  font-weight: 900;
+}
+
+.account-address-manage-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  color: var(--red-dark);
+  font-family: var(--font-retro-grotesk);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: rgba(255, 247, 221, 0.72);
+  border: 2px solid rgba(189, 42, 37, 0.72);
+  border-radius: 3px;
+}
+
+.account-settings-tab .account-address-card em {
+  position: absolute;
+  right: 28px;
+  bottom: 16px;
+  color: rgba(117, 70, 41, 0.36);
+  font-family: var(--font-stamp);
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  transform: rotate(-10deg);
+}
+
+.account-settings-tab .account-add-address {
+  min-height: 150px;
+}
+
+@media (max-width: 1100px) {
+  .account-settings-hero {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .account-settings-star {
+    display: none;
+  }
+
+  .account-settings-hero-copy dl,
+  .account-settings-info-card dl,
+  .account-settings-control-grid,
+  .account-settings-tab .account-address-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-hero-copy dl > div {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 820px) {
+  .account-settings-breadcrumb {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .account-settings-hero {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    padding: 16px;
+  }
+
+  .account-settings-id-card {
+    width: 68px;
+    height: 58px;
+  }
+
+  .account-settings-hero-copy h2 {
+    font-size: 29px;
+  }
+
+  .account-settings-tab .account-settings-form label {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .account-settings-tab .account-reset-card {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-tab .account-reset-card .account-outline-red-button {
+    width: 100%;
+  }
+
+  .account-addresses-title {
+    display: grid;
+    gap: 10px;
+    justify-content: stretch;
+    padding: 10px 14px;
+  }
+
+  .account-addresses-title button {
+    width: 100%;
+  }
+
+  .account-settings-tab .account-address-card {
+    padding: 58px 14px 18px;
+  }
+}
+
 .account-lower-grid .account-security-grid {
   grid-template-columns: 1fr;
 }
@@ -7233,7 +7377,7 @@
 
 @media (max-width: 1500px) {
   .account-center-grid.account-portal-grid {
-    grid-template-columns: 238px minmax(0, 1fr) 332px;
+    grid-template-columns: 214px minmax(0, 1fr) 332px;
     gap: 14px;
     width: min(1500px, calc(100% - 28px));
     padding-top: 18px;
@@ -7296,6 +7440,88 @@
   .account-dashboard-modal {
     width: min(100%, calc(100vw - 24px));
     padding: var(--space-4);
+  }
+
+  .account-portal-header {
+    position: relative;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .account-brand-button {
+    justify-self: center;
+  }
+
+  .account-portal-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .account-portal-actions button {
+    justify-content: center;
+    min-width: 0;
+    padding: 0 8px;
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  .account-order-filter-bar {
+    display: flex;
+    overflow-x: auto;
+    padding: 0 10px;
+  }
+
+  .account-order-filter-bar button {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 0 12px;
+    font-size: 14px;
+  }
+
+  .account-order-history-toolbar {
+    display: grid;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .account-order-history-toolbar strong {
+    font-size: 18px;
+  }
+
+  .account-date-range-control {
+    justify-content: center;
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .account-date-range-control input {
+    width: 122px;
+  }
+
+  .account-center-grid.account-portal-grid {
+    grid-template-columns: 1fr;
+    width: min(100%, calc(100% - 24px));
+  }
+
+  .account-center-column--overview,
+  .account-rewards-column--overview {
+    display: grid;
+  }
+
+  .account-menu-panel,
+  .account-center-column--orders,
+  .account-center-column--settings,
+  .account-center-column--wishlist,
+  .account-center-column--overview .account-summary-panel,
+  .account-center-column--overview .account-orders-panel,
+  .account-center-column--overview .account-recent-card,
+  .account-rewards-column--wishlist,
+  .account-rewards-column--overview .account-rewards-panel,
+  .account-rewards-column--overview .account-support-card {
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .account-head,
@@ -7375,7 +7601,7 @@
 .payment-box-head h3 {
   margin: 2px 0 0;
   color: var(--ink);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 22px;
   line-height: 1.15;
 }
@@ -7431,7 +7657,7 @@
 .paypal-demo-panel p {
   margin: 4px 0 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -7499,7 +7725,7 @@
   max-width: 390px;
   margin: 0;
   color: var(--muted);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
 }
 
 @media (min-width: 1360px) {
@@ -7544,7 +7770,7 @@
   .desktop-rail h3 {
     margin: 6px 0 var(--space-3);
     color: var(--ink);
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: var(--font-editorial);
     line-height: 1.1;
   }
 
@@ -7581,7 +7807,7 @@
     overflow: hidden;
     padding: 0 var(--space-3);
     color: var(--cream);
-    font-family: Inter, system-ui, sans-serif;
+    font-family: var(--font-ui);
     font-weight: 800;
     letter-spacing: 0;
     text-transform: uppercase;
@@ -7664,7 +7890,7 @@
   .rail-note {
     margin: 8px 0 12px;
     color: var(--muted);
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: var(--font-editorial);
     font-size: 13px;
     line-height: 1.35;
   }
@@ -7771,7 +7997,7 @@
 
   .service-strip,
   .store-section {
-    width: min(1488px, calc(100% - 144px));
+    width: min(1440px, calc(100% - 48px));
   }
 }
 
@@ -7781,30 +8007,6 @@
 }
 
 @media (max-width: 1199px) {
-  .memory-onboarding::before {
-    inset: 22px;
-  }
-
-  .memory-onboarding::after {
-    top: 42px;
-    right: 42px;
-  }
-
-  .memory-onboarding-copy {
-    left: 42px;
-    bottom: 52px;
-    width: min(560px, calc(100vw - 84px));
-    min-width: 0;
-  }
-
-  .memory-onboarding-copy h2 {
-    font-size: clamp(50px, 6.8vw, 76px);
-  }
-
-  .memory-onboarding-copy > p:not(.receipt-label) {
-    max-width: 500px;
-  }
-
   .header-main {
     grid-template-columns: minmax(260px, 0.95fr) minmax(300px, 1fr) minmax(170px, auto);
     gap: var(--space-4);
@@ -7996,33 +8198,6 @@
 }
 
 @media (max-width: 767px) {
-  .memory-onboarding::before {
-    inset: 14px;
-  }
-
-  .memory-onboarding::after {
-    top: 24px;
-    right: 24px;
-    font-size: 12px;
-  }
-
-  .memory-onboarding-copy {
-    left: 24px;
-    right: 24px;
-    bottom: 82px;
-    width: auto;
-    min-width: 0;
-    gap: 16px;
-  }
-
-  .memory-onboarding-copy h2 {
-    font-size: 54px;
-  }
-
-  .memory-onboarding-copy > p:not(.receipt-label) {
-    font-size: 15px;
-  }
-
   .site-header {
     position: relative;
     width: 100%;
@@ -8109,7 +8284,12 @@
   .primary-nav button {
     min-height: 48px;
     padding: 0 15px;
-    font-size: 15px;
+    font-size: 14px;
+  }
+
+  .shop-app.memory-entered .primary-nav a,
+  .shop-app.memory-entered .primary-nav button {
+    font-size: 14px;
   }
 
   .primary-nav .home-tab {
@@ -8363,4 +8543,11 @@
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.shop-app button,
+.shop-app input,
+.shop-app select,
+.shop-app textarea {
+  font-family: var(--font-ui);
 }

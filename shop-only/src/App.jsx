@@ -36,7 +36,6 @@ import heroMemoryLaneImage from './assets/hero-memory-lane.png'
 import heroProductSheetImage from './assets/hero-product-sheet.png'
 import heroSupermarketImage from './assets/hero-supermarket.png'
 import heroSupermarketV2Image from './assets/hero-supermarket-v2.png'
-import introVideo from './assets/intro/dreaming-1989-intro.mp4'
 import dreaming1989LogoImage from './assets/header/dreaming-1989-logo-alpha.png'
 import vhsCassetteHeaderImage from './assets/header/vhs-cassette-header.png'
 import mallWeekendImage from './assets/mall-weekend.png'
@@ -69,6 +68,47 @@ import RevenueDashboard from './RevenueDashboard.jsx'
 import './App.css'
 
 const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
+
+const accountRouteBase = '/my-account'
+const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
+const orderFilterTabs = ['All', 'Pending', 'Processing', 'Shipping', 'Delivered', 'Cancelled']
+const defaultOrderDateRange = { start: '2020-12-01', end: '2026-06-05' }
+
+const normalizePathname = (pathname) => {
+  const normalizedPath = (pathname || '/').replace(/\/+$/, '')
+  return normalizedPath || '/'
+}
+
+const getAccountTabFromPath = (pathname) => {
+  const normalizedPath = normalizePathname(pathname)
+  if (normalizedPath === accountRouteBase) return 'dashboard'
+  if (!normalizedPath.startsWith(`${accountRouteBase}/`)) return null
+
+  const routeTab = normalizedPath.slice(accountRouteBase.length + 1).split('/')[0]
+  return accountRouteTabs.has(routeTab) ? routeTab : 'dashboard'
+}
+
+const getAccountPath = (tab = 'dashboard') => {
+  if (tab === 'dashboard') return accountRouteBase
+  return `${accountRouteBase}/${tab}`
+}
+
+const getDateOnlyTime = (value) => {
+  const [year, month, day] = String(value).split('-').map(Number)
+  if (!year || !month || !day) return null
+  return new Date(year, month - 1, day).getTime()
+}
+
+const getOrderDateOnlyTime = (dateLabel) => {
+  if (String(dateLabel).toLowerCase() === 'today') {
+    const today = new Date()
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+  }
+
+  const parsedDate = new Date(dateLabel)
+  if (Number.isNaN(parsedDate.getTime())) return null
+  return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate()).getTime()
+}
 
 const productImages = {
   rewindTee: rewindTeeImage,
@@ -681,7 +721,6 @@ const getSelectedOptions = (groups, selectedOptions) =>
 
 const formatPrice = (value) => `$${value.toFixed(2)}`
 const collapsedCartItemCount = 2
-const visitorStorageKey = 'dreaming-1989-visitor'
 
 const escapePdfText = (value) =>
   String(value ?? '')
@@ -1112,42 +1151,8 @@ const saveStoredCustomer = (customer) => {
   }
 }
 
-const getStoredVisitorExperience = () => {
-  try {
-    const forceIntro = window.location.hash === '#intro' || new URLSearchParams(window.location.search).has('intro')
-    const savedVisitor = window.localStorage.getItem(visitorStorageKey)
-    const savedCustomer = window.localStorage.getItem('dreaming-1989-customer')
-    const hasVisited = Boolean(savedCustomer) || Boolean(savedVisitor && JSON.parse(savedVisitor)?.hasVisited)
-
-    return {
-      hasVisited,
-      showOnboarding: forceIntro || !hasVisited,
-      showReturnCue: !forceIntro && hasVisited,
-    }
-  } catch {
-    return {
-      hasVisited: false,
-      showOnboarding: true,
-      showReturnCue: false,
-    }
-  }
-}
-
-const saveVisitorExperience = () => {
-  try {
-    window.localStorage.setItem(
-      visitorStorageKey,
-      JSON.stringify({
-        hasVisited: true,
-        lastVisit: new Date().toISOString(),
-      }),
-    )
-  } catch {
-    // Visitor recognition is a progressive enhancement.
-  }
-}
-
 function App() {
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname || '/')
   const [activeCategory, setActiveCategory] = useState('All')
   const [query, setQuery] = useState('')
   const [cartOpen, setCartOpen] = useState(false)
@@ -1168,7 +1173,7 @@ function App() {
   const [supportMenuOpen, setSupportMenuOpen] = useState(false)
   const [supportMenuPosition, setSupportMenuPosition] = useState({ top: 0, left: 0 })
   const [cartExpanded, setCartExpanded] = useState(false)
-  const [accountTab, setAccountTab] = useState('orders')
+  const [accountTab, setAccountTab] = useState(() => getAccountTabFromPath(window.location.pathname) ?? 'orders')
   const [selectedOrderId, setSelectedOrderId] = useState(null)
   const [profileNotice, setProfileNotice] = useState('')
   const [profileEditorOpen, setProfileEditorOpen] = useState(false)
@@ -1181,12 +1186,12 @@ function App() {
   const [addressCountry, setAddressCountry] = useState(emptyAddressDraft.country)
   const [addressCountryMenuOpen, setAddressCountryMenuOpen] = useState(false)
   const [ordersExpanded, setOrdersExpanded] = useState(false)
+  const [orderFilter, setOrderFilter] = useState('All')
+  const [orderDateRange, setOrderDateRange] = useState(defaultOrderDateRange)
   const [copiedCoupon, setCopiedCoupon] = useState('')
   const [couponsExpanded, setCouponsExpanded] = useState(false)
   const [orderDetailOpen, setOrderDetailOpen] = useState(false)
   const [orderDetailNotice, setOrderDetailNotice] = useState('')
-  const [visitorExperience, setVisitorExperience] = useState(() => getStoredVisitorExperience())
-  const [memoryEntered, setMemoryEntered] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
@@ -1201,18 +1206,22 @@ function App() {
   const flyTimerRef = useRef(null)
   const noticeTimerRef = useRef(null)
   const cartFeedbackCounterRef = useRef(0)
-  const visitorCueTimerRef = useRef(null)
   const pageScrollLockRef = useRef(null)
 
   useEffect(() => {
-    if (visitorExperience.showOnboarding) return undefined
+    const syncCurrentPath = () => setCurrentPath(window.location.pathname || '/')
 
+    window.addEventListener('popstate', syncCurrentPath)
+    return () => window.removeEventListener('popstate', syncCurrentPath)
+  }, [])
+
+  useEffect(() => {
     const slideTimer = window.setInterval(() => {
       setHeroSlideIndex((currentIndex) => (currentIndex + 1) % heroSlides.length)
     }, 5200)
 
     return () => window.clearInterval(slideTimer)
-  }, [visitorExperience.showOnboarding])
+  }, [])
 
   useEffect(() => {
     const syncRoute = () => {
@@ -1236,24 +1245,8 @@ function App() {
     return () => {
       if (flyTimerRef.current) window.clearTimeout(flyTimerRef.current)
       if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current)
-      if (visitorCueTimerRef.current) window.clearTimeout(visitorCueTimerRef.current)
     }
   }, [])
-
-  useEffect(() => {
-    if (!visitorExperience.showReturnCue) return undefined
-
-    visitorCueTimerRef.current = window.setTimeout(() => {
-      setVisitorExperience((currentExperience) => ({
-        ...currentExperience,
-        showReturnCue: false,
-      }))
-    }, 2800)
-
-    return () => {
-      if (visitorCueTimerRef.current) window.clearTimeout(visitorCueTimerRef.current)
-    }
-  }, [visitorExperience.showReturnCue])
 
   const updateSupportMenuPosition = useCallback(() => {
     const triggerRect = supportButtonRef.current?.getBoundingClientRect()
@@ -1370,9 +1363,35 @@ function App() {
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const featuredDropImage = featuredDrop.image
+  const routeAccountTab = getAccountTabFromPath(currentPath)
+  const displayedAccountTab = routeAccountTab ?? accountTab
   const customerOrders = customer?.orders?.length ? customer.orders : demoCustomerOrders
-  const hasOrderToggle = customerOrders.length > 3
-  const visibleCustomerOrders = ordersExpanded ? customerOrders : customerOrders.slice(0, 3)
+  const orderDateStartTime = getDateOnlyTime(orderDateRange.start)
+  const orderDateEndTime = getDateOnlyTime(orderDateRange.end)
+  const orderDateRangeStart = Math.min(orderDateStartTime ?? 0, orderDateEndTime ?? Number.MAX_SAFE_INTEGER)
+  const orderDateRangeEnd = Math.max(orderDateStartTime ?? 0, orderDateEndTime ?? Number.MAX_SAFE_INTEGER)
+  const filteredCustomerOrders = customerOrders.filter((order) => {
+    const normalizedStatus = String(order.status).toLowerCase()
+    const orderDateTime = getOrderDateOnlyTime(order.date)
+    const matchesDate =
+      orderDateTime === null || (orderDateTime >= orderDateRangeStart && orderDateTime <= orderDateRangeEnd)
+
+    if (orderFilter === 'All') return matchesDate
+    if (orderFilter === 'Pending') return matchesDate && normalizedStatus.includes('received')
+    if (orderFilter === 'Processing') {
+      return matchesDate && (normalizedStatus.includes('production') || normalizedStatus.includes('processing'))
+    }
+    if (orderFilter === 'Shipping') {
+      return matchesDate && (normalizedStatus.includes('shipped') || normalizedStatus.includes('shipping'))
+    }
+    if (orderFilter === 'Delivered') return matchesDate && normalizedStatus.includes('delivered')
+    if (orderFilter === 'Cancelled') return matchesDate && normalizedStatus.includes('cancelled')
+
+    return matchesDate
+  })
+  const ordersForCurrentView = displayedAccountTab === 'orders' ? filteredCustomerOrders : customerOrders
+  const hasOrderToggle = ordersForCurrentView.length > 3
+  const visibleCustomerOrders = ordersExpanded ? ordersForCurrentView : ordersForCurrentView.slice(0, 3)
   const selectedAccountOrder =
     customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? demoCustomerOrders[0]
   const detailOrder = orderDetailOpen ? selectedAccountOrder : null
@@ -1384,6 +1403,39 @@ function App() {
   const wishlistProducts = products.filter((product) => wishlistIds.includes(product.id))
   const visibleAccountCoupons = couponsExpanded ? accountCoupons : accountCoupons.slice(0, 2)
   const hasAccountCouponToggle = accountCoupons.length > 2
+  const accountRouteOpen = Boolean(routeAccountTab)
+  const accountScreenOpen = accountRouteOpen && Boolean(customer)
+  const accountAuthOpen = accountRouteOpen && !customer
+  const accountSettingsTabs = ['settings', 'addresses', 'payments']
+  const isAccountSettingsTab = accountSettingsTabs.includes(displayedAccountTab)
+  const accountLayoutMode =
+    isAccountSettingsTab ? 'settings' : ['orders', 'wishlist'].includes(displayedAccountTab) ? displayedAccountTab : 'overview'
+
+  useEffect(() => {
+    if (!accountScreenOpen) return
+
+    document.querySelector('.account-screen-backdrop')?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [accountScreenOpen, displayedAccountTab])
+
+  const navigateToPath = useCallback((path) => {
+    const nextPath = path || '/'
+    if (window.location.pathname !== nextPath || window.location.hash) {
+      window.history.pushState(null, '', nextPath)
+    }
+    setCurrentPath(window.location.pathname || '/')
+  }, [])
+
+  const navigateToAccount = useCallback((tab = 'dashboard') => {
+    const nextTab = accountRouteTabs.has(tab) ? tab : 'dashboard'
+    setAccountTab(nextTab)
+    setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? demoCustomerOrders[0]?.id)
+    navigateToPath(getAccountPath(nextTab))
+  }, [customerOrders, navigateToPath])
+
+  const closeAuth = () => {
+    setAuthOpen(false)
+    if (accountAuthOpen) navigateToPath('/')
+  }
 
   const openProductDetail = (product) => {
     setSelectedProduct(product)
@@ -1427,32 +1479,6 @@ function App() {
     updateSupportMenuPosition()
     setSupportMenuOpen(true)
   }
-
-  const enterMemoryMarket = useCallback(() => {
-    saveVisitorExperience()
-    window.scrollTo(0, 0)
-    if (window.location.hash === '#intro' || window.location.search.includes('intro')) {
-      window.history.replaceState(null, '', window.location.pathname || '/')
-    }
-    setHeroSlideIndex(0)
-    setMemoryEntered(true)
-    setVisitorExperience({
-      hasVisited: true,
-      showOnboarding: false,
-      showReturnCue: false,
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!visitorExperience.showOnboarding) return undefined
-    window.scrollTo(0, 0)
-
-    const introTimer = window.setTimeout(() => {
-      enterMemoryMarket()
-    }, 11200)
-
-    return () => window.clearTimeout(introTimer)
-  }, [enterMemoryMarket, visitorExperience.showOnboarding])
 
   const getVisibleCartTarget = () => {
     const floatingRect = floatingCartButtonRef.current?.getBoundingClientRect()
@@ -1564,15 +1590,18 @@ function App() {
   }
 
   const openAccountDashboard = (tab = 'orders') => {
-    setAccountTab(tab)
-    setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? demoCustomerOrders[0]?.id)
-    setAccountOpen(true)
+    navigateToAccount(tab)
   }
 
   const openOrderDetail = (order) => {
     setSelectedOrderId(order.id)
     setOrderDetailNotice('')
     setOrderDetailOpen(true)
+  }
+
+  const updateOrderDateRange = (field, value) => {
+    setOrderDateRange((currentRange) => ({ ...currentRange, [field]: value }))
+    setOrdersExpanded(false)
   }
 
   const handleAuthSubmit = (event) => {
@@ -1594,7 +1623,7 @@ function App() {
     setAccountTab('orders')
     setSelectedOrderId(nextCustomer.orders[0]?.id ?? null)
     setAuthOpen(false)
-    setAccountOpen(true)
+    navigateToAccount('orders')
   }
 
   const requestLogout = () => {
@@ -1606,6 +1635,7 @@ function App() {
     saveStoredCustomer(null)
     setAccountOpen(false)
     setLogoutConfirmOpen(false)
+    navigateToPath('/')
   }
 
   const openProfileEditor = () => {
@@ -1852,59 +1882,7 @@ function App() {
   }
 
   return (
-    <div className={`shop-app${memoryEntered || visitorExperience.showOnboarding ? ' memory-entered' : ''}`}>
-      {visitorExperience.showOnboarding && (
-        <div className="memory-onboarding-backdrop" role="presentation">
-          <section
-            className="memory-onboarding"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="memory-onboarding-title"
-          >
-            <div className="memory-onboarding-scene" aria-hidden="true">
-              <video
-                className="memory-entry-video"
-                autoPlay
-                muted
-                playsInline
-                preload="auto"
-                poster={heroMemoryLaneImage}
-              >
-                <source src={introVideo} type="video/mp4" />
-              </video>
-            </div>
-            <div className="memory-intro-brand" aria-hidden="true">
-              <span>Dreaming in 1989</span>
-            </div>
-            <div className="memory-onboarding-copy">
-              <p className="receipt-label">Memory lane is opening</p>
-              <h2 id="memory-onboarding-title">Good times are back on the shelf.</h2>
-              <p>Opening memory lane...</p>
-              <div className="memory-entry-progress" aria-hidden="true">
-                <span />
-              </div>
-            </div>
-            <div className="memory-welcome" aria-hidden="true">Welcome</div>
-            <button className="memory-skip-button" type="button" onClick={enterMemoryMarket}>
-              Skip intro
-              <ChevronRight size={16} />
-            </button>
-          </section>
-        </div>
-      )}
-
-      {visitorExperience.showReturnCue &&
-        !visitorExperience.showOnboarding &&
-        !accountOpen &&
-        !authOpen &&
-        !checkoutOpen &&
-        !selectedProduct && (
-        <div className="returning-memory-ticket" role="status">
-          <span>Welcome back</span>
-          <strong>Your memory lane is still open.</strong>
-        </div>
-      )}
-
+    <div className={`shop-app memory-entered${accountRouteOpen ? ' account-route-active' : ''}`}>
       <header className="site-header">
         <div className="header-main">
           <a className="brand" href="#top" aria-label="Dreaming in 1989 home">
@@ -1969,13 +1947,10 @@ function App() {
           <a className="home-tab" href="#top" aria-label="Home">
             <Home size={18} />
           </a>
-          <a href="#products">Aisles</a>
           <a href="#new-arrivals">New Drops</a>
           <a href="#collections">Bundles</a>
-          <a href="#featured">Spotlight</a>
           <a href="#products">Best Sellers</a>
           <a href="#deals">Gift Counter</a>
-          <a href="#gift-guide">Shelf Sets</a>
           <div
             className={`support-menu ${supportMenuOpen ? 'is-open' : ''}`}
             onBlur={(event) => {
@@ -2028,12 +2003,10 @@ function App() {
                   }}
                 >
                   <span>{policy.title}</span>
-                  <small>{policy.label}</small>
                 </button>
               ))}
               <a href="#footer" role="menuitem" onClick={() => setSupportMenuOpen(false)}>
                 <span>Support Email</span>
-                <small>Store footer details</small>
               </a>
             </div>
           </div>
@@ -2914,8 +2887,8 @@ function App() {
         </div>
       </aside>
 
-      {authOpen && (
-        <div className="modal-backdrop" role="presentation" onClick={() => setAuthOpen(false)}>
+      {(authOpen || accountAuthOpen) && (
+        <div className="modal-backdrop" role="presentation" onClick={closeAuth}>
           <section
             className="auth-modal"
             role="dialog"
@@ -2923,7 +2896,7 @@ function App() {
             aria-labelledby="auth-title"
             onClick={(event) => event.stopPropagation()}
           >
-            <button className="modal-close" type="button" aria-label="Close sign in" onClick={() => setAuthOpen(false)}>
+            <button className="modal-close" type="button" aria-label="Close sign in" onClick={closeAuth}>
               <X size={22} />
             </button>
             <p className="receipt-label">Customer counter</p>
@@ -2963,7 +2936,7 @@ function App() {
         </div>
       )}
 
-      {accountOpen && customer && (
+      {accountScreenOpen && customer && (
         <div className="modal-backdrop account-screen-backdrop" role="presentation">
           <section
             className="account-modal account-dashboard-modal account-screen account-portal"
@@ -2971,40 +2944,17 @@ function App() {
             aria-labelledby="account-title"
           >
             <header className="account-portal-header">
-              <button className="account-brand-button" type="button" onClick={() => setAccountOpen(false)}>
+              <button className="account-brand-button" type="button" onClick={() => navigateToPath('/')}>
                 <img src={dreaming1989LogoImage} alt="Dreaming in 1989" />
               </button>
-              <nav className="account-portal-nav" aria-label="Account dashboard">
-                {[
-                  ['dashboard', 'Dashboard', 'account-dashboard'],
-                  ['orders', 'Orders', 'account-orders'],
-                  ['addresses', 'Addresses', 'account-addresses'],
-                  ['payments', 'Payments', 'account-security'],
-                  ['wishlist', 'Wishlist', 'account-dashboard'],
-                  ['settings', 'Account Settings', 'account-dashboard'],
-                ].map(([tabId, label, targetId]) => (
-                  <button
-                    className={accountTab === tabId ? 'active' : ''}
-                    key={tabId}
-                    type="button"
-                    onClick={() => {
-                      setAccountTab(tabId)
-                      document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </nav>
               <div className="account-portal-actions">
                 <button type="button" onClick={() => {
-                  setAccountOpen(false)
                   setCartOpen(true)
                 }}>
                   <ShoppingCart size={18} />
                   Cart ({itemCount})
                 </button>
-                <button type="button" onClick={() => setAccountOpen(false)}>
+                <button type="button" onClick={() => navigateToPath('/')}>
                   <ChevronRight size={18} />
                   Back to Shop
                 </button>
@@ -3047,14 +2997,11 @@ function App() {
                     ['settings', 'Account Settings', ShieldCheck],
                   ].map(([tabId, label, Icon]) => (
                     <button
-                      className={accountTab === tabId ? 'active' : ''}
+                      className={displayedAccountTab === tabId || (tabId === 'settings' && isAccountSettingsTab) ? 'active' : ''}
                       key={tabId}
                       type="button"
                       onClick={() => {
-                        setAccountTab(tabId)
-                        document.getElementById(
-                          tabId === 'settings' || tabId === 'wishlist' ? 'account-dashboard' : 'account-orders',
-                        )?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                        navigateToAccount(tabId)
                       }}
                     >
                       <Icon size={18} />
@@ -3071,55 +3018,133 @@ function App() {
                 </div>
               </aside>
 
-              <main className="account-main-column account-center-column">
-                {accountTab === 'settings' ? (
-                  <div className="account-lower-grid account-settings-tab">
-                    <section className="account-panel account-security-panel" id="account-security">
-                      <div className="account-panel-title">Security</div>
-                      <div className="account-security-grid">
+              <main className={`account-main-column account-center-column account-center-column--${accountLayoutMode}`}>
+                {isAccountSettingsTab ? (
+                  <div className="account-settings-tab">
+                    <div className="account-settings-breadcrumb">
+                      <Home size={14} />
+                      <span>/</span>
+                      <b>My Account</b>
+                      <span>/</span>
+                      <strong>Account Settings</strong>
+                    </div>
+
+                    <section className="account-settings-hero">
+                      <div className="account-settings-id-card" aria-hidden="true">
+                        <User size={42} />
+                      </div>
+                      <div className="account-settings-hero-copy">
+                        <h2>Account Settings</h2>
+                        <dl>
+                          <div>
+                            <dt>Email Address</dt>
+                            <dd>{customer.email}</dd>
+                          </div>
+                          <div>
+                            <dt>Membership Level</dt>
+                            <dd><Tags size={16} /> Rewind Club</dd>
+                          </div>
+                          <div>
+                            <dt>Reward Progress</dt>
+                            <dd>750 / 1,000 pts</dd>
+                            <span className="account-settings-progress"><i /></span>
+                          </div>
+                        </dl>
+                      </div>
+                      <div className="account-settings-star" aria-hidden="true">
+                        <Sparkles size={27} />
+                      </div>
+                    </section>
+
+                    <div className="account-settings-control-grid">
+                      <section className="account-panel account-security-panel" id="account-security">
+                        <div className="account-settings-section-title">
+                          <ShieldCheck size={19} />
+                          <h3>Security</h3>
+                        </div>
                         <form className="account-settings-form" onSubmit={(event) => {
                           event.preventDefault()
                           updatePasswordDraft()
                         }}>
-                          <h3><ShieldCheck size={18} /> Change Password</h3>
                           <label>
                             Current Password
-                            <input type="password" placeholder="Current password" />
+                            <input type="password" placeholder="••••••••" />
                           </label>
                           <label>
                             New Password
-                            <input type="password" placeholder="New password" />
+                            <input type="password" placeholder="••••••••" />
                           </label>
                           <label>
                             Confirm New Password
-                            <input type="password" placeholder="Confirm password" />
+                            <input type="password" placeholder="••••••••" />
                           </label>
                           <button className="checkout-button" type="submit">Update Password</button>
                         </form>
-                        <div className="account-reset-card">
-                          <h3><Mail size={18} /> Reset Password</h3>
-                          <p>Send a secure reset link to {customer.email}.</p>
+                      </section>
+
+                      <div className="account-settings-info-stack">
+                        <section className="account-panel account-settings-info-card">
+                          <div className="account-settings-section-title">
+                            <User size={18} />
+                            <h3>Login Info</h3>
+                          </div>
+                          <dl>
+                            <div>
+                              <dt>Email Address</dt>
+                              <dd>{customer.email}</dd>
+                            </div>
+                            <div>
+                              <dt>Last Sign-In</dt>
+                              <dd>May 18, 2025 • 8:42 PM</dd>
+                            </div>
+                          </dl>
+                        </section>
+
+                        <section className="account-panel account-reset-card">
+                          <div>
+                            <div className="account-settings-section-title">
+                              <RefreshCcw size={18} />
+                              <h3>Reset Password</h3>
+                            </div>
+                            <p>We'll send you a link to reset your password.</p>
+                          </div>
                           <button className="account-outline-red-button" type="button" onClick={sendResetLinkDraft}>
                             Send Reset Link
                           </button>
                           {securityNotice && <small className="account-inline-notice">{securityNotice}</small>}
-                        </div>
+                        </section>
+
+                        <section className="account-panel account-settings-info-card">
+                          <div className="account-settings-section-title">
+                            <Sparkles size={18} />
+                            <h3>Account Status</h3>
+                          </div>
+                          <dl>
+                            <div>
+                              <dt>Member Since</dt>
+                              <dd>March 12, 2024</dd>
+                            </div>
+                            <div>
+                              <dt>Reward Progress</dt>
+                              <dd>750 / 1,000 pts</dd>
+                            </div>
+                          </dl>
+                          <span className="account-settings-progress"><i /></span>
+                        </section>
                       </div>
-                    </section>
+                    </div>
 
                     <section className="account-panel account-addresses-card" id="account-addresses">
-                      <div className="account-panel-title">
-                        Saved Addresses
+                      <div className="account-settings-section-title account-addresses-title">
+                        <div>
+                          <FileText size={18} />
+                          <h3>Saved Addresses</h3>
+                        </div>
                         <button
                           type="button"
-                          onClick={() => {
-                            const nextManageMode = !addressManageMode
-                            setAddressManageMode(nextManageMode)
-                            setAddressNotice('')
-                            if (!nextManageMode) closeAddressEditor()
-                          }}
+                          onClick={openAddAddress}
                         >
-                          {addressManageMode ? 'Done' : 'Manage'} <ChevronRight size={15} />
+                          <Plus size={15} /> Add New Address
                         </button>
                       </div>
                       <div className="account-address-grid">
@@ -3128,6 +3153,10 @@ function App() {
                             <span>{address.label}</span>
                             <strong>{address.name}</strong>
                             {address.lines.filter(Boolean).map((line) => <small key={line}>{line}</small>)}
+                            <button className="account-address-manage-button" type="button" onClick={() => openEditAddress(address)}>
+                              <ShieldCheck size={13} /> Manage
+                            </button>
+                            <em aria-hidden="true">{address.label.toLowerCase() === 'gift' ? '1989' : '62704'}</em>
                             {addressManageMode && (
                               <div className="account-address-actions">
                                 <button type="button" onClick={() => openEditAddress(address)}>Edit</button>
@@ -3142,7 +3171,7 @@ function App() {
                         {!savedAddresses.length && (
                           <p className="account-empty-address">No saved addresses yet.</p>
                         )}
-                      <button className="account-add-address" type="button" onClick={openAddAddress}>
+                        <button className="account-add-address" type="button" onClick={openAddAddress}>
                           <Plus size={24} />
                           Add New Address
                         </button>
@@ -3150,7 +3179,7 @@ function App() {
                       {addressNotice && <small className="account-inline-notice account-address-notice">{addressNotice}</small>}
                     </section>
                   </div>
-                ) : accountTab === 'wishlist' ? (
+                ) : displayedAccountTab === 'wishlist' ? (
                   <section className="account-panel account-wishlist-panel" id="account-wishlist">
                     <div className="account-panel-title">
                       Wishlist
@@ -3178,6 +3207,83 @@ function App() {
                           </div>
                         </article>
                       ))}
+                    </div>
+                  </section>
+                ) : displayedAccountTab === 'orders' ? (
+                  <section className="account-panel account-orders-panel account-orders-compact" id="account-orders">
+                    <div className="account-order-filter-bar" aria-label="Order status filters">
+                      {orderFilterTabs.map((filter) => (
+                        <button
+                          className={orderFilter === filter ? 'active' : ''}
+                          key={filter}
+                          type="button"
+                          onClick={() => {
+                            setOrderFilter(filter)
+                            setOrdersExpanded(false)
+                          }}
+                        >
+                          {filter}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="account-order-history-toolbar">
+                      <strong>Purchase History</strong>
+                      <div className="account-date-range-control" aria-label="Order date range">
+                        <input
+                          aria-label="Order start date"
+                          max={orderDateRange.end}
+                          type="date"
+                          value={orderDateRange.start}
+                          onChange={(event) => updateOrderDateRange('start', event.target.value)}
+                          onInput={(event) => updateOrderDateRange('start', event.target.value)}
+                        />
+                        <ChevronRight size={20} />
+                        <input
+                          aria-label="Order end date"
+                          min={orderDateRange.start}
+                          type="date"
+                          value={orderDateRange.end}
+                          onChange={(event) => updateOrderDateRange('end', event.target.value)}
+                          onInput={(event) => updateOrderDateRange('end', event.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="account-panel-title">
+                      Order History
+                      {hasOrderToggle && (
+                        <button type="button" onClick={() => setOrdersExpanded((currentValue) => !currentValue)}>
+                          {ordersExpanded ? 'Show Less' : 'Show More'} <ChevronDown size={15} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="account-order-table">
+                      {visibleCustomerOrders.map((order) => {
+                        const firstItem = order.items?.[0]
+                        const itemLabel = typeof firstItem === 'string' ? firstItem : firstItem?.name
+                        const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : '1 item'
+
+                        return (
+                          <button
+                            className={`account-order-table-row ${selectedAccountOrder?.id === order.id ? 'active' : ''}`}
+                            key={order.id}
+                            type="button"
+                            onClick={() => openOrderDetail(order)}
+                          >
+                            <div className="account-order-id">
+                              <strong>#{order.id}</strong>
+                              <span>{order.date}</span>
+                            </div>
+                            <img src={getAccountLineItemImage(firstItem)} alt={itemLabel} />
+                            <div className="account-order-item">
+                              <strong>{itemLabel}</strong>
+                              <span>{itemCountLabel}</span>
+                            </div>
+                            <em className={`status-${order.status.toLowerCase().replace(/\s+/g, '-')}`}>{order.status}</em>
+                            <b>{formatPrice(order.total)}</b>
+                            <span className="account-view-detail">View Detail <ChevronRight size={14} /></span>
+                          </button>
+                        )
+                      })}
                     </div>
                   </section>
                 ) : (
@@ -3278,62 +3384,64 @@ function App() {
                 )}
               </main>
 
-              <aside className="account-side-column account-rewards-column">
-                <section className="account-panel account-rewards-panel">
-                  <div className="account-panel-title">
-                    Coupons
-                  </div>
-                  <div className="account-coupon-stack">
-                    {visibleAccountCoupons.map((coupon) => (
-                      <article className={`account-coupon-ticket ${coupon.tone}`} key={coupon.code}>
-                        <div>
-                          <strong>{coupon.code}</strong>
-                          <span>Active</span>
-                        </div>
-                        <div>
-                          <b>{coupon.offer}</b>
-                          <small>{coupon.detail}</small>
-                          <em>Exp. {coupon.expires}</em>
-                        </div>
-                        <button type="button" onClick={() => copyCouponCode(coupon.code)}>
-                          {copiedCoupon === coupon.code ? 'Copied' : 'Copy'}
-                        </button>
-                      </article>
-                    ))}
-                  </div>
-                  {hasAccountCouponToggle && (
-                    <button
-                      className="account-coupon-toggle"
-                      type="button"
-                      onClick={() => setCouponsExpanded((isExpanded) => !isExpanded)}
-                    >
-                      {couponsExpanded ? 'Show less' : 'Show more'}
-                    </button>
-                  )}
-                </section>
-
-                <section className="account-panel account-support-card">
-                  <div className="account-panel-title">Support Center</div>
-                  <div className="account-support-content">
-                    <div>
-                      {[
-                        ['Browse Help', 'Common questions'],
-                        ['Contact Support', 'Talk to our team'],
-                        ['Order Issues', 'Get order help'],
-                      ].map(([title, copy]) => (
-                        <button type="button" key={title} onClick={() => setAccountTab('support')}>
-                          <Truck size={17} />
-                          <span>
-                            <strong>{title}</strong>
-                            <small>{copy}</small>
-                          </span>
-                        </button>
+              {displayedAccountTab !== 'orders' && !isAccountSettingsTab && (
+                <aside className={`account-side-column account-rewards-column account-rewards-column--${accountLayoutMode}`}>
+                  <section className="account-panel account-rewards-panel">
+                    <div className="account-panel-title">
+                      Coupons
+                    </div>
+                    <div className="account-coupon-stack">
+                      {visibleAccountCoupons.map((coupon) => (
+                        <article className={`account-coupon-ticket ${coupon.tone}`} key={coupon.code}>
+                          <div>
+                            <strong>{coupon.code}</strong>
+                            <span>Active</span>
+                          </div>
+                          <div>
+                            <b>{coupon.offer}</b>
+                            <small>{coupon.detail}</small>
+                            <em>Exp. {coupon.expires}</em>
+                          </div>
+                          <button type="button" onClick={() => copyCouponCode(coupon.code)}>
+                            {copiedCoupon === coupon.code ? 'Copied' : 'Copy'}
+                          </button>
+                        </article>
                       ))}
                     </div>
-                    <img src={mallWeekendImage} alt="Retro mall support desk" />
-                  </div>
-                </section>
-              </aside>
+                    {hasAccountCouponToggle && (
+                      <button
+                        className="account-coupon-toggle"
+                        type="button"
+                        onClick={() => setCouponsExpanded((isExpanded) => !isExpanded)}
+                      >
+                        {couponsExpanded ? 'Show less' : 'Show more'}
+                      </button>
+                    )}
+                  </section>
+
+                  <section className="account-panel account-support-card" id="account-support">
+                    <div className="account-panel-title">Support Center</div>
+                    <div className="account-support-content">
+                      <div>
+                        {[
+                          ['Browse Help', 'Common questions'],
+                          ['Contact Support', 'Talk to our team'],
+                          ['Order Issues', 'Get order help'],
+                        ].map(([title, copy]) => (
+                          <button type="button" key={title} onClick={() => navigateToAccount('support')}>
+                            <Truck size={17} />
+                            <span>
+                              <strong>{title}</strong>
+                              <small>{copy}</small>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      <img src={mallWeekendImage} alt="Retro mall support desk" />
+                    </div>
+                  </section>
+                </aside>
+              )}
             </div>
           </section>
         </div>
@@ -3661,7 +3769,7 @@ function App() {
               </button>
               <button type="button" onClick={() => {
                 setOrderDetailOpen(false)
-                setAccountTab('support')
+                navigateToAccount('support')
               }}>
                 <Mail size={17} /> Contact Support
               </button>

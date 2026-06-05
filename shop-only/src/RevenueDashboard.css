@@ -9,6 +9,7 @@
   --dash-cyan: #62d8e8;
   min-height: 100vh;
   padding: 14px;
+  font-family: var(--font-ui);
   color: var(--dash-paper-soft);
   background:
     radial-gradient(circle at 18% 12%, rgba(98, 216, 232, 0.16), transparent 28rem),
@@ -16,6 +17,13 @@
     linear-gradient(rgba(255, 240, 207, 0.035) 1px, transparent 1px),
     linear-gradient(180deg, #071513 0%, #123532 42%, #061412 100%);
   background-size: auto, auto, 100% 7px, auto;
+}
+
+.revenue-dashboard button,
+.revenue-dashboard input,
+.revenue-dashboard select,
+.revenue-dashboard textarea {
+  font-family: var(--font-ui);
 }
 
 .dashboard-shell {
@@ -47,7 +55,7 @@
 .dashboard-kicker {
   margin: 0 0 8px;
   color: var(--dash-amber);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   line-height: 1.25;
   text-transform: uppercase;
@@ -57,7 +65,7 @@
 .dashboard-panel h2,
 .milestone-panel h2 {
   margin: 0;
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -74,7 +82,7 @@
   max-width: 650px;
   margin: 8px 0 0;
   color: rgba(255, 240, 207, 0.8);
-  font-family: 'Libre Baskerville', Georgia, serif;
+  font-family: var(--font-editorial);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -108,7 +116,7 @@
 }
 
 .dashboard-date-card strong {
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -137,7 +145,7 @@
 .revenue-total-card strong {
   display: block;
   color: #fff4db;
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 60px;
   font-weight: 400;
   line-height: 0.95;
@@ -158,7 +166,7 @@
   gap: 8px;
   padding: 20px 14px;
   color: var(--dash-ink);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
   background:
     linear-gradient(90deg, rgba(31, 18, 13, 0.06) 1px, transparent 1px),
@@ -172,7 +180,7 @@
   width: 120px;
   padding: 6px 0;
   color: #fff4db;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 26px;
   text-align: center;
   background: var(--dash-red);
@@ -208,14 +216,14 @@
 
 .metric-card span {
   color: #744322;
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 12px;
   text-transform: uppercase;
 }
 
 .metric-card strong {
   color: var(--dash-ink);
-  font-family: 'Abril Fatface', Georgia, serif;
+  font-family: var(--font-display);
   font-size: 31px;
   font-weight: 400;
   line-height: 1;
@@ -302,7 +310,7 @@
 .bar-column small,
 .product-row small {
   color: rgba(255, 240, 207, 0.6);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   text-transform: uppercase;
 }
 
@@ -360,7 +368,7 @@
 
 .product-row > span {
   color: var(--dash-amber);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
 }
 
 .product-row div {
@@ -385,7 +393,7 @@
   margin-top: 10px;
   padding: 8px 14px;
   color: var(--dash-paper-soft);
-  font-family: 'Special Elite', 'Courier New', monospace;
+  font-family: var(--font-retro);
   font-size: 18px;
   text-transform: uppercase;
   background: var(--dash-red);

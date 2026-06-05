@@ -188,11 +188,19 @@ Rules:
 
 ## Typography System
 
-Use four roles only.
+Use four roles only. In code, use the shared CSS variables from `src/index.css`:
+
+- `--font-ui`
+- `--font-display`
+- `--font-editorial`
+- `--font-retro`
+
+The brand should feel like an American late-80s/early-90s mail-order catalog, mall receipt, and VHS-era storefront. Retro fonts should add flavor, not carry every interface element.
 
 ### Display
 
 Font: `Abril Fatface`
+Variable: `--font-display`
 
 Use for:
 
@@ -210,6 +218,7 @@ Rules:
 ### UI Sans
 
 Font: `Inter`
+Variable: `--font-ui`
 
 Use for:
 
@@ -229,6 +238,7 @@ Rules:
 ### Editorial Serif
 
 Font: `Libre Baskerville`
+Variable: `--font-editorial`
 
 Use for:
 
@@ -245,6 +255,7 @@ Rules:
 ### Receipt Mono
 
 Font: `Special Elite`
+Variable: `--font-retro`
 
 Use for:
 
@@ -252,9 +263,12 @@ Use for:
 - SKU-style labels
 - Promo code labels
 - Small retro details
+- Receipt/ticket headings
 
 Rules:
 
+- Do not use for normal navigation, buttons, forms, filters, prices, or table controls.
+- Keep it short and uppercase-friendly.
 - Use sparingly
 - Do not use for long body copy
 

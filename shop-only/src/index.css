@@ -1,12 +1,26 @@
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/inter/700.css';
-@import '@fontsource/inter/800.css';
-@import '@fontsource/abril-fatface/400.css';
-@import '@fontsource/cormorant-garamond/600.css';
 @import '@fontsource/libre-baskerville/400.css';
 @import '@fontsource/libre-baskerville/700.css';
 @import '@fontsource/special-elite/400.css';
+@import '@fontsource/ultra/400.css';
+@import '@fontsource/courier-prime/400.css';
+@import '@fontsource/courier-prime/700.css';
+@import '@fontsource/libre-franklin/400.css';
+@import '@fontsource/libre-franklin/600.css';
+@import '@fontsource/libre-franklin/700.css';
+@import '@fontsource/libre-franklin/800.css';
+@import '@fontsource/bungee/400.css';
+
+:root {
+  --font-ui: 'Libre Franklin', 'Franklin Gothic Medium', Arial, sans-serif;
+  --font-display: 'Ultra', 'Cooper Black', Georgia, serif;
+  --font-editorial: 'Libre Baskerville', Georgia, serif;
+  --font-retro: 'Courier Prime', 'Courier New', monospace;
+  --font-stamp: 'Special Elite', 'Courier New', monospace;
+  --font-retro-display: 'Ultra', 'Cooper Black', Georgia, serif;
+  --font-retro-typewriter: 'Courier Prime', 'Courier New', monospace;
+  --font-retro-grotesk: 'Libre Franklin', 'Franklin Gothic Medium', Arial, sans-serif;
+  --font-retro-signage: 'Bungee', 'Arial Black', sans-serif;
+}
 
 * {
   box-sizing: border-box;
@@ -20,7 +34,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-ui);
   background: #081312;
   color: #fff2d8;
 }
