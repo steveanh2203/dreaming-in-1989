@@ -188,18 +188,23 @@ Rules:
 
 ## Typography System
 
-Use four roles only. In code, use the shared CSS variables from `src/index.css`:
+Use shared CSS variables from `src/index.css`; do not hardcode font names inside component styles:
 
 - `--font-ui`
 - `--font-display`
 - `--font-editorial`
 - `--font-retro`
+- `--font-stamp`
+- `--font-retro-display`
+- `--font-retro-typewriter`
+- `--font-retro-grotesk`
+- `--font-retro-signage`
 
 The brand should feel like an American late-80s/early-90s mail-order catalog, mall receipt, and VHS-era storefront. Retro fonts should add flavor, not carry every interface element.
 
 ### Display
 
-Font: `Abril Fatface`
+Font: `Ultra`
 Variable: `--font-display`
 
 Use for:
@@ -207,17 +212,18 @@ Use for:
 - Hero headline
 - Section headings
 - Bundle headings
+- Large nostalgic campaign titles
 
 Rules:
 
 - Weight: regular
 - Letter spacing: `0`
-- Do not use all caps
+- Use all caps only when the layout has enough room
 - Do not use for product metadata or buttons
 
 ### UI Sans
 
-Font: `Inter`
+Font: `Libre Franklin`
 Variable: `--font-ui`
 
 Use for:
@@ -252,25 +258,60 @@ Rules:
 - Copy: 13-15px
 - Avoid long paragraphs
 
-### Receipt Mono
+### Retro Typewriter
 
-Font: `Special Elite`
+Font: `Courier Prime`
 Variable: `--font-retro`
 
 Use for:
 
+- Primary navigation
+- Receipt-style labels
 - Product tags
 - SKU-style labels
-- Promo code labels
-- Small retro details
-- Receipt/ticket headings
+- Account settings labels
+- Order table details
 
 Rules:
 
-- Do not use for normal navigation, buttons, forms, filters, prices, or table controls.
+- Use bold weights for buttons and navigation.
+- Keep text concise; long text becomes hard to scan.
+- Do not use for large hero headlines.
+
+### Stamp
+
+Font: `Special Elite`
+Variable: `--font-stamp`
+
+Use for:
+
+- Promo code labels
+- Small retro details
+- Receipt/ticket headings
+- Stamp, coupon, and document accents
+
+Rules:
+
+- Do not use for normal navigation, buttons, forms, filters, prices, or dense table controls.
 - Keep it short and uppercase-friendly.
 - Use sparingly
 - Do not use for long body copy
+
+### Signage
+
+Font: `Bungee`
+Variable: `--font-retro-signage`
+
+Use for:
+
+- Rare signage-style accents
+- Short promotional badges
+
+Rules:
+
+- Use sparingly.
+- Avoid long phrases.
+- Do not use for normal page copy.
 
 ## Color Palette
 

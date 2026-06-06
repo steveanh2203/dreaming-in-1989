@@ -68,6 +68,16 @@ import RevenueDashboard from './RevenueDashboard.jsx'
 import './App.css'
 
 const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
+const collectionSortOptions = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest']
+const collectionAvailabilityOptions = ['All', 'In Stock', 'Low Stock']
+const productInfoTabs = ['Details', 'Size Guide', 'Shipping', 'Reviews']
+
+const getCategorySlug = (category) => category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+
+const getCategoryFromSlug = (slug) =>
+  categories.find((category) => getCategorySlug(category) === slug) ?? 'All'
+
+const getProductPath = (product) => `#/products/${product.id}`
 
 const accountRouteBase = '/my-account'
 const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
@@ -602,6 +612,37 @@ const policyPageDetails = {
     rights: ['Request order support records', 'Ask for correction of contact details', 'Request deletion where legally and operationally possible', 'Ask how order data was used for fulfillment'],
   },
 }
+
+const accountSupportActions = [
+  {
+    id: 'help',
+    title: 'Browse Help',
+    copy: 'Read common shipping, refund, and account answers.',
+    issueType: 'General question',
+    icon: FileText,
+  },
+  {
+    id: 'contact',
+    title: 'Contact Support',
+    copy: 'Send a message to the support desk.',
+    issueType: 'General question',
+    icon: Mail,
+  },
+  {
+    id: 'order',
+    title: 'Order Issues',
+    copy: 'Report tracking, damage, address, or refund issues.',
+    issueType: 'Order issue',
+    icon: PackageCheck,
+  },
+]
+
+const accountSupportFaqs = [
+  ['Where is my tracking?', 'Tracking is sent after fulfillment starts and the carrier receives the label.'],
+  ['Can I change my address?', 'Send a support request before production begins. After fulfillment starts, changes may not be possible.'],
+  ['What issues are covered?', 'Damaged, misprinted, defective, wrong item, or confirmed lost orders can be reviewed.'],
+  ['What should I include?', 'Use your checkout email, order number, short issue details, and photos for damaged or misprinted items.'],
+]
 
 const productOptionGroups = {
   Apparel: [
@@ -1170,6 +1211,12 @@ function App() {
   const [heroSlideIndex, setHeroSlideIndex] = useState(0)
   const [activePolicyId, setActivePolicyId] = useState('shipping')
   const [activeRoute, setActiveRoute] = useState('home')
+  const [collectionCategory, setCollectionCategory] = useState('All')
+  const [collectionSort, setCollectionSort] = useState('Featured')
+  const [collectionAvailability, setCollectionAvailability] = useState('All')
+  const [collectionMaxPrice, setCollectionMaxPrice] = useState('All')
+  const [trackedOrderId, setTrackedOrderId] = useState('')
+  const [trackingNotice, setTrackingNotice] = useState('')
   const [supportMenuOpen, setSupportMenuOpen] = useState(false)
   const [supportMenuPosition, setSupportMenuPosition] = useState({ top: 0, left: 0 })
   const [cartExpanded, setCartExpanded] = useState(false)
@@ -1192,7 +1239,12 @@ function App() {
   const [couponsExpanded, setCouponsExpanded] = useState(false)
   const [orderDetailOpen, setOrderDetailOpen] = useState(false)
   const [orderDetailNotice, setOrderDetailNotice] = useState('')
+  const [activeSupportAction, setActiveSupportAction] = useState('help')
+  const [supportTicketNotice, setSupportTicketNotice] = useState('')
+  const [supportTickets, setSupportTickets] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
+  const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
+  const [activeProductInfoTab, setActiveProductInfoTab] = useState('Details')
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [customer, setCustomer] = useState(() => getStoredCustomer())
@@ -1233,7 +1285,35 @@ function App() {
         window.scrollTo({ top: 0, behavior: 'smooth' })
         return
       }
+      if (route.startsWith('collections')) {
+        const [, categorySlug] = route.split('/')
+        const nextCategory = categorySlug ? getCategoryFromSlug(categorySlug) : 'All'
+        setCollectionCategory(nextCategory)
+        setActiveCategory(nextCategory)
+        setActiveRoute('collection')
+        setSelectedProduct(null)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      if (route.startsWith('products/')) {
+        const [, productId] = route.split('/')
+        const nextProduct = products.find((product) => product.id === productId) ?? null
+        setSelectedProduct(nextProduct)
+        setSelectedOptions(getDefaultOptions(nextProduct))
+        setSelectedProductQuantity(1)
+        setActiveProductInfoTab('Details')
+        setActiveRoute('product')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      if (route === 'track-order') {
+        setActiveRoute('tracking')
+        setSelectedProduct(null)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
       setActiveRoute('home')
+      setSelectedProduct(null)
     }
 
     syncRoute()
@@ -1284,7 +1364,6 @@ function App() {
       logoutConfirmOpen ||
       addressEditorMode !== 'idle' ||
       orderDetailOpen ||
-      Boolean(selectedProduct) ||
       Boolean(selectedImageInfo)
 
     if (overlayOpen && !pageScrollLockRef.current) {
@@ -1319,7 +1398,6 @@ function App() {
     orderDetailOpen,
     profileEditorOpen,
     selectedImageInfo,
-    selectedProduct,
   ])
 
   const filteredProducts = useMemo(() => {
@@ -1336,6 +1414,29 @@ function App() {
     })
   }, [activeCategory, query])
 
+  const collectionProducts = useMemo(() => {
+    const maxPrice = collectionMaxPrice === 'All' ? Number.POSITIVE_INFINITY : Number(collectionMaxPrice)
+    const availabilityMap = {
+      'In Stock': 'in-stock',
+      'Low Stock': 'low-stock',
+    }
+
+    const visibleItems = products.filter((product) => {
+      const matchesCategory = collectionCategory === 'All' || product.category === collectionCategory
+      const matchesAvailability =
+        collectionAvailability === 'All' || product.stockState === availabilityMap[collectionAvailability]
+      const matchesPrice = product.price <= maxPrice
+      return matchesCategory && matchesAvailability && matchesPrice
+    })
+
+    return [...visibleItems].sort((firstProduct, secondProduct) => {
+      if (collectionSort === 'Price: Low to High') return firstProduct.price - secondProduct.price
+      if (collectionSort === 'Price: High to Low') return secondProduct.price - firstProduct.price
+      if (collectionSort === 'Newest') return products.indexOf(firstProduct) - products.indexOf(secondProduct)
+      return 0
+    })
+  }, [collectionAvailability, collectionCategory, collectionMaxPrice, collectionSort])
+
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const discount = promoState === 'success' ? Math.round(subtotal * 0.1 * 100) / 100 : 0
   const shipping = subtotal - discount >= 75 || subtotal === 0 ? 0 : 7.95
@@ -1348,7 +1449,7 @@ function App() {
   const featuredDrop = featuredDropProduct
   const shelfSets = shelfReadySets
   const activePolicy = policyCards.find((policy) => policy.id === activePolicyId) ?? policyCards[0]
-  const activePolicyRoute = activeRoute === 'home' ? null : activePolicy
+  const activePolicyRoute = policyCards.some((policy) => policy.id === activeRoute) ? activePolicy : null
   const activePolicyDetails = policyPageDetails[activePolicyRoute?.id]
   const activeHeroSlide = heroSlides[heroSlideIndex]
   const visibleProducts = filteredProducts
@@ -1362,10 +1463,17 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+  const relatedProducts = selectedProduct
+    ? products
+      .filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id)
+      .slice(0, 3)
+    : []
   const featuredDropImage = featuredDrop.image
   const routeAccountTab = getAccountTabFromPath(currentPath)
   const displayedAccountTab = routeAccountTab ?? accountTab
   const customerOrders = customer?.orders?.length ? customer.orders : demoCustomerOrders
+  const trackedOrder =
+    customerOrders.find((order) => order.id === trackedOrderId || `#${order.id}` === trackedOrderId) ?? null
   const orderDateStartTime = getDateOnlyTime(orderDateRange.start)
   const orderDateEndTime = getDateOnlyTime(orderDateRange.end)
   const orderDateRangeStart = Math.min(orderDateStartTime ?? 0, orderDateEndTime ?? Number.MAX_SAFE_INTEGER)
@@ -1395,6 +1503,8 @@ function App() {
   const selectedAccountOrder =
     customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? demoCustomerOrders[0]
   const detailOrder = orderDetailOpen ? selectedAccountOrder : null
+  const selectedSupportAction =
+    accountSupportActions.find((action) => action.id === activeSupportAction) ?? accountSupportActions[0]
   const detailOrderProgressTimeline = getOrderProgressTimeline(detailOrder)
   const detailOrderProgressTone = detailOrder?.status?.toLowerCase().includes('cancelled') ? 'cancelled' : 'standard'
   const savedAddresses = normalizeAccountAddresses(customer?.addresses)
@@ -1409,13 +1519,17 @@ function App() {
   const accountSettingsTabs = ['settings', 'addresses', 'payments']
   const isAccountSettingsTab = accountSettingsTabs.includes(displayedAccountTab)
   const accountLayoutMode =
-    isAccountSettingsTab ? 'settings' : ['orders', 'wishlist'].includes(displayedAccountTab) ? displayedAccountTab : 'overview'
+    isAccountSettingsTab
+      ? 'settings'
+      : ['orders', 'wishlist', 'support'].includes(displayedAccountTab)
+        ? displayedAccountTab
+        : 'overview'
 
   useEffect(() => {
     if (!accountScreenOpen) return
 
     document.querySelector('.account-screen-backdrop')?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }, [accountScreenOpen, displayedAccountTab])
+  }, [accountScreenOpen])
 
   const navigateToPath = useCallback((path) => {
     const nextPath = path || '/'
@@ -1432,6 +1546,16 @@ function App() {
     navigateToPath(getAccountPath(nextTab))
   }, [customerOrders, navigateToPath])
 
+  const openAccountSupport = useCallback((actionId = 'help') => {
+    const nextAction = accountSupportActions.some((action) => action.id === actionId) ? actionId : 'help'
+    setActiveSupportAction(nextAction)
+    setSupportTicketNotice('')
+    if (nextAction === 'order') {
+      setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? demoCustomerOrders[0]?.id)
+    }
+    navigateToAccount('support')
+  }, [customerOrders, navigateToAccount])
+
   const closeAuth = () => {
     setAuthOpen(false)
     if (accountAuthOpen) navigateToPath('/')
@@ -1440,6 +1564,10 @@ function App() {
   const openProductDetail = (product) => {
     setSelectedProduct(product)
     setSelectedOptions(getDefaultOptions(product))
+    setSelectedProductQuantity(1)
+    setActiveProductInfoTab('Details')
+    window.history.pushState(null, '', getProductPath(product))
+    window.dispatchEvent(new Event('hashchange'))
   }
 
   const openImageInfo = (item, context = 'Product image', imageUse = item.imageUse ?? 'product') => {
@@ -1464,6 +1592,70 @@ function App() {
     if (!policy) return
     window.history.pushState(null, '', `#/${policy.path}`)
     window.dispatchEvent(new Event('hashchange'))
+  }
+
+  const openCollection = (category = 'All') => {
+    const nextCategory = categories.includes(category) ? category : 'All'
+    const path = nextCategory === 'All' ? '#/collections' : `#/collections/${getCategorySlug(nextCategory)}`
+    setCollectionCategory(nextCategory)
+    setActiveCategory(nextCategory)
+    window.history.pushState(null, '', path)
+    window.dispatchEvent(new Event('hashchange'))
+  }
+
+  const openOrderTracking = () => {
+    window.history.pushState(null, '', '#/track-order')
+    window.dispatchEvent(new Event('hashchange'))
+  }
+
+  const submitSupportTicket = (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const message = String(formData.get('message') ?? '').trim()
+    const email = String(formData.get('email') ?? '').trim()
+
+    if (!email || !message) {
+      setSupportTicketNotice('Please add your email and a short message.')
+      return
+    }
+
+    const ticketId = `SUP-${Date.now().toString().slice(-6)}`
+    const nextTicket = {
+      id: ticketId,
+      action: selectedSupportAction.title,
+      email,
+      issueType: String(formData.get('issueType') ?? selectedSupportAction.issueType),
+      orderId: String(formData.get('orderId') ?? ''),
+      message,
+      createdAt: new Date().toISOString(),
+    }
+
+    setSupportTickets((currentTickets) => [nextTicket, ...currentTickets].slice(0, 4))
+    setSupportTicketNotice(`Ticket ${ticketId} received. We'll reply to ${email}.`)
+    event.currentTarget.reset()
+  }
+
+  const submitOrderTracking = (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const rawOrderId = String(formData.get('orderId') ?? '').trim().replace(/^#/, '')
+    const email = String(formData.get('email') ?? '').trim().toLowerCase()
+    const foundOrder = customerOrders.find((order) => order.id.toLowerCase() === rawOrderId.toLowerCase())
+
+    if (!foundOrder) {
+      setTrackedOrderId('')
+      setTrackingNotice('Order not found. Try DI1989-10425 for the demo order.')
+      return
+    }
+
+    if (customer?.email && email && email !== customer.email.toLowerCase()) {
+      setTrackedOrderId('')
+      setTrackingNotice('Email does not match this account order.')
+      return
+    }
+
+    setTrackedOrderId(foundOrder.id)
+    setTrackingNotice('')
   }
 
   const openHomeSection = (sectionId) => {
@@ -1542,13 +1734,13 @@ function App() {
       price: item.price,
       image: item.image,
       optionSummary: item.optionSummary,
-      quantity: 1,
+      quantity: item.quantity ?? 1,
     }
     setCart((currentCart) => {
       const existing = currentCart.find((cartItem) => cartItem.id === product.id)
       if (existing) {
         return currentCart.map((cartItem) =>
-          cartItem.id === product.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem,
+          cartItem.id === product.id ? { ...cartItem, quantity: cartItem.quantity + product.quantity } : cartItem,
         )
       }
       return [...currentCart, product]
@@ -1564,8 +1756,8 @@ function App() {
       cartId: `${selectedProduct.id}:${selectedVariantSummary}`,
       price: selectedVariantPrice,
       optionSummary: selectedVariantSummary,
+      quantity: selectedProductQuantity,
     }, event)
-    setSelectedProduct(null)
   }
 
   const updateQuantity = (id, change) => {
@@ -2005,6 +2197,16 @@ function App() {
                   <span>{policy.title}</span>
                 </button>
               ))}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setSupportMenuOpen(false)
+                  openOrderTracking()
+                }}
+              >
+                <span>Track Order</span>
+              </button>
               <a href="#footer" role="menuitem" onClick={() => setSupportMenuOpen(false)}>
                 <span>Support Email</span>
               </a>
@@ -2178,6 +2380,387 @@ function App() {
                 </button>
               </div>
             </article>
+          </section>
+        ) : activeRoute === 'product' ? (
+          selectedProduct ? (
+            <section className="store-section product-route-page">
+              <nav className="product-route-breadcrumb" aria-label="Product breadcrumb">
+                <button type="button" onClick={() => openHomeSection('products')}>
+                  Shop
+                </button>
+                <ChevronRight size={15} />
+                <button type="button" onClick={() => openCollection(selectedProduct.category)}>
+                  {selectedProduct.category}
+                </button>
+                <ChevronRight size={15} />
+                <span>{selectedProduct.name}</span>
+              </nav>
+
+              <div className="product-route-shell product-catalog-shell">
+                <aside className="product-catalog-thumbs" aria-label={`${selectedProduct.name} image views`}>
+                  {['Front View', 'Print Detail', 'Life Style'].map((label, index) => (
+                    <button className={`catalog-thumb catalog-thumb-${index + 1}`} type="button" key={label}>
+                      <img src={selectedProduct.image} alt={`${selectedProduct.name} ${label.toLowerCase()}`} />
+                      <span>{label}</span>
+                    </button>
+                  ))}
+                </aside>
+
+                <div className="product-route-media product-catalog-media">
+                  <span>{selectedProduct.tag}</span>
+                  <img src={selectedProduct.image} alt={selectedProduct.name} />
+                  <div className="product-catalog-sku">
+                    {selectedProduct.sku}
+                  </div>
+                </div>
+
+                <article className="product-route-buy-panel product-catalog-order-form">
+                  <header className="product-order-head">
+                    <div>
+                      <p className="receipt-label">Order this item</p>
+                      <h1>{selectedProduct.name}</h1>
+                    </div>
+                    <strong>{formatPrice(selectedVariantPrice)}</strong>
+                  </header>
+
+                  <div className="product-order-status">
+                    <span>{selectedProduct.stockState === 'low-stock' ? 'Low stock' : 'In stock'}</span>
+                    <small>{selectedProduct.sku}</small>
+                  </div>
+
+                  <div className="product-order-quantity">
+                    <span>Quantity</span>
+                    <div>
+                      <button
+                        type="button"
+                        aria-label="Decrease quantity"
+                        onClick={() => setSelectedProductQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))}
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <strong>{selectedProductQuantity}</strong>
+                      <button
+                        type="button"
+                        aria-label="Increase quantity"
+                        onClick={() => setSelectedProductQuantity((currentQuantity) => Math.min(9, currentQuantity + 1))}
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="option-stack product-catalog-options">
+                    {selectedOptionGroups.map((group) => (
+                      <fieldset className="option-group" key={group.name}>
+                        <legend>{group.name}</legend>
+                        <div>
+                          {group.options.map((option) => (
+                            <button
+                              className={selectedOptions[group.name] === option.label ? 'active' : ''}
+                              key={option.label}
+                              type="button"
+                              onClick={() =>
+                                setSelectedOptions((currentOptions) => ({
+                                  ...currentOptions,
+                                  [group.name]: option.label,
+                                }))
+                              }
+                            >
+                              <span>{option.label}</span>
+                              {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
+                            </button>
+                          ))}
+                        </div>
+                      </fieldset>
+                    ))}
+                  </div>
+
+                  <div className="detail-actions product-route-actions product-catalog-actions">
+                    <button
+                      className="checkout-button"
+                      type="button"
+                      disabled={selectedProduct.stockState === 'sold-out'}
+                      onClick={addSelectedProductToCart}
+                    >
+                      <ShoppingCart size={18} />
+                      {selectedProduct.stockState === 'sold-out' ? 'Sold Out' : 'Add to Cart'}
+                    </button>
+                    <button className="secondary-button" type="button" onClick={() => navigateToAccount('wishlist')}>
+                      <Heart size={18} />
+                      Add to Wishlist
+                    </button>
+                  </div>
+                </article>
+              </div>
+
+              <section className="product-catalog-info-panel">
+                <div className="product-catalog-tabs" role="tablist" aria-label="Product information">
+                  {productInfoTabs.map((tab) => (
+                    <button
+                      className={activeProductInfoTab === tab ? 'active' : ''}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeProductInfoTab === tab}
+                      key={tab}
+                      onClick={() => setActiveProductInfoTab(tab)}
+                    >
+                      {tab === 'Reviews' ? 'Reviews (48)' : tab}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="product-catalog-tab-body" role="tabpanel">
+                  {activeProductInfoTab === 'Details' && (
+                    <>
+                      <ul>
+                        <li>{selectedProduct.shortDetail}</li>
+                        <li>Vintage mall graphic printed on front.</li>
+                        <li>Pre-shrunk for a consistent fit.</li>
+                      </ul>
+                      <ul>
+                        <li>Printed in the USA.</li>
+                        <li>Machine wash cold, tumble dry low.</li>
+                        <li>Designed for everyday wear.</li>
+                      </ul>
+                    </>
+                  )}
+                  {activeProductInfoTab === 'Size Guide' && (
+                    <>
+                      <ul>
+                        <li>Measure chest width on your favorite tee.</li>
+                        <li>Choose oversized fit for a looser 90s mall look.</li>
+                        <li>XL adds {formatPrice(2)} to cover blank garment cost.</li>
+                      </ul>
+                      <ul>
+                        <li>Classic fit runs true to size.</li>
+                        <li>Print-on-demand items are made after checkout.</li>
+                        <li>Review size before ordering.</li>
+                      </ul>
+                    </>
+                  )}
+                  {activeProductInfoTab === 'Shipping' && (
+                    <>
+                      <ul>
+                        <li>Made to order through Printful fulfillment.</li>
+                        <li>Tracking appears after fulfillment starts.</li>
+                        <li>Orders usually ship within 1-2 business days after production.</li>
+                      </ul>
+                      <ul>
+                        <li>Damaged or misprinted goods can be reviewed by support.</li>
+                        <li>Wrong size selection is not an automatic refund.</li>
+                        <li>Use the order help desk for claims.</li>
+                      </ul>
+                    </>
+                  )}
+                  {activeProductInfoTab === 'Reviews' && (
+                    <>
+                      <ul>
+                        <li>Rated 4.8/5 by early Rewind Club shoppers.</li>
+                        <li>Customers like the soft cotton feel.</li>
+                        <li>Print detail holds up well after normal wash cycles.</li>
+                      </ul>
+                      <ul>
+                        <li>Best with jeans, canvas totes, and weekend errands.</li>
+                        <li>Fast support for damaged or misprinted items.</li>
+                        <li>Good Times. Guaranteed.</li>
+                      </ul>
+                    </>
+                  )}
+                  <aside className="product-catalog-guarantee">
+                    <span>Good Times.</span>
+                    <strong>Guaranteed.</strong>
+                    <small>Dreaming in 1989 Supply Co.</small>
+                  </aside>
+                </div>
+              </section>
+
+              <div className="product-route-trust product-catalog-service-strip">
+                <span><Truck size={17} /> Fast shipping</span>
+                <span><ShieldCheck size={17} /> Secure checkout</span>
+                <span><RefreshCcw size={17} /> Easy returns</span>
+              </div>
+
+              {relatedProducts.length > 0 && (
+                <section className="product-route-related">
+                  <div className="section-heading">
+                    <div>
+                      <p className="receipt-label">More from this shelf</p>
+                      <h2>Related Products</h2>
+                    </div>
+                  </div>
+                  <div className="collection-route-grid">
+                    {relatedProducts.map((product) => (
+                      <article className="product-card collection-product-card" key={`product-related-${product.id}`}>
+                        <button
+                          className="media-square product-image product-image-button product-image--cutout"
+                          type="button"
+                          onClick={() => openProductDetail(product)}
+                        >
+                          <img src={product.image} alt={product.name} />
+                          <span>{product.tag}</span>
+                        </button>
+                        <div className="product-copy">
+                          <p className="sku">{product.sku}</p>
+                          <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
+                            {product.name}
+                          </button>
+                          <p>{product.shortDetail}</p>
+                        </div>
+                        <div className="product-buy">
+                          <strong>{formatPrice(product.price)}</strong>
+                          <span className="buy-actions">
+                            <button type="button" onClick={(event) => addToCart(product, event)}>Add</button>
+                          </span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </section>
+          ) : (
+            <section className="store-section product-route-page">
+              <div className="empty-results product-route-empty">
+                <Sparkles size={26} />
+                <h3>Product not found</h3>
+                <p>This shelf item may have moved or sold out.</p>
+                <button type="button" onClick={() => openCollection('All')}>Browse Products</button>
+              </div>
+            </section>
+          )
+        ) : activeRoute === 'collection' ? (
+          <section className="store-section collection-route-page">
+            <div className="collection-route-head">
+              <div>
+                <p className="receipt-label">Collection shelf</p>
+                <h1>{collectionCategory === 'All' ? 'All Products' : collectionCategory}</h1>
+                <p>{collectionProducts.length} item{collectionProducts.length === 1 ? '' : 's'} ready for this shelf.</p>
+              </div>
+              <button type="button" onClick={openOrderTracking}>
+                Track Order <ChevronRight size={16} />
+              </button>
+            </div>
+
+            <div className="collection-filter-panel">
+              <label>
+                Category
+                <select
+                  value={collectionCategory}
+                  onChange={(event) => openCollection(event.target.value)}
+                >
+                  {categories.map((category) => (
+                    <option key={category}>{category}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Sort
+                <select value={collectionSort} onChange={(event) => setCollectionSort(event.target.value)}>
+                  {collectionSortOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Availability
+                <select
+                  value={collectionAvailability}
+                  onChange={(event) => setCollectionAvailability(event.target.value)}
+                >
+                  {collectionAvailabilityOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Max Price
+                <select value={collectionMaxPrice} onChange={(event) => setCollectionMaxPrice(event.target.value)}>
+                  <option>All</option>
+                  <option value="25">Under $25</option>
+                  <option value="50">Under $50</option>
+                  <option value="75">Under $75</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="collection-route-grid">
+              {collectionProducts.map((product) => (
+                <article className="product-card collection-product-card" key={`collection-${product.id}`}>
+                  <button
+                    className="media-square product-image product-image-button product-image--cutout"
+                    type="button"
+                    onClick={() => openProductDetail(product)}
+                  >
+                    <img src={product.image} alt={product.name} />
+                    <span>{product.tag}</span>
+                  </button>
+                  <div className="product-copy">
+                    <p className="sku">{product.sku}</p>
+                    <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
+                      {product.name}
+                    </button>
+                    <p>{product.shortDetail}</p>
+                  </div>
+                  <div className="product-buy">
+                    <strong>{formatPrice(product.price)}</strong>
+                    <span className="buy-actions">
+                      <button type="button" onClick={() => openProductDetail(product)}>View Detail</button>
+                      <button type="button" onClick={(event) => addToCart(product, event)}>Add</button>
+                    </span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : activeRoute === 'tracking' ? (
+          <section className="store-section tracking-route-page">
+            <div className="tracking-route-card">
+              <div className="tracking-route-head">
+                <p className="receipt-label">Order lookup</p>
+                <h1>Track Your Order</h1>
+                <p>Use your order number and checkout email to see the latest fulfillment status.</p>
+              </div>
+              <form className="tracking-lookup-form" onSubmit={submitOrderTracking}>
+                <label>
+                  Order Number
+                  <input name="orderId" placeholder="DI1989-10425" required />
+                </label>
+                <label>
+                  Email
+                  <input name="email" type="email" placeholder={customer?.email ?? 'you@example.com'} />
+                </label>
+                <button className="checkout-button" type="submit">Track Order</button>
+              </form>
+              {trackingNotice && <p className="account-inline-notice tracking-route-notice">{trackingNotice}</p>}
+              {trackedOrder && (
+                <section className="tracking-route-result">
+                  <div>
+                    <small>Order</small>
+                    <strong>#{trackedOrder.id}</strong>
+                    <span>{trackedOrder.date}</span>
+                  </div>
+                  <div>
+                    <small>Status</small>
+                    <strong>{trackedOrder.status}</strong>
+                    <span>{trackedOrder.tracking}</span>
+                  </div>
+                  <div>
+                    <small>Total</small>
+                    <strong>{formatPrice(trackedOrder.total)}</strong>
+                    <span>{trackedOrder.items?.length ?? 0} item{trackedOrder.items?.length === 1 ? '' : 's'}</span>
+                  </div>
+                  <div className="tracking-route-steps">
+                    {getOrderProgressTimeline(trackedOrder).map((step) => (
+                      <article className={step.done ? 'done' : ''} key={step.label}>
+                        <span>{step.done ? <CheckCircle2 size={16} /> : <Package size={16} />}</span>
+                        <strong>{step.label}</strong>
+                        <p>{step.detail}</p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
           </section>
         ) : (
           <>
@@ -2683,11 +3266,12 @@ function App() {
             <h3>Shop</h3>
             {categories.slice(1).map((category) => (
               <a
-                href="#products"
+                href={`#/collections/${getCategorySlug(category)}`}
                 key={category}
-                onClick={() => {
-                  setActiveCategory(category)
+                onClick={(event) => {
+                  event.preventDefault()
                   setQuery('')
+                  openCollection(category)
                 }}
               >
                 {category}
@@ -3179,6 +3763,113 @@ function App() {
                       {addressNotice && <small className="account-inline-notice account-address-notice">{addressNotice}</small>}
                     </section>
                   </div>
+                ) : displayedAccountTab === 'support' ? (
+                  <section className="account-panel account-support-workspace" id="account-support-workspace">
+                    <div className="account-panel-title">
+                      Support Center
+                      <span className="account-panel-count">{supportTickets.length} draft ticket{supportTickets.length === 1 ? '' : 's'}</span>
+                    </div>
+                    <div className="account-support-workspace-grid">
+                      <div className="account-support-action-list" aria-label="Support actions">
+                        {accountSupportActions.map((action) => {
+                          const Icon = action.icon
+                          return (
+                            <button
+                              className={activeSupportAction === action.id ? 'active' : ''}
+                              key={action.id}
+                              type="button"
+                              onClick={() => {
+                                setActiveSupportAction(action.id)
+                                setSupportTicketNotice('')
+                              }}
+                            >
+                              <Icon size={19} />
+                              <span>
+                                <strong>{action.title}</strong>
+                                <small>{action.copy}</small>
+                              </span>
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      <div className="account-support-main">
+                        <section className="account-support-faq">
+                          <div className="account-settings-section-title">
+                            <FileText size={18} />
+                            <h3>{selectedSupportAction.title}</h3>
+                          </div>
+                          <div className="account-support-faq-list">
+                            {accountSupportFaqs.map(([question, answer]) => (
+                              <article key={question}>
+                                <strong>{question}</strong>
+                                <p>{answer}</p>
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+
+                        <form className="account-support-ticket-form" onSubmit={submitSupportTicket}>
+                          <div className="account-settings-section-title">
+                            <Mail size={18} />
+                            <h3>Open Support Ticket</h3>
+                          </div>
+                          <label>
+                            Email
+                            <input name="email" type="email" defaultValue={customer.email} required />
+                          </label>
+                          <label>
+                            Order
+                            <select name="orderId" defaultValue={activeSupportAction === 'order' ? selectedAccountOrder.id : ''}>
+                              <option value="">No order selected</option>
+                              {customerOrders.map((order) => (
+                                <option key={order.id} value={order.id}>
+                                  #{order.id} - {order.status}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label>
+                            Issue Type
+                            <select name="issueType" defaultValue={selectedSupportAction.issueType}>
+                              <option>General question</option>
+                              <option>Order issue</option>
+                              <option>Tracking question</option>
+                              <option>Damaged item</option>
+                              <option>Refund request</option>
+                              <option>Address change</option>
+                            </select>
+                          </label>
+                          <label className="wide">
+                            Message
+                            <textarea
+                              name="message"
+                              rows="5"
+                              placeholder="Tell us what happened. Include photos later if the item arrived damaged or misprinted."
+                              required
+                            />
+                          </label>
+                          <button className="checkout-button" type="submit">Send Support Request</button>
+                          {supportTicketNotice && <small className="account-inline-notice">{supportTicketNotice}</small>}
+                        </form>
+
+                        {supportTickets.length > 0 && (
+                          <section className="account-support-ticket-log" aria-label="Recent support tickets">
+                            <div className="account-settings-section-title">
+                              <PackageCheck size={18} />
+                              <h3>Recent Tickets</h3>
+                            </div>
+                            {supportTickets.map((ticket) => (
+                              <article key={ticket.id}>
+                                <strong>{ticket.id}</strong>
+                                <span>{ticket.issueType}{ticket.orderId ? ` / #${ticket.orderId}` : ''}</span>
+                              </article>
+                            ))}
+                          </section>
+                        )}
+                      </div>
+                    </div>
+                  </section>
                 ) : displayedAccountTab === 'wishlist' ? (
                   <section className="account-panel account-wishlist-panel" id="account-wishlist">
                     <div className="account-panel-title">
@@ -3384,7 +4075,7 @@ function App() {
                 )}
               </main>
 
-              {displayedAccountTab !== 'orders' && !isAccountSettingsTab && (
+              {displayedAccountTab !== 'orders' && displayedAccountTab !== 'support' && !isAccountSettingsTab && (
                 <aside className={`account-side-column account-rewards-column account-rewards-column--${accountLayoutMode}`}>
                   <section className="account-panel account-rewards-panel">
                     <div className="account-panel-title">
@@ -3423,19 +4114,18 @@ function App() {
                     <div className="account-panel-title">Support Center</div>
                     <div className="account-support-content">
                       <div>
-                        {[
-                          ['Browse Help', 'Common questions'],
-                          ['Contact Support', 'Talk to our team'],
-                          ['Order Issues', 'Get order help'],
-                        ].map(([title, copy]) => (
-                          <button type="button" key={title} onClick={() => navigateToAccount('support')}>
-                            <Truck size={17} />
+                        {accountSupportActions.map((action) => {
+                          const Icon = action.icon
+                          return (
+                          <button type="button" key={action.id} onClick={() => openAccountSupport(action.id)}>
+                            <Icon size={17} />
                             <span>
-                              <strong>{title}</strong>
-                              <small>{copy}</small>
+                              <strong>{action.title}</strong>
+                              <small>{action.copy}</small>
                             </span>
                           </button>
-                        ))}
+                          )
+                        })}
                       </div>
                       <img src={mallWeekendImage} alt="Retro mall support desk" />
                     </div>
@@ -3778,94 +4468,6 @@ function App() {
               </button>
               <button type="button" onClick={() => setOrderDetailOpen(false)}>Close</button>
             </footer>
-          </section>
-        </div>
-      )}
-
-      {selectedProduct && (
-        <div className="modal-backdrop product-detail-backdrop" role="presentation" onClick={() => setSelectedProduct(null)}>
-          <section
-            className="product-detail-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="product-detail-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              className="modal-close"
-              type="button"
-              aria-label="Close product details"
-              onClick={() => setSelectedProduct(null)}
-            >
-              <X size={22} />
-            </button>
-            <div className="product-detail-media">
-              <img src={selectedProduct.image} alt={selectedProduct.name} />
-              <span>{selectedProduct.tag}</span>
-            </div>
-            <div className="product-detail-info">
-              <p className="receipt-label">{selectedProduct.category}</p>
-              <h2 id="product-detail-title">{selectedProduct.name}</h2>
-              <p>{selectedProduct.shortDetail}</p>
-              <div className="detail-meta">
-                <span>{selectedProduct.sku}</span>
-                <span>{selectedProduct.stockState === 'low-stock' ? 'Low stock' : selectedProduct.stockState}</span>
-              </div>
-
-              <div className="detail-price-row">
-                <span>Configured price</span>
-                <strong>{formatPrice(selectedVariantPrice)}</strong>
-              </div>
-
-              <div className="option-stack">
-                {selectedOptionGroups.map((group) => (
-                  <fieldset className="option-group" key={group.name}>
-                    <legend>{group.name}</legend>
-                    <div>
-                      {group.options.map((option) => (
-                        <button
-                          className={selectedOptions[group.name] === option.label ? 'active' : ''}
-                          key={option.label}
-                          type="button"
-                          onClick={() =>
-                            setSelectedOptions((currentOptions) => ({
-                              ...currentOptions,
-                              [group.name]: option.label,
-                            }))
-                          }
-                        >
-                          <span>{option.label}</span>
-                          {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
-                ))}
-              </div>
-
-              <div className="selected-variant">
-                <span>Selected</span>
-                <strong>{selectedVariantSummary}</strong>
-              </div>
-
-              <div className="detail-actions">
-                <button
-                  className="secondary-button"
-                  type="button"
-                  onClick={() => setSelectedProduct(null)}
-                >
-                  Keep Browsing
-                </button>
-                <button
-                  className="checkout-button"
-                  type="button"
-                  disabled={selectedProduct.stockState === 'sold-out'}
-                  onClick={addSelectedProductToCart}
-                >
-                  {selectedProduct.stockState === 'sold-out' ? 'Sold Out' : 'Add to Cart'}
-                </button>
-              </div>
-            </div>
           </section>
         </div>
       )}
