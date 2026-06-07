@@ -8,7 +8,6 @@ test.beforeEach(async ({ page }) => {
 
 test('diner mug storefront flow', async ({ page }) => {
   await page.goto('http://127.0.0.1:5173/')
-  await page.getByRole('button', { name: /skip intro/i }).click()
   await expect(page.locator('#products')).toBeVisible()
 
   await page.getByLabel(/search products and skus/i).fill('Diner Counter Mug')
@@ -20,7 +19,7 @@ test('diner mug storefront flow', async ({ page }) => {
   await expect(page.getByText('Cream Accent')).toHaveCount(0)
   await expect(page.getByText('15 oz')).toHaveCount(0)
 
-  await page.getByLabel('Diner Counter Mug', { exact: true }).getByRole('button', { name: /add to cart/i }).click()
+  await page.locator('.product-catalog-order-form').getByRole('button', { name: /add to cart/i }).click()
   await expect(page.getByText(/added to cart/i)).toBeVisible()
   await page.getByRole('button', { name: /open cart/i }).click()
   await expect(page.getByRole('complementary', { name: /shopping cart/i })).toBeVisible()
@@ -36,26 +35,34 @@ test('diner mug storefront flow', async ({ page }) => {
   await page.getByRole('button', { name: 'Place Order' }).click()
   await expect(page.getByRole('heading', { name: 'Order received' })).toBeVisible()
   await page.getByRole('button', { name: 'View Dashboard' }).click()
-  await expect(page.getByRole('heading', { name: 'My Orders' })).toBeVisible()
+  await expect(page.getByText('Purchase History')).toBeVisible()
+
+  // Open the newly created order row to view detailed status in modal
+  await page.getByRole('button', { name: /#1989-/ }).first().click()
   await expect(page.getByText('Printful draft pending')).toBeVisible()
 })
 
 test('customer dashboard account tabs', async ({ page }) => {
   await page.goto('http://127.0.0.1:5173/')
-  await page.getByRole('button', { name: /skip intro/i }).click()
 
   await page.getByRole('button', { name: 'Sign in' }).click()
   await page.getByPlaceholder('alex@example.com').fill('alex@example.com')
   await page.getByPlaceholder('Your password').fill('demo-password')
   await page.getByRole('button', { name: 'Sign In', exact: true }).click()
 
-  await expect(page.getByRole('heading', { name: 'My Orders' })).toBeVisible()
-  await expect(page.getByText('Tracking Center')).toHaveCount(0)
+  await expect(page.getByText('Purchase History')).toBeVisible()
 
-  await page.getByRole('tab', { name: 'Tracking' }).click()
-  await expect(page.getByRole('heading', { name: 'Tracking Center' })).toBeVisible()
+  await page.getByRole('button', { name: 'Wishlist' }).click()
+  await expect(page.getByText('saved').first()).toBeVisible()
 
-  await page.getByRole('tab', { name: 'Support' }).click()
-  await expect(page.getByRole('heading', { name: 'Support Desk' })).toBeVisible()
-  await expect(page.getByText('Draft ticket')).toBeVisible()
+  await page.getByRole('button', { name: 'Account Settings' }).click()
+  await expect(page.getByRole('heading', { name: 'Account Settings' })).toBeVisible()
+
+  // Go to Overview
+  await page.getByRole('button', { name: 'Overview' }).click()
+  // Click Contact Support in the Support Center sidebar card
+  await page.getByRole('button', { name: /Contact Support/ }).click()
+  // Verify Support Center workspace is active in the main column
+  await expect(page.locator('.account-support-workspace').getByText('Support Center')).toBeVisible()
+  await expect(page.getByText('draft ticket')).toBeVisible()
 })

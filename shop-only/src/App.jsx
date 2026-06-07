@@ -40,11 +40,13 @@ import dreaming1989LogoImage from './assets/header/dreaming-1989-logo-alpha.png'
 import vhsCassetteHeaderImage from './assets/header/vhs-cassette-header.png'
 import mallWeekendImage from './assets/mall-weekend.png'
 import videoStoreImage from './assets/video-store-night.png'
+import vintageMotelKeychain from './assets/ui/vintage-motel-keychain.png'
 import arcadeDepartmentImage from './assets/departments/arcade-department.png'
 import audioDepartmentImage from './assets/departments/audio-department.png'
 import kitchenDepartmentImage from './assets/departments/kitchen-department.png'
 import wallArtDepartmentImage from './assets/departments/wall-art-department.png'
 import snackBowlSetFeatureImage from './assets/featured/snack-bowl-set-feature.png'
+import boomboxFeatureImage from './assets/featured/boombox-feature.png'
 import arcadeEssentialsSetImage from './assets/sets/arcade-essentials.png'
 import audioShelfSetImage from './assets/sets/audio-shelf-set.png'
 import deskSetupPackSetImage from './assets/sets/desk-setup-pack.png'
@@ -61,6 +63,9 @@ import dinerMugImage from './assets/products-cutout/diner-mug-transparent-mockup
 import dinerTrayImage from './assets/products-cutout/diner-tray.png'
 import mallToteImage from './assets/products-cutout/mall-tote.png'
 import rewindTeeImage from './assets/products-cutout/rewind-tee.png'
+import rewindTeeDetailImage from './assets/products-cutout/rewind-tee-detail.png'
+import rewindTeeLifestyleImage from './assets/products-cutout/rewind-tee-lifestyle.png'
+import dinerMugLifestyleImage from './assets/products-cutout/diner-mug-lifestyle.png'
 import vhsCalendarImage from './assets/products-cutout/vhs-calendar.png'
 import videoNightSignImage from './assets/products-cutout/video-night-sign.png'
 import retroCartImage from './assets/ui/retro-cart.png'
@@ -82,7 +87,7 @@ const getProductPath = (product) => `#/products/${product.id}`
 const accountRouteBase = '/my-account'
 const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
 const orderFilterTabs = ['All', 'Pending', 'Processing', 'Shipping', 'Delivered', 'Cancelled']
-const defaultOrderDateRange = { start: '2020-12-01', end: '2026-06-05' }
+const defaultOrderDateRange = { start: '2020-12-01', end: new Date().toISOString().split('T')[0] }
 
 const normalizePathname = (pathname) => {
   const normalizedPath = (pathname || '/').replace(/\/+$/, '')
@@ -160,6 +165,8 @@ const products = [
     category: 'Apparel',
     tag: 'New',
     image: productImages.rewindTee,
+    printDetailImage: rewindTeeDetailImage,
+    lifestyleImage: rewindTeeLifestyleImage,
     imageUse: 'product',
     sku: 'SKU-1989-014',
     stockState: 'in-stock',
@@ -196,6 +203,7 @@ const products = [
     category: 'Drinkware',
     tag: 'Under $20',
     image: productImages.dinerMug,
+    lifestyleImage: dinerMugLifestyleImage,
     imageUse: 'product',
     sku: 'SKU-1989-044',
     stockState: 'in-stock',
@@ -1245,6 +1253,7 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
   const [activeProductInfoTab, setActiveProductInfoTab] = useState('Details')
+  const [activeThumbLabel, setActiveThumbLabel] = useState('Front View')
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [customer, setCustomer] = useState(() => getStoredCustomer())
@@ -1302,6 +1311,7 @@ function App() {
         setSelectedOptions(getDefaultOptions(nextProduct))
         setSelectedProductQuantity(1)
         setActiveProductInfoTab('Details')
+        setActiveThumbLabel('Front View')
         setActiveRoute('product')
         window.scrollTo({ top: 0, behavior: 'smooth' })
         return
@@ -1463,6 +1473,13 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+  const activePreviewImage = useMemo(() => {
+    if (!selectedProduct) return null
+    if (activeThumbLabel === 'Print Detail') return selectedProduct.printDetailImage || selectedProduct.image
+    if (activeThumbLabel === 'Life Style') return selectedProduct.lifestyleImage || selectedProduct.image
+    if (activeThumbLabel === 'Road Trip Vibes') return heroMemoryLaneImage
+    return selectedProduct.image
+  }, [selectedProduct, activeThumbLabel])
   const relatedProducts = selectedProduct
     ? products
       .filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id)
@@ -2398,39 +2415,69 @@ function App() {
 
               <div className="product-route-shell product-catalog-shell">
                 <aside className="product-catalog-thumbs" aria-label={`${selectedProduct.name} image views`}>
-                  {['Front View', 'Print Detail', 'Life Style'].map((label, index) => (
-                    <button className={`catalog-thumb catalog-thumb-${index + 1}`} type="button" key={label}>
-                      <img src={selectedProduct.image} alt={`${selectedProduct.name} ${label.toLowerCase()}`} />
-                      <span>{label}</span>
+                  {[
+                    { label: 'Front View', img: selectedProduct.image },
+                    { label: 'Print Detail', img: selectedProduct.printDetailImage || selectedProduct.image, zoom: !selectedProduct.printDetailImage },
+                    { label: 'Life Style', img: selectedProduct.lifestyleImage || selectedProduct.image, lifestyle: !selectedProduct.lifestyleImage },
+                    { label: 'Road Trip Vibes', img: heroMemoryLaneImage, isNew: true }
+                  ].map((item, index) => (
+                    <button
+                      className={`catalog-thumb catalog-thumb-${index + 1} ${item.isNew ? 'thumb-new' : ''} ${activeThumbLabel === item.label ? 'active' : ''}`}
+                      type="button"
+                      key={item.label}
+                      onClick={() => setActiveThumbLabel(item.label)}
+                    >
+                      {item.isNew && <span className="thumb-badge">NEW</span>}
+                      <div className="polaroid-photo-frame">
+                        <img
+                          src={item.img}
+                          alt={`${selectedProduct.name} ${item.label.toLowerCase()}`}
+                          className={`${item.zoom ? 'thumb-zoom' : ''} ${item.lifestyle ? 'thumb-lifestyle' : ''}`}
+                        />
+                      </div>
+                      <span>{item.label}</span>
                     </button>
                   ))}
                 </aside>
 
                 <div className="product-route-media product-catalog-media">
-                  <span>{selectedProduct.tag}</span>
-                  <img src={selectedProduct.image} alt={selectedProduct.name} />
-                  <div className="product-catalog-sku">
-                    {selectedProduct.sku}
+                  <div className="main-masking-tape"></div>
+                  <div className="main-cardboard-backing">
+                    {selectedProduct.tag && <span className="product-tag-badge">{selectedProduct.tag}</span>}
+                    <div className="product-main-photo">
+                      <img src={activePreviewImage} alt={selectedProduct.name} />
+                    </div>
+                    <div className="product-catalog-sku">
+                      {selectedProduct.sku}
+                    </div>
                   </div>
                 </div>
 
                 <article className="product-route-buy-panel product-catalog-order-form">
+                  <div className="notebook-spiral-binding">
+                    {[...Array(14)].map((_, i) => (
+                      <span key={i} className="spiral-ring"></span>
+                    ))}
+                  </div>
+                  <div className="notebook-metal-clip"></div>
                   <header className="product-order-head">
                     <div>
                       <p className="receipt-label">Order this item</p>
                       <h1>{selectedProduct.name}</h1>
                     </div>
-                    <strong>{formatPrice(selectedVariantPrice)}</strong>
+                    <strong className="price-stamp">{formatPrice(selectedVariantPrice)}</strong>
                   </header>
 
                   <div className="product-order-status">
-                    <span>{selectedProduct.stockState === 'low-stock' ? 'Low stock' : 'In stock'}</span>
-                    <small>{selectedProduct.sku}</small>
+                    <span className="stock-state-label">
+                      {selectedProduct.stockState === 'low-stock' ? 'Low stock' : 'In stock'}
+                    </span>
+                    <small className="sku-stamp-label">{selectedProduct.sku}</small>
                   </div>
 
                   <div className="product-order-quantity">
                     <span>Quantity</span>
-                    <div>
+                    <div className="quantity-stepper">
                       <button
                         type="button"
                         aria-label="Decrease quantity"
@@ -2453,7 +2500,7 @@ function App() {
                     {selectedOptionGroups.map((group) => (
                       <fieldset className="option-group" key={group.name}>
                         <legend>{group.name}</legend>
-                        <div>
+                        <div className="option-buttons-grid">
                           {group.options.map((option) => (
                             <button
                               className={selectedOptions[group.name] === option.label ? 'active' : ''}
@@ -2491,6 +2538,67 @@ function App() {
                     </button>
                   </div>
                 </article>
+              </div>
+
+              {/* NEW: Middle Gallery Section */}
+              <div className="product-catalog-middle-gallery">
+                {/* Polaroid Left: Route 66 Canyon */}
+                <div className="polaroid-card polaroid-canyon">
+                  <div className="polaroid-label-tape">Road Trip Vibes</div>
+                  <div className="polaroid-img-wrapper">
+                    <img src={heroMemoryLaneImage} alt="Route 66 road trip" />
+                    
+                    {/* Retro US 66 highway shield road sign standing on post */}
+                    <div className="route-66-sign-wrapper">
+                      <div className="route-66-sign-post"></div>
+                      <svg className="route-66-shield" viewBox="0 0 100 100" width="55" height="55">
+                        <path d="M 50 10 C 70 10, 90 13, 90 35 C 90 62, 70 80, 50 92 C 30 80, 10 62, 10 35 C 10 13, 30 10, 50 10 Z" fill="white" stroke="black" strokeWidth="4.5" />
+                        <path d="M 50 15 C 66 15, 84 17, 84 35 C 84 58, 66 74, 50 85 C 34 74, 16 58, 16 35 C 16 17, 34 15, 50 15 Z" fill="none" stroke="black" strokeWidth="1.5" />
+                        <text x="50" y="32" fontFamily="var(--font-retro), sans-serif" fontSize="10" fontWeight="900" textAnchor="middle" fill="black">ROUTE</text>
+                        <text x="50" y="46" fontFamily="var(--font-retro), sans-serif" fontSize="11" fontWeight="900" textAnchor="middle" fill="black">US</text>
+                        <text x="50" y="76" fontFamily="var(--font-retro), sans-serif" fontSize="28" fontWeight="950" textAnchor="middle" fill="black">66</text>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="polaroid-caption">Route US 66</div>
+                </div>
+
+                {/* Handwritten Note Center */}
+                <div className="handwritten-index-card">
+                  <div className="index-card-tape"></div>
+                  <span className="card-tag">BACK IN THE DAY</span>
+                  <p className="card-paragraph">
+                    Weekend plans were simple.<br />
+                    Fill up the tank, grab some<br />
+                    cassettes, and hit the road<br />
+                    with your best friends.<br />
+                    No phones. No rush.<br />
+                    Just the open road and<br />
+                    endless possibilities.
+                  </p>
+                  <div className="card-stamp">
+                    <span>MEMORIES</span>
+                    <strong>1989</strong>
+                  </div>
+                </div>
+
+                {/* Sunset Motel Keychain (Generated High-Fidelity Asset) */}
+                <div className="sunset-motel-keychain-wrapper">
+                  <img src={vintageMotelKeychain} className="vintage-motel-keychain-img" alt="Sunset Motel Keychain" />
+                </div>
+
+                {/* Polaroid Right: Retro Diner */}
+                <div className="polaroid-card polaroid-diner">
+                  <div className="polaroid-tape"></div>
+                  <div className="polaroid-img-wrapper">
+                    <img src={videoStoreImage} alt="Dintee Diner at night" />
+                  </div>
+                  <div className="polaroid-caption">
+                    <span>Good food.</span>
+                    <span>Good times.</span>
+                    <span>Great memories.</span>
+                  </div>
+                </div>
               </div>
 
               <section className="product-catalog-info-panel">
@@ -2572,12 +2680,104 @@ function App() {
                     <small>Dreaming in 1989 Supply Co.</small>
                   </aside>
                 </div>
+                
+                {/* Nested Trust Badges Service Strip */}
+                <div className="product-catalog-service-strip">
+                  <div className="service-badge-column">
+                    <Truck size={24} className="badge-icon" />
+                    <div className="badge-copy">
+                      <strong>FAST SHIPPING</strong>
+                      <p>Quick delivery to your doorstep.</p>
+                    </div>
+                  </div>
+                  <div className="service-badge-column">
+                    <ShieldCheck size={24} className="badge-icon" />
+                    <div className="badge-copy">
+                      <strong>SECURE CHECKOUT</strong>
+                      <p>Safe & secure payments.</p>
+                    </div>
+                  </div>
+                  <div className="service-badge-column">
+                    <RefreshCcw size={24} className="badge-icon" />
+                    <div className="badge-copy">
+                      <strong>EASY RETURNS</strong>
+                      <p>Hassle-free returns within 30 days.</p>
+                    </div>
+                  </div>
+                </div>
               </section>
 
-              <div className="product-route-trust product-catalog-service-strip">
-                <span><Truck size={17} /> Fast shipping</span>
-                <span><ShieldCheck size={17} /> Secure checkout</span>
-                <span><RefreshCcw size={17} /> Easy returns</span>
+              {/* NEW: Bottom Story, Playlist & Cassette Section */}
+              <div className="product-catalog-contextual-row">
+                {/* The Story */}
+                <div className="contextual-card story-card">
+                  <span className="card-heading-underline">THE STORY</span>
+                  <div className="story-content">
+                    <p>
+                      {selectedProduct.id === 'rewind-club-tee'
+                        ? "The Rewind Club Tee is a tribute to simpler days. Inspired by the malls, music, and memories of the late 80s, this design brings back the feeling of weekends well spent and summers that lasted forever."
+                        : `The ${selectedProduct.name} is a tribute to simpler days. Inspired by the malls, music, and memories of the late 80s, this design brings back the feeling of weekends well spent and summers that lasted forever.`}
+                    </p>
+                    <p>Throw it on and take a trip down memory lane.</p>
+                  </div>
+                  {/* Circular Postmark Stamp in Background */}
+                  <div className="circular-postmark-stamp">
+                    <span>1989 SUPPLY CO.</span>
+                    <strong>APPROVED</strong>
+                  </div>
+                </div>
+
+                {/* Soundtrack of the Era */}
+                <div className="contextual-card playlist-card">
+                  <span className="card-heading-underline">SOUNDTRACK OF THE ERA</span>
+                  <ul className="playlist-songs">
+                    <li>
+                      <span className="play-triangle"></span>
+                      <div>
+                        <strong>Summer of '89</strong>
+                        <small>by Bryan Adams</small>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="play-triangle"></span>
+                      <div>
+                        <strong>Saturday Morning Cartoons</strong>
+                        <small>Theme Songs</small>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="play-triangle"></span>
+                      <div>
+                        <strong>Pump Up the Jam</strong>
+                        <small>by Technotronic</small>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="play-triangle"></span>
+                      <div>
+                        <strong>Friday Night Arcade</strong>
+                        <small>The Beep Test</small>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="play-triangle"></span>
+                      <div>
+                        <strong>Livin' On a Prayer</strong>
+                        <small>by Bon Jovi</small>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Boombox Cassette Graphic */}
+                <div className="contextual-card boombox-card">
+                  <div className="boombox-image-wrapper">
+                    <img src={boomboxFeatureImage} alt="Vintage Boombox Cassette Player" />
+                    <div className="cassette-label-tape">
+                      <span>Road Trip Mix '89</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {relatedProducts.length > 0 && (
