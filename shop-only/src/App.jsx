@@ -1473,13 +1473,23 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+  const selectedStoryModule = useMemo(() => {
+    if (!selectedProduct) return { thumbLabel: 'Road Trip Vibes', heroThumbImage: heroMemoryLaneImage, leftImage: heroMemoryLaneImage, leftCaption: 'Made with care', decorImage: null }
+    return {
+      thumbLabel: 'Road Trip Vibes',
+      heroThumbImage: selectedProduct.lifestyleImage || heroMemoryLaneImage,
+      leftImage: selectedProduct.lifestyleImage || heroMemoryLaneImage,
+      leftCaption: `${selectedProduct.name} — Made with care`,
+      decorImage: selectedProduct.printDetailImage || selectedProduct.image,
+    }
+  }, [selectedProduct])
   const activePreviewImage = useMemo(() => {
     if (!selectedProduct) return null
     if (activeThumbLabel === 'Print Detail') return selectedProduct.printDetailImage || selectedProduct.image
     if (activeThumbLabel === 'Life Style') return selectedProduct.lifestyleImage || selectedProduct.image
-    if (activeThumbLabel === 'Road Trip Vibes') return heroMemoryLaneImage
+    if (activeThumbLabel === selectedStoryModule.thumbLabel) return selectedStoryModule.heroThumbImage
     return selectedProduct.image
-  }, [selectedProduct, activeThumbLabel])
+  }, [selectedProduct, activeThumbLabel, selectedStoryModule])
   const relatedProducts = selectedProduct
     ? products
       .filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id)
@@ -2413,410 +2423,412 @@ function App() {
                 <span>{selectedProduct.name}</span>
               </nav>
 
-              <div className="product-route-shell product-catalog-shell">
-                <aside className="product-catalog-thumbs" aria-label={`${selectedProduct.name} image views`}>
+              {/* ─── HERO 3-COL SHELL ─── */}
+              <div className="pdp-shell">
+
+                {/* Thumb column */}
+                <aside className="pdp-thumb-col" aria-label={`${selectedProduct.name} image views`}>
                   {[
                     { label: 'Front View', img: selectedProduct.image },
-                    { label: 'Print Detail', img: selectedProduct.printDetailImage || selectedProduct.image, zoom: !selectedProduct.printDetailImage },
-                    { label: 'Life Style', img: selectedProduct.lifestyleImage || selectedProduct.image, lifestyle: !selectedProduct.lifestyleImage },
-                    { label: 'Road Trip Vibes', img: heroMemoryLaneImage, isNew: true }
-                  ].map((item, index) => (
+                    { label: 'Left View',  img: selectedProduct.image },
+                    { label: 'Print Detail', img: selectedProduct.printDetailImage || selectedProduct.image },
+                    { label: 'Life Style',   img: selectedProduct.lifestyleImage   || selectedProduct.image },
+                    { label: selectedStoryModule.thumbLabel, img: selectedStoryModule.heroThumbImage, isNew: true },
+                  ].map((item) => (
                     <button
-                      className={`catalog-thumb catalog-thumb-${index + 1} ${item.isNew ? 'thumb-new' : ''} ${activeThumbLabel === item.label ? 'active' : ''}`}
-                      type="button"
                       key={item.label}
+                      type="button"
+                      className={`pdp-thumb-btn${activeThumbLabel === item.label ? ' active' : ''}${item.isNew ? ' is-new' : ''}`}
                       onClick={() => setActiveThumbLabel(item.label)}
                     >
-                      {item.isNew && <span className="thumb-badge">NEW</span>}
-                      <div className="polaroid-photo-frame">
-                        <img
-                          src={item.img}
-                          alt={`${selectedProduct.name} ${item.label.toLowerCase()}`}
-                          className={`${item.zoom ? 'thumb-zoom' : ''} ${item.lifestyle ? 'thumb-lifestyle' : ''}`}
-                        />
+                      {item.isNew && <span className="pdp-thumb-new-badge">NEW</span>}
+                      <div className="pdp-thumb-photo">
+                        <img src={item.img} alt={`${selectedProduct.name} – ${item.label}`} />
                       </div>
-                      <span>{item.label}</span>
+                      <span className="pdp-thumb-label">{item.label}</span>
                     </button>
                   ))}
                 </aside>
 
-                <div className="product-route-media product-catalog-media">
-                  <div className="main-masking-tape"></div>
-                  <div className="main-cardboard-backing">
-                    {selectedProduct.tag && <span className="product-tag-badge">{selectedProduct.tag}</span>}
-                    <div className="product-main-photo">
-                      <img src={activePreviewImage} alt={selectedProduct.name} />
+                {/* Main image */}
+                <div className="pdp-main-col">
+                  <div className="pdp-main-img-wrap">
+                    <img className="pdp-main-img" src={activePreviewImage} alt={selectedProduct.name} />
+                    <div className="pdp-social-proof">
+                      <span>👁️ 18 people viewing this</span>
+                      <span>🔥 6 sold today</span>
+                      <span>❤️ Trending in {selectedProduct.category}</span>
                     </div>
-                    <div className="product-catalog-sku">
-                      {selectedProduct.sku}
+                    <div className="pdp-img-dots" aria-hidden="true">
+                      {[0,1,2,3,4].map(i => <span key={i} className={i === 0 ? 'active' : ''} />)}
                     </div>
                   </div>
                 </div>
 
-                <article className="product-route-buy-panel product-catalog-order-form">
-                  <div className="notebook-spiral-binding">
-                    {[...Array(14)].map((_, i) => (
-                      <span key={i} className="spiral-ring"></span>
-                    ))}
+                {/* Buy panel */}
+                <article className="pdp-buy-col product-catalog-order-form" aria-label="Purchase options">
+                  <h1 className="pdp-product-name">{selectedProduct.name}</h1>
+                  <div className="pdp-rating-row">
+                    <span className="pdp-stars" aria-label="4.8 out of 5 stars">★★★★★</span>
+                    <button className="pdp-rating-link" type="button">4.8 (124 reviews)</button>
                   </div>
-                  <div className="notebook-metal-clip"></div>
-                  <header className="product-order-head">
-                    <div>
-                      <p className="receipt-label">Order this item</p>
-                      <h1>{selectedProduct.name}</h1>
-                    </div>
-                    <strong className="price-stamp">{formatPrice(selectedVariantPrice)}</strong>
-                  </header>
+                  <p className="pdp-tagline">{selectedProduct.shortDetail}</p>
 
-                  <div className="product-order-status">
-                    <span className="stock-state-label">
-                      {selectedProduct.stockState === 'low-stock' ? 'Low stock' : 'In stock'}
+                  <div className="pdp-stock-row">
+                    <span className={`pdp-stock-badge${selectedProduct.stockState === 'low-stock' ? ' low' : ''}`}>
+                      {selectedProduct.stockState === 'low-stock' ? '⚠ LOW STOCK' : '✓ IN STOCK'}
                     </span>
-                    <small className="sku-stamp-label">{selectedProduct.sku}</small>
+                    <span className="pdp-sku-label">SKU: {selectedProduct.sku?.replace('SKU-', '')}</span>
                   </div>
 
-                  <div className="product-order-quantity">
-                    <span>Quantity</span>
-                    <div className="quantity-stepper">
+                  {/* Retro price ticket */}
+                  <div className="pdp-price-ticket">
+                    <div className="pdp-price-ticket-left">
+                      <span className="pdp-price-was">${(selectedVariantPrice * 1.15).toFixed(2)}</span>
+                      <span className="pdp-price-now">{formatPrice(selectedVariantPrice)}</span>
+                    </div>
+                    <div className="pdp-price-ticket-right">
+                      <span className="pdp-save-label">YOU SAVE 15%</span>
                       <button
+                        className="pdp-bundle-quick-btn"
                         type="button"
-                        aria-label="Decrease quantity"
-                        onClick={() => setSelectedProductQuantity((currentQuantity) => Math.max(1, currentQuantity - 1))}
+                        onClick={() => {
+                          const bundleItems = relatedProducts.slice(0, 3)
+                          ;[selectedProduct, ...bundleItems].forEach(p => addToCart(p, null))
+                        }}
                       >
-                        <Minus size={16} />
-                      </button>
-                      <strong>{selectedProductQuantity}</strong>
-                      <button
-                        type="button"
-                        aria-label="Increase quantity"
-                        onClick={() => setSelectedProductQuantity((currentQuantity) => Math.min(9, currentQuantity + 1))}
-                      >
-                        <Plus size={16} />
+                        ADD BUNDLE TO CART
                       </button>
                     </div>
                   </div>
 
-                  <div className="option-stack product-catalog-options">
+                  {/* Options */}
+                  <div className="pdp-options-area product-catalog-options">
                     {selectedOptionGroups.map((group) => (
-                      <fieldset className="option-group" key={group.name}>
-                        <legend>{group.name}</legend>
-                        <div className="option-buttons-grid">
+                      <div className="pdp-option-group" key={group.name}>
+                        <span className="pdp-option-label">{group.name.toUpperCase()}</span>
+                        <div className="pdp-option-btns">
                           {group.options.map((option) => (
                             <button
-                              className={selectedOptions[group.name] === option.label ? 'active' : ''}
                               key={option.label}
                               type="button"
-                              onClick={() =>
-                                setSelectedOptions((currentOptions) => ({
-                                  ...currentOptions,
-                                  [group.name]: option.label,
-                                }))
-                              }
+                              className={`pdp-opt-btn${selectedOptions[group.name] === option.label ? ' active' : ''}`}
+                              onClick={() => setSelectedOptions(cur => ({ ...cur, [group.name]: option.label }))}
                             >
-                              <span>{option.label}</span>
+                              {option.label}
                               {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
                             </button>
                           ))}
                         </div>
-                      </fieldset>
+                      </div>
                     ))}
                   </div>
 
-                  <div className="detail-actions product-route-actions product-catalog-actions">
+                  {/* Quantity */}
+                  <div className="pdp-qty-row">
+                    <span className="pdp-option-label">QUANTITY</span>
+                    <div className="pdp-qty-stepper">
+                      <button type="button" aria-label="Decrease quantity"
+                        onClick={() => setSelectedProductQuantity(q => Math.max(1, q - 1))}>
+                        <Minus size={14} />
+                      </button>
+                      <strong>{selectedProductQuantity}</strong>
+                      <button type="button" aria-label="Increase quantity"
+                        onClick={() => setSelectedProductQuantity(q => Math.min(9, q + 1))}>
+                        <Plus size={14} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Inline trust */}
+                  <div className="pdp-inline-trust">
+                    <span><Truck size={14} /> Ships in 2-4 business days</span>
+                    <span><ShieldCheck size={14} /> Printed in USA</span>
+                    <span><CheckCircle2 size={14} /> Secure checkout</span>
+                  </div>
+
+                  {/* CTAs */}
+                  <div className="pdp-cta-stack detail-actions product-route-actions product-catalog-actions">
                     <button
-                      className="checkout-button"
+                      className="pdp-btn-buy"
                       type="button"
                       disabled={selectedProduct.stockState === 'sold-out'}
                       onClick={addSelectedProductToCart}
                     >
-                      <ShoppingCart size={18} />
+                      ⚡ BUY NOW
+                    </button>
+                    <button
+                      className="pdp-btn-cart checkout-button"
+                      type="button"
+                      disabled={selectedProduct.stockState === 'sold-out'}
+                      onClick={addSelectedProductToCart}
+                    >
+                      <ShoppingCart size={16} />
                       {selectedProduct.stockState === 'sold-out' ? 'Sold Out' : 'Add to Cart'}
                     </button>
-                    <button className="secondary-button" type="button" onClick={() => navigateToAccount('wishlist')}>
-                      <Heart size={18} />
-                      Add to Wishlist
+                  </div>
+
+                  {/* Wishlist */}
+                  <div className="pdp-secondary-actions">
+                    <button className="pdp-secondary-btn" type="button" onClick={() => navigateToAccount('wishlist')}>
+                      <Heart size={15} /> Add to Wishlist
                     </button>
+                    <button className="pdp-secondary-btn" type="button" aria-label="Save">
+                      <Tags size={15} /> Save
+                    </button>
+                  </div>
+
+                  {/* Payment logos */}
+                  <div className="pdp-payment-logos" aria-label="Accepted payment methods">
+                    {['VISA', 'MC', 'AMEX', 'PayPal', 'Apple Pay', 'G Pay'].map(m => (
+                      <span key={m} className="pdp-pay-badge">{m}</span>
+                    ))}
                   </div>
                 </article>
               </div>
 
-              {/* NEW: Middle Gallery Section */}
-              <div className="product-catalog-middle-gallery">
-                {/* Polaroid Left: Route 66 Canyon */}
-                <div className="polaroid-card polaroid-canyon">
-                  <div className="polaroid-label-tape">Road Trip Vibes</div>
-                  <div className="polaroid-img-wrapper">
-                    <img src={heroMemoryLaneImage} alt="Route 66 road trip" />
-                    
-                    {/* Retro US 66 highway shield road sign standing on post */}
-                    <div className="route-66-sign-wrapper">
-                      <div className="route-66-sign-post"></div>
-                      <svg className="route-66-shield" viewBox="0 0 100 100" width="55" height="55">
-                        <path d="M 50 10 C 70 10, 90 13, 90 35 C 90 62, 70 80, 50 92 C 30 80, 10 62, 10 35 C 10 13, 30 10, 50 10 Z" fill="white" stroke="black" strokeWidth="4.5" />
-                        <path d="M 50 15 C 66 15, 84 17, 84 35 C 84 58, 66 74, 50 85 C 34 74, 16 58, 16 35 C 16 17, 34 15, 50 15 Z" fill="none" stroke="black" strokeWidth="1.5" />
-                        <text x="50" y="32" fontFamily="var(--font-retro), sans-serif" fontSize="10" fontWeight="900" textAnchor="middle" fill="black">ROUTE</text>
-                        <text x="50" y="46" fontFamily="var(--font-retro), sans-serif" fontSize="11" fontWeight="900" textAnchor="middle" fill="black">US</text>
-                        <text x="50" y="76" fontFamily="var(--font-retro), sans-serif" fontSize="28" fontWeight="950" textAnchor="middle" fill="black">66</text>
-                      </svg>
-                    </div>
+              {/* ─── FEATURE BADGE STRIP ─── */}
+              <div className="pdp-feature-strip">
+                {[
+                  { icon: '🏺', title: 'PREMIUM CERAMIC', sub: 'High quality & durable' },
+                  { icon: '🍽️', title: 'DISHWASHER SAFE', sub: 'Easy to clean' },
+                  { icon: '📡', title: 'MICROWAVE SAFE',  sub: 'Heat it up worry-free' },
+                  { icon: '🎨', title: 'VIBRANT PRINT',   sub: 'Fade-resistant design' },
+                ].map(f => (
+                  <div key={f.title} className="pdp-feature-badge">
+                    <span className="pdp-feat-icon">{f.icon}</span>
+                    <strong>{f.title}</strong>
+                    <small>{f.sub}</small>
                   </div>
-                  <div className="polaroid-caption">Route US 66</div>
-                </div>
+                ))}
+              </div>
 
-                {/* Handwritten Note Center */}
-                <div className="handwritten-index-card">
-                  <div className="index-card-tape"></div>
-                  <span className="card-tag">BACK IN THE DAY</span>
-                  <p className="card-paragraph">
-                    Weekend plans were simple.<br />
-                    Fill up the tank, grab some<br />
-                    cassettes, and hit the road<br />
-                    with your best friends.<br />
-                    No phones. No rush.<br />
-                    Just the open road and<br />
-                    endless possibilities.
+              {/* ─── STORY / BUNDLE / GIFT 3-COL ─── */}
+              <div className="pdp-story-row">
+
+                {/* Story column */}
+                <div className="pdp-story-col pdp-story-col--story">
+                  <p className="pdp-story-eyebrow">★ THE STORY BEHIND THE DESIGN ★</p>
+                  <h2 className="pdp-story-headline">Classic style.<br />Timeless vibes.</h2>
+                  <p className="pdp-story-body">
+                    Inspired by vintage diner signs, bold colors, and the golden era of American roadside culture.
+                    Made for coffee lovers, road trippers, and anyone who loves a little nostalgia in their daily routine.
                   </p>
-                  <div className="card-stamp">
-                    <span>MEMORIES</span>
-                    <strong>1989</strong>
+                  <div className="pdp-polaroid-card">
+                    <img src={selectedStoryModule.leftImage || selectedProduct.image} alt="Design story scene" />
+                    <span>{selectedStoryModule.leftCaption || 'Made with care'}</span>
                   </div>
+                  <div className="pdp-story-stamp">
+                    <span>MADE FOR</span>
+                    <span>COFFEE LOVERS</span>
+                  </div>
+                  <p className="pdp-story-closer"><em>More than a mug, it&apos;s a vibe.</em></p>
                 </div>
 
-                {/* Sunset Motel Keychain (Generated High-Fidelity Asset) */}
-                <div className="sunset-motel-keychain-wrapper">
-                  <img src={vintageMotelKeychain} className="vintage-motel-keychain-img" alt="Sunset Motel Keychain" />
+                {/* Bundle column */}
+                <div className="pdp-story-col pdp-story-col--bundle">
+                  <p className="pdp-story-eyebrow">★ COMPLETE THE DINER SET ★</p>
+                  <p className="pdp-bundle-sub">Bundle &amp; Save 15%</p>
+                  <div className="pdp-bundle-items">
+                    {[selectedProduct, ...products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 3)]
+                      .map((p, i, arr) => (
+                        <span key={p.id} className="pdp-bundle-slot">
+                          <img src={p.image} alt={p.name} />
+                          <small>{p.name.split(' ').slice(0, 2).join(' ')}</small>
+                          {i < arr.length - 1 && <span className="pdp-bundle-plus">+</span>}
+                        </span>
+                      ))
+                    }
+                  </div>
+                  <div className="pdp-bundle-price-box">
+                    <span className="pdp-bundle-was">
+                      ${(relatedProducts.slice(0,3).reduce((s,p) => s + p.price, selectedProduct.price) * 1.15).toFixed(2)}
+                    </span>
+                    <span className="pdp-bundle-now">
+                      {formatPrice(relatedProducts.slice(0,3).reduce((s,p) => s + p.price, selectedProduct.price) * 0.85)}
+                    </span>
+                    <span className="pdp-bundle-save-tag">YOU SAVE 15%</span>
+                  </div>
+                  <button
+                    className="pdp-bundle-add-btn"
+                    type="button"
+                    onClick={() => [selectedProduct, ...relatedProducts.slice(0,3)].forEach(p => addToCart(p, null))}
+                  >
+                    ADD BUNDLE TO CART
+                  </button>
                 </div>
 
-                {/* Polaroid Right: Retro Diner */}
-                <div className="polaroid-card polaroid-diner">
-                  <div className="polaroid-tape"></div>
-                  <div className="polaroid-img-wrapper">
-                    <img src={videoStoreImage} alt="Dintee Diner at night" />
+                {/* Gift column */}
+                <div className="pdp-story-col pdp-story-col--gift">
+                  <div className="pdp-gift-header">
+                    <Gift size={18} /> <strong>PERFECT GIFT FOR</strong>
                   </div>
-                  <div className="polaroid-caption">
-                    <span>Good food.</span>
-                    <span>Good times.</span>
-                    <span>Great memories.</span>
+                  <ul className="pdp-gift-list">
+                    {['Coffee Lovers', 'Retro & Vintage Fans', 'Dad, Mom & Friends', 'Coworkers', 'Housewarming Gifts'].map(item => (
+                      <li key={item}><span className="pdp-gift-check">✓</span> {item}</li>
+                    ))}
+                  </ul>
+                  <div className="pdp-gift-image">
+                    <img src={selectedStoryModule.decorImage || selectedProduct.image} alt="Gift ready" />
                   </div>
+                  <div className="pdp-gift-ready-tag">GIFT<br />READY</div>
                 </div>
               </div>
 
-              <section className="product-catalog-info-panel">
-                <div className="product-catalog-tabs" role="tablist" aria-label="Product information">
-                  {productInfoTabs.map((tab) => (
-                    <button
-                      className={activeProductInfoTab === tab ? 'active' : ''}
-                      type="button"
-                      role="tab"
-                      aria-selected={activeProductInfoTab === tab}
-                      key={tab}
-                      onClick={() => setActiveProductInfoTab(tab)}
-                    >
-                      {tab === 'Reviews' ? 'Reviews (48)' : tab}
-                    </button>
+              {/* ─── TRUST STRIP ─── */}
+              <div className="pdp-trust-strip product-catalog-service-strip">
+                <div className="pdp-trust-item">
+                  <CheckCircle2 size={22} className="pdp-trust-icon" />
+                  <div><strong>30-DAY GUARANTEE</strong><p>Love it or get your money back.</p></div>
+                </div>
+                <div className="pdp-trust-item">
+                  <Truck size={22} className="pdp-trust-icon" />
+                  <div><strong>ORDER TODAY, GET IT BY</strong><p>Aug 14 – Aug 18. Fast &amp; reliable delivery.</p></div>
+                </div>
+                <div className="pdp-trust-item">
+                  <Package size={22} className="pdp-trust-icon" />
+                  <div><strong>MADE TO ORDER</strong><p>Printed just for you after ordering.</p></div>
+                </div>
+              </div>
+
+              {/* ─── SEEN IN REAL LIFE ─── */}
+              <div className="pdp-irl-section">
+                <div className="pdp-section-header">
+                  <span className="pdp-section-star">★</span>
+                  <strong>SEEN IN REAL LIFE</strong>
+                  <span className="pdp-section-star">★</span>
+                  <span className="pdp-irl-ig">📷 Tag us @dinerclub.co to get featured!</span>
+                </div>
+                <div className="pdp-irl-grid">
+                  {[0,1,2,3,4,5].map(i => (
+                    <div key={i} className="pdp-irl-cell">
+                      <img
+                        src={i % 2 === 0 ? selectedProduct.image : (selectedProduct.lifestyleImage || selectedProduct.image)}
+                        alt={`Customer photo ${i + 1}`}
+                      />
+                    </div>
                   ))}
                 </div>
+              </div>
 
-                <div className="product-catalog-tab-body" role="tabpanel">
-                  {activeProductInfoTab === 'Details' && (
-                    <>
-                      <ul>
-                        <li>{selectedProduct.shortDetail}</li>
-                        <li>Vintage mall graphic printed on front.</li>
-                        <li>Pre-shrunk for a consistent fit.</li>
-                      </ul>
-                      <ul>
-                        <li>Printed in the USA.</li>
-                        <li>Machine wash cold, tumble dry low.</li>
-                        <li>Designed for everyday wear.</li>
-                      </ul>
-                    </>
-                  )}
-                  {activeProductInfoTab === 'Size Guide' && (
-                    <>
-                      <ul>
-                        <li>Measure chest width on your favorite tee.</li>
-                        <li>Choose oversized fit for a looser 90s mall look.</li>
-                        <li>XL adds {formatPrice(2)} to cover blank garment cost.</li>
-                      </ul>
-                      <ul>
-                        <li>Classic fit runs true to size.</li>
-                        <li>Print-on-demand items are made after checkout.</li>
-                        <li>Review size before ordering.</li>
-                      </ul>
-                    </>
-                  )}
-                  {activeProductInfoTab === 'Shipping' && (
-                    <>
-                      <ul>
-                        <li>Made to order through Printful fulfillment.</li>
-                        <li>Tracking appears after fulfillment starts.</li>
-                        <li>Orders usually ship within 1-2 business days after production.</li>
-                      </ul>
-                      <ul>
-                        <li>Damaged or misprinted goods can be reviewed by support.</li>
-                        <li>Wrong size selection is not an automatic refund.</li>
-                        <li>Use the order help desk for claims.</li>
-                      </ul>
-                    </>
-                  )}
-                  {activeProductInfoTab === 'Reviews' && (
-                    <>
-                      <ul>
-                        <li>Rated 4.8/5 by early Rewind Club shoppers.</li>
-                        <li>Customers like the soft cotton feel.</li>
-                        <li>Print detail holds up well after normal wash cycles.</li>
-                      </ul>
-                      <ul>
-                        <li>Best with jeans, canvas totes, and weekend errands.</li>
-                        <li>Fast support for damaged or misprinted items.</li>
-                        <li>Good Times. Guaranteed.</li>
-                      </ul>
-                    </>
-                  )}
-                  <aside className="product-catalog-guarantee">
-                    <span>Good Times.</span>
-                    <strong>Guaranteed.</strong>
-                    <small>Dreaming in 1989 Supply Co.</small>
-                  </aside>
-                </div>
-                
-                {/* Nested Trust Badges Service Strip */}
-                <div className="product-catalog-service-strip">
-                  <div className="service-badge-column">
-                    <Truck size={24} className="badge-icon" />
-                    <div className="badge-copy">
-                      <strong>FAST SHIPPING</strong>
-                      <p>Quick delivery to your doorstep.</p>
+              {/* ─── REVIEWS + FAQ ─── */}
+              <div className="pdp-reviews-faq-row">
+
+                <div className="pdp-reviews-col">
+                  <h2 className="pdp-section-title">CUSTOMER REVIEWS</h2>
+                  <div className="pdp-reviews-summary">
+                    <div className="pdp-reviews-big-score">
+                      <span className="pdp-big-rating">4.8</span>
+                      <span className="pdp-big-stars">★★★★★</span>
+                      <small>Based on 124 reviews</small>
+                    </div>
+                    <div className="pdp-star-bars">
+                      {[['5',89],['4',10],['3',2],['2',0],['1',0]].map(([star, pct]) => (
+                        <div key={star} className="pdp-star-bar-row">
+                          <span>{star} ★</span>
+                          <div className="pdp-star-bar-track">
+                            <div className="pdp-star-bar-fill" style={{width: `${pct}%`}} />
+                          </div>
+                          <span>{pct}%</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <div className="service-badge-column">
-                    <ShieldCheck size={24} className="badge-icon" />
-                    <div className="badge-copy">
-                      <strong>SECURE CHECKOUT</strong>
-                      <p>Safe & secure payments.</p>
-                    </div>
+                  <div className="pdp-review-cards">
+                    {[
+                      { name: 'James R.', stars: 5, title: 'Perfect Mug!', body: "Love the quality and the retro design. It's my go-to morning coffee mug!", verified: true },
+                      { name: 'Sarah M.', stars: 5, title: 'Great Quality', body: "The print is vibrant and hasn't faded after many washes. Highly recommend!", verified: true },
+                      { name: 'Mike D.',  stars: 5, title: 'Awesome Gift',  body: 'Bought this for my dad and he loved it. Great packaging too.', verified: true },
+                    ].map(review => (
+                      <div key={review.name} className="pdp-review-card">
+                        <div className="pdp-review-stars">{'★'.repeat(review.stars)}</div>
+                        <strong className="pdp-review-title">{review.title}</strong>
+                        <p className="pdp-review-body">{review.body}</p>
+                        <div className="pdp-review-author">
+                          — {review.name}
+                          {review.verified && <span className="pdp-verified">✓ Verified Buyer</span>}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="service-badge-column">
-                    <RefreshCcw size={24} className="badge-icon" />
-                    <div className="badge-copy">
-                      <strong>EASY RETURNS</strong>
-                      <p>Hassle-free returns within 30 days.</p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* NEW: Bottom Story, Playlist & Cassette Section */}
-              <div className="product-catalog-contextual-row">
-                {/* The Story */}
-                <div className="contextual-card story-card">
-                  <span className="card-heading-underline">THE STORY</span>
-                  <div className="story-content">
-                    <p>
-                      {selectedProduct.id === 'rewind-club-tee'
-                        ? "The Rewind Club Tee is a tribute to simpler days. Inspired by the malls, music, and memories of the late 80s, this design brings back the feeling of weekends well spent and summers that lasted forever."
-                        : `The ${selectedProduct.name} is a tribute to simpler days. Inspired by the malls, music, and memories of the late 80s, this design brings back the feeling of weekends well spent and summers that lasted forever.`}
-                    </p>
-                    <p>Throw it on and take a trip down memory lane.</p>
-                  </div>
-                  {/* Circular Postmark Stamp in Background */}
-                  <div className="circular-postmark-stamp">
-                    <span>1989 SUPPLY CO.</span>
-                    <strong>APPROVED</strong>
-                  </div>
+                  <button className="pdp-read-more-btn" type="button">READ MORE REVIEWS</button>
                 </div>
 
-                {/* Soundtrack of the Era */}
-                <div className="contextual-card playlist-card">
-                  <span className="card-heading-underline">SOUNDTRACK OF THE ERA</span>
-                  <ul className="playlist-songs">
-                    <li>
-                      <span className="play-triangle"></span>
-                      <div>
-                        <strong>Summer of '89</strong>
-                        <small>by Bryan Adams</small>
-                      </div>
-                    </li>
-                    <li>
-                      <span className="play-triangle"></span>
-                      <div>
-                        <strong>Saturday Morning Cartoons</strong>
-                        <small>Theme Songs</small>
-                      </div>
-                    </li>
-                    <li>
-                      <span className="play-triangle"></span>
-                      <div>
-                        <strong>Pump Up the Jam</strong>
-                        <small>by Technotronic</small>
-                      </div>
-                    </li>
-                    <li>
-                      <span className="play-triangle"></span>
-                      <div>
-                        <strong>Friday Night Arcade</strong>
-                        <small>The Beep Test</small>
-                      </div>
-                    </li>
-                    <li>
-                      <span className="play-triangle"></span>
-                      <div>
-                        <strong>Livin' On a Prayer</strong>
-                        <small>by Bon Jovi</small>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Boombox Cassette Graphic */}
-                <div className="contextual-card boombox-card">
-                  <div className="boombox-image-wrapper">
-                    <img src={boomboxFeatureImage} alt="Vintage Boombox Cassette Player" />
-                    <div className="cassette-label-tape">
-                      <span>Road Trip Mix '89</span>
-                    </div>
+                <div className="pdp-faq-col">
+                  <h2 className="pdp-section-title">FAQ</h2>
+                  <div className="pdp-faq-list">
+                    {[
+                      ['Is it dishwasher safe?',   'Yes, the mug is top-rack dishwasher safe.'],
+                      ['Is it microwave safe?',    'Yes, it is microwave safe for reheating drinks.'],
+                      ['Will the print fade?',     'The sublimation print is fade-resistant and designed to last.'],
+                      ['How long is shipping?',    '2-4 business days production + 2-5 days shipping.'],
+                      ['Is it made in the USA?',   'Yes, printed and shipped from Los Angeles, CA.'],
+                    ].map(([q, a], i) => (
+                      <details key={i} className="pdp-faq-item">
+                        <summary className="pdp-faq-question">
+                          {q} <ChevronDown size={15} className="pdp-faq-chevron" />
+                        </summary>
+                        <p className="pdp-faq-answer">{a}</p>
+                      </details>
+                    ))}
                   </div>
                 </div>
               </div>
 
+              {/* ─── YOU MAY ALSO LIKE ─── */}
               {relatedProducts.length > 0 && (
-                <section className="product-route-related">
-                  <div className="section-heading">
-                    <div>
-                      <p className="receipt-label">More from this shelf</p>
-                      <h2>Related Products</h2>
-                    </div>
+                <div className="pdp-related-section product-route-related">
+                  <div className="pdp-related-header">
+                    <span>—</span><strong>YOU MAY ALSO LIKE</strong><span>—</span>
                   </div>
-                  <div className="collection-route-grid">
-                    {relatedProducts.map((product) => (
-                      <article className="product-card collection-product-card" key={`product-related-${product.id}`}>
+                  <div className="pdp-related-grid">
+                    {[selectedProduct, ...relatedProducts].slice(0, 5).map(product => (
+                      <article key={product.id} className="pdp-related-card">
                         <button
-                          className="media-square product-image product-image-button product-image--cutout"
+                          className="pdp-related-img-btn"
                           type="button"
+                          aria-label={`View ${product.name} details`}
                           onClick={() => openProductDetail(product)}
                         >
                           <img src={product.image} alt={product.name} />
-                          <span>{product.tag}</span>
                         </button>
-                        <div className="product-copy">
-                          <p className="sku">{product.sku}</p>
-                          <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
+                        <div className="pdp-related-info">
+                          <button className="pdp-related-name" type="button" onClick={() => openProductDetail(product)}>
                             {product.name}
                           </button>
-                          <p>{product.shortDetail}</p>
-                        </div>
-                        <div className="product-buy">
-                          <strong>{formatPrice(product.price)}</strong>
-                          <span className="buy-actions">
-                            <button type="button" onClick={(event) => addToCart(product, event)}>Add</button>
-                          </span>
+                          <div className="pdp-related-rating">★★★★★</div>
+                          <strong className="pdp-related-price">{formatPrice(product.price)}</strong>
                         </div>
                       </article>
                     ))}
                   </div>
-                </section>
+                </div>
               )}
+
+              {/* ─── STICKY BOTTOM BAR ─── */}
+              <div className="pdp-sticky-bar">
+                <div className="pdp-sticky-left">
+                  <img className="pdp-sticky-thumb" src={selectedProduct.image} alt={selectedProduct.name} />
+                  <div>
+                    <strong className="pdp-sticky-name">{selectedProduct.name}</strong>
+                    <span className="pdp-sticky-stars">★★★★★ 4.8 (124 reviews)</span>
+                    <span className="pdp-sticky-viewers">👁️ 18 people viewing</span>
+                  </div>
+                </div>
+                <div className="pdp-sticky-mid">
+                  <span><Truck size={13} /> Get it by Aug 14 – Aug 18</span>
+                  <span><CheckCircle2 size={13} /> 30-Day Guarantee</span>
+                </div>
+                <button
+                  className="pdp-sticky-buy"
+                  type="button"
+                  disabled={selectedProduct.stockState === 'sold-out'}
+                  onClick={addSelectedProductToCart}
+                >
+                  ⚡ BUY NOW • {formatPrice(selectedVariantPrice)}
+                </button>
+              </div>
+
             </section>
           ) : (
             <section className="store-section product-route-page">
