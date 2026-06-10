@@ -40,13 +40,11 @@ import dreaming1989LogoImage from './assets/header/dreaming-1989-logo-alpha.png'
 import vhsCassetteHeaderImage from './assets/header/vhs-cassette-header.png'
 import mallWeekendImage from './assets/mall-weekend.png'
 import videoStoreImage from './assets/video-store-night.png'
-import vintageMotelKeychain from './assets/ui/vintage-motel-keychain.png'
 import arcadeDepartmentImage from './assets/departments/arcade-department.png'
 import audioDepartmentImage from './assets/departments/audio-department.png'
 import kitchenDepartmentImage from './assets/departments/kitchen-department.png'
 import wallArtDepartmentImage from './assets/departments/wall-art-department.png'
 import snackBowlSetFeatureImage from './assets/featured/snack-bowl-set-feature.png'
-import boomboxFeatureImage from './assets/featured/boombox-feature.png'
 import arcadeEssentialsSetImage from './assets/sets/arcade-essentials.png'
 import audioShelfSetImage from './assets/sets/audio-shelf-set.png'
 import deskSetupPackSetImage from './assets/sets/desk-setup-pack.png'
@@ -75,7 +73,6 @@ import './App.css'
 const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
 const collectionSortOptions = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest']
 const collectionAvailabilityOptions = ['All', 'In Stock', 'Low Stock']
-const productInfoTabs = ['Details', 'Size Guide', 'Shipping', 'Reviews']
 
 const getCategorySlug = (category) => category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
 
@@ -1252,7 +1249,6 @@ function App() {
   const [supportTickets, setSupportTickets] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
-  const [activeProductInfoTab, setActiveProductInfoTab] = useState('Details')
   const [activeThumbLabel, setActiveThumbLabel] = useState('Front View')
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
@@ -1310,7 +1306,6 @@ function App() {
         setSelectedProduct(nextProduct)
         setSelectedOptions(getDefaultOptions(nextProduct))
         setSelectedProductQuantity(1)
-        setActiveProductInfoTab('Details')
         setActiveThumbLabel('Front View')
         setActiveRoute('product')
         window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1491,9 +1486,11 @@ function App() {
     return selectedProduct.image
   }, [selectedProduct, activeThumbLabel, selectedStoryModule])
   const relatedProducts = selectedProduct
-    ? products
-      .filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id)
-      .slice(0, 3)
+    ? (() => {
+        const sameCategory = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id)
+        const otherCategory = products.filter(p => p.category !== selectedProduct.category)
+        return [...sameCategory, ...otherCategory].slice(0, 8)
+      })()
     : []
   const featuredDropImage = featuredDrop.image
   const routeAccountTab = getAccountTabFromPath(currentPath)
@@ -1592,7 +1589,6 @@ function App() {
     setSelectedProduct(product)
     setSelectedOptions(getDefaultOptions(product))
     setSelectedProductQuantity(1)
-    setActiveProductInfoTab('Details')
     window.history.pushState(null, '', getProductPath(product))
     window.dispatchEvent(new Event('hashchange'))
   }
@@ -2100,8 +2096,15 @@ function App() {
     return <RevenueDashboard />
   }
 
+  const appClassName = [
+    'shop-app',
+    'memory-entered',
+    activeRoute === 'product' ? 'product-route-active' : '',
+    accountRouteOpen ? 'account-route-active' : '',
+  ].filter(Boolean).join(' ')
+
   return (
-    <div className={`shop-app memory-entered${accountRouteOpen ? ' account-route-active' : ''}`}>
+    <div className={appClassName}>
       <header className="site-header">
         <div className="header-main">
           <a className="brand" href="#top" aria-label="Dreaming in 1989 home">
@@ -2154,7 +2157,13 @@ function App() {
                 Sign in
               </button>
             )}
-            <button className="cart-button" type="button" ref={cartButtonRef} onClick={() => setCartOpen(true)}>
+            <button
+              className="cart-button"
+              type="button"
+              ref={cartButtonRef}
+              aria-label={`Open cart with ${itemCount} item${itemCount === 1 ? '' : 's'}`}
+              onClick={() => setCartOpen(true)}
+            >
               <ShoppingCart size={20} />
               <span>Cart ({itemCount})</span>
               <strong>{formatPrice(total)}</strong>
@@ -2542,7 +2551,7 @@ function App() {
 
                   {/* Inline trust */}
                   <div className="pdp-inline-trust">
-                    <span><Truck size={14} /> Ships in 2-4 business days</span>
+                    <span><Truck size={14} /> Ships in 2-4 days</span>
                     <span><ShieldCheck size={14} /> Printed in USA</span>
                     <span><CheckCircle2 size={14} /> Secure checkout</span>
                   </div>
@@ -2590,10 +2599,10 @@ function App() {
               {/* ─── FEATURE BADGE STRIP ─── */}
               <div className="pdp-feature-strip">
                 {[
-                  { icon: '🏺', title: 'PREMIUM CERAMIC', sub: 'High quality & durable' },
-                  { icon: '🍽️', title: 'DISHWASHER SAFE', sub: 'Easy to clean' },
-                  { icon: '📡', title: 'MICROWAVE SAFE',  sub: 'Heat it up worry-free' },
-                  { icon: '🎨', title: 'VIBRANT PRINT',   sub: 'Fade-resistant design' },
+                  { icon: '🎨', title: 'VIBRANT PRINT', sub: 'Fade-resistant design' },
+                  { icon: '🇺🇸', title: 'MADE IN USA', sub: 'Printed & shipped from LA' },
+                  { icon: '📦', title: 'MADE TO ORDER', sub: 'Printed just for you' },
+                  { icon: '✨', title: 'PREMIUM QUALITY', sub: 'Built to last' },
                 ].map(f => (
                   <div key={f.title} className="pdp-feature-badge">
                     <span className="pdp-feat-icon">{f.icon}</span>
@@ -2612,7 +2621,7 @@ function App() {
                   <h2 className="pdp-story-headline">Classic style.<br />Timeless vibes.</h2>
                   <p className="pdp-story-body">
                     Inspired by vintage diner signs, bold colors, and the golden era of American roadside culture.
-                    Made for coffee lovers, road trippers, and anyone who loves a little nostalgia in their daily routine.
+                    Made for nostalgia chasers, road trippers, and anyone who wants a little retro magic in their everyday.
                   </p>
                   <div className="pdp-polaroid-card">
                     <img src={selectedStoryModule.leftImage || selectedProduct.image} alt="Design story scene" />
@@ -2620,14 +2629,14 @@ function App() {
                   </div>
                   <div className="pdp-story-stamp">
                     <span>MADE FOR</span>
-                    <span>COFFEE LOVERS</span>
+                    <span>DREAMERS</span>
                   </div>
-                  <p className="pdp-story-closer"><em>More than a mug, it&apos;s a vibe.</em></p>
+                  <p className="pdp-story-closer"><em>More than a product — it&apos;s a vibe.</em></p>
                 </div>
 
                 {/* Bundle column */}
                 <div className="pdp-story-col pdp-story-col--bundle">
-                  <p className="pdp-story-eyebrow">★ COMPLETE THE DINER SET ★</p>
+                  <p className="pdp-story-eyebrow">★ COMPLETE THE LOOK ★</p>
                   <p className="pdp-bundle-sub">Bundle &amp; Save 15%</p>
                   <div className="pdp-bundle-items">
                     {[selectedProduct, ...products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 3)]
@@ -2664,7 +2673,7 @@ function App() {
                     <Gift size={18} /> <strong>PERFECT GIFT FOR</strong>
                   </div>
                   <ul className="pdp-gift-list">
-                    {['Coffee Lovers', 'Retro & Vintage Fans', 'Dad, Mom & Friends', 'Coworkers', 'Housewarming Gifts'].map(item => (
+                    {['Retro & Vintage Fans', '90s Nostalgia Lovers', 'Dad, Mom & Friends', 'Coworkers', 'Birthday Gifts'].map(item => (
                       <li key={item}><span className="pdp-gift-check">✓</span> {item}</li>
                     ))}
                   </ul>
@@ -2736,7 +2745,7 @@ function App() {
                   </div>
                   <div className="pdp-review-cards">
                     {[
-                      { name: 'James R.', stars: 5, title: 'Perfect Mug!', body: "Love the quality and the retro design. It's my go-to morning coffee mug!", verified: true },
+                      { name: 'James R.', stars: 5, title: 'Exceeded Expectations!', body: 'Love the quality and the retro design. Colors are vibrant and exactly as pictured!', verified: true },
                       { name: 'Sarah M.', stars: 5, title: 'Great Quality', body: "The print is vibrant and hasn't faded after many washes. Highly recommend!", verified: true },
                       { name: 'Mike D.',  stars: 5, title: 'Awesome Gift',  body: 'Bought this for my dad and he loved it. Great packaging too.', verified: true },
                     ].map(review => (
@@ -2758,11 +2767,11 @@ function App() {
                   <h2 className="pdp-section-title">FAQ</h2>
                   <div className="pdp-faq-list">
                     {[
-                      ['Is it dishwasher safe?',   'Yes, the mug is top-rack dishwasher safe.'],
-                      ['Is it microwave safe?',    'Yes, it is microwave safe for reheating drinks.'],
-                      ['Will the print fade?',     'The sublimation print is fade-resistant and designed to last.'],
-                      ['How long is shipping?',    '2-4 business days production + 2-5 days shipping.'],
-                      ['Is it made in the USA?',   'Yes, printed and shipped from Los Angeles, CA.'],
+                      ['What materials are used?',  'We use premium quality materials selected for durability and comfort.'],
+                      ['Will the print fade?',      'The print is fade-resistant and designed to last through regular use.'],
+                      ['How long is shipping?',     '2-4 business days production + 2-5 days shipping.'],
+                      ['Is it made in the USA?',    'Yes, printed and shipped from Los Angeles, CA.'],
+                      ['Can I return or exchange?',  'Absolutely! We offer a 30-day satisfaction guarantee on all orders.'],
                     ].map(([q, a], i) => (
                       <details key={i} className="pdp-faq-item">
                         <summary className="pdp-faq-question">
@@ -2782,7 +2791,7 @@ function App() {
                     <span>—</span><strong>YOU MAY ALSO LIKE</strong><span>—</span>
                   </div>
                   <div className="pdp-related-grid">
-                    {[selectedProduct, ...relatedProducts].slice(0, 5).map(product => (
+                    {relatedProducts.slice(0, 5).map(product => (
                       <article key={product.id} className="pdp-related-card">
                         <button
                           className="pdp-related-img-btn"
