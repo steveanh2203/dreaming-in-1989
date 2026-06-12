@@ -2509,90 +2509,127 @@ function App() {
               </div>
 
               <div className="catalog-pdp-trust-strip">
-                <span><Package size={18} /> Made to order</span>
-                <span><Truck size={18} /> US shipping plan</span>
-                <span><Gift size={18} /> Gift-ready nostalgia</span>
-                <span><ShieldCheck size={18} /> No real payment in demo</span>
+                <span><Truck size={18} /> Fast shipping</span>
+                <span><ShieldCheck size={18} /> Secure checkout</span>
+                <span><RefreshCcw size={18} /> Easy returns</span>
+                <span><Gift size={18} /> Gift-ready</span>
               </div>
 
-              <section className="catalog-pdp-story-grid" aria-label="Product story and bundles">
-                <article className="catalog-pdp-story-card">
-                  <p className="receipt-label">Story Behind The Design</p>
-                  <h2>Roadside memories, poured into a daily object.</h2>
+              <section className="catalog-pdp-memory-row" aria-label="Product memory and story">
+                <article className="catalog-pdp-lifestyle-card">
+                  <img src={selectedProduct.lifestyleImage || mallWeekendImage} alt={`${selectedProduct.name} lifestyle inspiration`} />
+                </article>
+                <article className="catalog-pdp-backstory-card">
+                  <p className="receipt-label">Back In The Day</p>
+                  <h2>Mall plans were simple.</h2>
                   <p>
-                    Built around diner counters, mall weekends, handwritten receipts, and the kind of small souvenir
-                    that makes a shelf feel personal.
+                    Grab a soda, meet your people, check the new releases, and bring home one small thing that made the
+                    weekend feel like yours.
                   </p>
-                  <div className="catalog-pdp-proof-stamps">
-                    <span>Paper catalog texture</span>
-                    <span>Diner counter mood</span>
-                    <span>1989 shelf energy</span>
-                  </div>
+                  <span>Memorizing 1989</span>
                 </article>
-
-                <article className="catalog-pdp-gift-card">
-                  <p className="receipt-label">Gift-ready nostalgia</p>
-                  <h2>Easy yes for retro fans.</h2>
-                  <ul>
-                    <li>Birthday desk upgrade</li>
-                    <li>Holiday stocking filler</li>
-                    <li>Friend who quotes old movies</li>
-                    <li>Home office coffee ritual</li>
-                  </ul>
-                </article>
-
-                <article className="catalog-pdp-bundle-card">
-                  <p className="receipt-label">Complete the Look</p>
-                  <h2>Build a small nostalgia set.</h2>
-                  <div className="catalog-pdp-bundle-items">
-                    {bundleProducts.map((product) => (
-                      <span key={`bundle-${product.id}`}>
-                        <img src={product.image} alt={product.name} />
-                        <small>{product.name}</small>
-                      </span>
-                    ))}
-                  </div>
-                  <div className="catalog-pdp-bundle-price">
-                    <span>{formatPrice(bundlePrice)}</span>
-                    <strong>{formatPrice(bundleDealPrice)}</strong>
-                  </div>
-                  <button type="button" onClick={() => bundleProducts.forEach((product) => addToCart(product, null))}>
-                    Add Bundle
-                  </button>
+                <article className="catalog-pdp-postcard-card">
+                  <img src={videoStoreImage} alt="Retro night storefront memory" />
+                  <p>Good stops. Good light. Good memory shelf.</p>
                 </article>
               </section>
 
-              <section className="catalog-pdp-reviews-faq">
+              <section className="catalog-pdp-info-tabs" aria-label="Product details and policies">
+                {[
+                  ['Details', 'Soft cotton feel, printed on demand, built for everyday nostalgia.'],
+                  ['Size guide', 'Classic fit. Choose your usual size or size up for a relaxed weekend look.'],
+                  ['Shipping', 'Made to order in 2-4 business days before carrier transit.'],
+                  ['Reviews', '4.8 rating from catalog demo buyers and gift shoppers.'],
+                ].map(([label, copy], index) => (
+                  <article className={index === 0 ? 'active' : ''} key={label}>
+                    <h2>{label}</h2>
+                    <p>{copy}</p>
+                  </article>
+                ))}
+              </section>
+
+              <section className="catalog-pdp-bundle-save" aria-label="Bundle and save">
+                <div className="catalog-pdp-section-title">
+                  <p className="receipt-label">Bundle & Save</p>
+                  <h2>Build the shelf, not just the shirt.</h2>
+                </div>
+                <div className="catalog-pdp-bundle-save-grid">
+                  {[
+                    { title: 'Road Trip Bundle', items: bundleProducts, price: bundleDealPrice, value: bundlePrice },
+                    { title: 'Weekend Warrior Bundle', items: [selectedProduct, ...relatedProducts.slice(1, 3)], price: Math.round((selectedProduct.price + relatedProducts.slice(1, 3).reduce((sum, product) => sum + product.price, 0)) * 0.86 * 100) / 100, value: selectedProduct.price + relatedProducts.slice(1, 3).reduce((sum, product) => sum + product.price, 0) },
+                    { title: 'Nostalgia Bundle', items: [selectedProduct, ...relatedProducts.slice(2, 4)], price: Math.round((selectedProduct.price + relatedProducts.slice(2, 4).reduce((sum, product) => sum + product.price, 0)) * 0.84 * 100) / 100, value: selectedProduct.price + relatedProducts.slice(2, 4).reduce((sum, product) => sum + product.price, 0) },
+                  ].map((bundle) => (
+                    <article key={bundle.title}>
+                      <h3>{bundle.title}</h3>
+                      <div>
+                        {bundle.items.slice(0, 3).map((product) => (
+                          <img key={`${bundle.title}-${product.id}`} src={product.image} alt={product.name} />
+                        ))}
+                      </div>
+                      <p>
+                        <strong>{formatPrice(bundle.price)}</strong>
+                        <span>{formatPrice(bundle.value)}</span>
+                        <em>Save {Math.max(0, Math.round(((bundle.value - bundle.price) / bundle.value) * 100))}%</em>
+                      </p>
+                      <button type="button" onClick={() => bundle.items.forEach((product) => addToCart(product, null))}>
+                        Add Bundle To Cart
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section className="catalog-pdp-complete-look" aria-label="Complete the look">
+                <div className="catalog-pdp-section-title">
+                  <p className="receipt-label">Complete The Look</p>
+                  <h2>Small add-ons with the same memory.</h2>
+                </div>
+                <div className="catalog-pdp-look-grid">
+                  {relatedProducts.slice(0, 4).map((product) => (
+                    <article key={`look-${product.id}`}>
+                      <button type="button" onClick={() => openProductDetail(product)}>
+                        <img src={product.image} alt={product.name} />
+                      </button>
+                      <h3>{product.name}</h3>
+                      <span>{formatPrice(product.price)}</span>
+                      <button type="button" onClick={(event) => addToCart(product, event)}>Add To Cart</button>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <section className="catalog-pdp-era-grid" aria-label="Story, soundtrack, and proof">
                 <article>
-                  <p className="receipt-label">Customer Proof</p>
-                  <h2>Feels like something from the good shelf.</h2>
+                  <p className="receipt-label">The Story</p>
+                  <h2>A tiny souvenir from memory lane.</h2>
+                  <p>
+                    This design is built around the old weekend loop: mall lights, diner booths, video shelves, and the
+                    one graphic tee you kept reaching for.
+                  </p>
+                </article>
+                <article>
+                  <p className="receipt-label">Soundtrack Of The Era</p>
+                  <ul>
+                    <li>Summer of 89</li>
+                    <li>Drive By The Cars</li>
+                    <li>About Me / Staple Minds</li>
+                    <li>Born in the U.S.A.</li>
+                  </ul>
+                </article>
+                <article>
+                  <p className="receipt-label">Customer Notes</p>
                   <div className="catalog-pdp-review-list">
                     {[
-                      ['James R.', 'The print feels sharp and the mug looks exactly like the photos.'],
-                      ['Sarah M.', 'Bought it as a gift and the retro vibe landed immediately.'],
-                      ['Mike D.', 'Solid daily mug. The packaging looked gift-ready.'],
-                    ].map(([name, body]) => (
+                      ['James R.', 'Verified buyer', 'The print feels sharp and the piece looks exactly like the photos.'],
+                      ['Sarah M.', 'Gift purchase', 'Bought it as a gift and the retro vibe landed immediately.'],
+                    ].map(([name, context, body]) => (
                       <blockquote key={name}>
                         <strong>★★★★★ {name}</strong>
+                        <span>{context}</span>
                         <p>{body}</p>
                       </blockquote>
                     ))}
                   </div>
-                </article>
-
-                <article>
-                  <p className="receipt-label">Frequently Asked Questions</p>
-                  <h2>Fast answers before checkout.</h2>
-                  {[
-                    ['How long does it take?', 'Production usually takes 2-4 business days before shipping.'],
-                    ['Is this a real checkout?', 'This demo saves the order locally and does not capture payment.'],
-                    ['Can I gift it?', 'Yes. The page is designed around gift confidence and clear shipping expectations.'],
-                  ].map(([question, answer]) => (
-                    <details key={question}>
-                      <summary>{question}<ChevronDown size={15} /></summary>
-                      <p>{answer}</p>
-                    </details>
-                  ))}
                 </article>
               </section>
 
@@ -2619,18 +2656,6 @@ function App() {
                 </section>
               )}
 
-              <div className="catalog-pdp-sticky">
-                <div>
-                  <img src={selectedProduct.image} alt="" aria-hidden="true" />
-                  <span>
-                    <strong>{selectedProduct.name}</strong>
-                    <small>{formatPrice(selectedVariantPrice)} / Ships in 2-4 business days</small>
-                  </span>
-                </div>
-                <button type="button" onClick={addSelectedProductToCart}>
-                  Add to Cart
-                </button>
-              </div>
             </section>
           ) : (
             <section className="store-section product-route-page">

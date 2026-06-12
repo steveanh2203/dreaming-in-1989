@@ -45,14 +45,21 @@ test('diner mug product detail page uses the retro catalog conversion layout', a
 
   await expect(page.locator('.catalog-pdp-buy-panel').getByRole('button', { name: /add to cart/i })).toBeVisible()
   await expect(page.getByRole('button', { name: /buy now/i })).toBeVisible()
+  const heroPanelHeights = await page.locator('.catalog-pdp-main-frame, .catalog-pdp-buy-panel').evaluateAll((panels) =>
+    panels.map((panel) => Math.round(panel.getBoundingClientRect().height)),
+  )
+  expect(heroPanelHeights).toEqual([heroPanelHeights[0], heroPanelHeights[0]])
   await expect(page.locator('.catalog-pdp-panel-trust').getByText(/ships in 2-4 business days/i)).toBeVisible()
-  await expect(page.locator('.catalog-pdp-trust-strip').getByText(/gift-ready nostalgia/i)).toBeVisible()
-  await expect(page.locator('.catalog-pdp-bundle-card').getByText(/complete the look/i)).toBeVisible()
-  await expect(page.locator('.catalog-pdp-reviews-faq').getByText(/customer proof/i)).toBeVisible()
-  await expect(page.locator('.catalog-pdp-reviews-faq').getByText(/frequently asked questions/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-trust-strip').getByText(/gift-ready/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-memory-row').getByText(/back in the day/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-info-tabs').getByText(/size guide/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-bundle-save').getByText(/bundle & save/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-bundle-save').getByRole('button', { name: /add bundle to cart/i }).first()).toBeVisible()
+  await expect(page.locator('.catalog-pdp-complete-look').getByText(/complete the look/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-era-grid').getByText(/customer notes/i)).toBeVisible()
 
   await expect(page.locator('.product-detail-reset')).toHaveCount(0)
-  await expect(page.locator('.catalog-pdp-sticky')).toBeVisible()
+  await expect(page.locator('.catalog-pdp-sticky')).toHaveCount(0)
 })
 
 test('diner mug product detail cart controls update state', async ({ page }) => {
