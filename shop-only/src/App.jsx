@@ -668,13 +668,6 @@ const productOptionGroups = {
         { label: 'Cream', priceDelta: 0 },
       ],
     },
-    {
-      name: 'Fit',
-      options: [
-        { label: 'Classic', priceDelta: 0 },
-        { label: 'Oversized', priceDelta: 3 },
-      ],
-    },
   ],
   Bags: [
     {
@@ -697,6 +690,7 @@ const productOptionGroups = {
       name: 'Size',
       options: [
         { label: '11 oz', priceDelta: 0 },
+        { label: '15 oz', priceDelta: 4 },
       ],
     },
     {
@@ -714,13 +708,6 @@ const productOptionGroups = {
         { label: 'Set of 8', priceDelta: 16 },
       ],
     },
-    {
-      name: 'Finish',
-      options: [
-        { label: 'Matte', priceDelta: 0 },
-        { label: 'Glossy', priceDelta: 2 },
-      ],
-    },
   ],
   'Wall Art': [
     {
@@ -735,7 +722,6 @@ const productOptionGroups = {
       options: [
         { label: 'No Frame', priceDelta: 0 },
         { label: 'Black Frame', priceDelta: 22 },
-        { label: 'Walnut Frame', priceDelta: 28 },
       ],
     },
   ],
@@ -745,13 +731,6 @@ const productOptionGroups = {
       options: [
         { label: 'Standard', priceDelta: 0 },
         { label: 'Gift Pack', priceDelta: 6 },
-      ],
-    },
-    {
-      name: 'Paper',
-      options: [
-        { label: 'Standard', priceDelta: 0 },
-        { label: 'Premium', priceDelta: 4 },
       ],
     },
   ],
@@ -1249,7 +1228,7 @@ function App() {
   const [supportTickets, setSupportTickets] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
-  const [activeThumbLabel, setActiveThumbLabel] = useState('Front View')
+  const [activeProductImageIndex, setActiveProductImageIndex] = useState(0)
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [customer, setCustomer] = useState(() => getStoredCustomer())
@@ -1306,7 +1285,7 @@ function App() {
         setSelectedProduct(nextProduct)
         setSelectedOptions(getDefaultOptions(nextProduct))
         setSelectedProductQuantity(1)
-        setActiveThumbLabel('Front View')
+        setActiveProductImageIndex(0)
         setActiveRoute('product')
         window.scrollTo({ top: 0, behavior: 'smooth' })
         return
@@ -1468,30 +1447,23 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
-  const selectedStoryModule = useMemo(() => {
-    if (!selectedProduct) return { thumbLabel: 'Road Trip Vibes', heroThumbImage: heroMemoryLaneImage, leftImage: heroMemoryLaneImage, leftCaption: 'Made with care', decorImage: null }
-    return {
-      thumbLabel: 'Road Trip Vibes',
-      heroThumbImage: selectedProduct.lifestyleImage || heroMemoryLaneImage,
-      leftImage: selectedProduct.lifestyleImage || heroMemoryLaneImage,
-      leftCaption: `${selectedProduct.name} — Made with care`,
-      decorImage: selectedProduct.printDetailImage || selectedProduct.image,
-    }
-  }, [selectedProduct])
-  const activePreviewImage = useMemo(() => {
-    if (!selectedProduct) return null
-    if (activeThumbLabel === 'Print Detail') return selectedProduct.printDetailImage || selectedProduct.image
-    if (activeThumbLabel === 'Life Style') return selectedProduct.lifestyleImage || selectedProduct.image
-    if (activeThumbLabel === selectedStoryModule.thumbLabel) return selectedStoryModule.heroThumbImage
-    return selectedProduct.image
-  }, [selectedProduct, activeThumbLabel, selectedStoryModule])
-  const relatedProducts = selectedProduct
-    ? (() => {
-        const sameCategory = products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id)
-        const otherCategory = products.filter(p => p.category !== selectedProduct.category)
-        return [...sameCategory, ...otherCategory].slice(0, 8)
-      })()
+  const selectedProductGallery = selectedProduct
+    ? [
+        { label: 'Catalog Front', image: selectedProduct.image },
+        { label: 'Lifestyle', image: selectedProduct.lifestyleImage || selectedProduct.image },
+        { label: 'Print Detail', image: selectedProduct.printDetailImage || selectedProduct.image },
+      ]
     : []
+  const activeProductImage = selectedProductGallery[activeProductImageIndex]?.image ?? selectedProduct?.image
+  const relatedProducts = selectedProduct
+    ? [
+        ...products.filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id),
+        ...products.filter((product) => product.category !== selectedProduct.category),
+      ].slice(0, 6)
+    : []
+  const bundleProducts = selectedProduct ? [selectedProduct, ...relatedProducts.slice(0, 2)] : []
+  const bundlePrice = bundleProducts.reduce((sum, product) => sum + product.price, 0)
+  const bundleDealPrice = Math.round(bundlePrice * 0.88 * 100) / 100
   const featuredDropImage = featuredDrop.image
   const routeAccountTab = getAccountTabFromPath(currentPath)
   const displayedAccountTab = routeAccountTab ?? accountTab
@@ -1589,6 +1561,7 @@ function App() {
     setSelectedProduct(product)
     setSelectedOptions(getDefaultOptions(product))
     setSelectedProductQuantity(1)
+    setActiveProductImageIndex(0)
     window.history.pushState(null, '', getProductPath(product))
     window.dispatchEvent(new Event('hashchange'))
   }
@@ -1776,11 +1749,16 @@ function App() {
 
     addToCart({
       ...selectedProduct,
-      cartId: `${selectedProduct.id}:${selectedVariantSummary}`,
+      cartId: `${selectedProduct.id}:${selectedVariantSummary || 'default'}`,
       price: selectedVariantPrice,
       optionSummary: selectedVariantSummary,
       quantity: selectedProductQuantity,
     }, event)
+  }
+
+  const buySelectedProductNow = (event) => {
+    addSelectedProductToCart(event)
+    setCartOpen(true)
   }
 
   const updateQuantity = (id, change) => {
@@ -2419,7 +2397,7 @@ function App() {
           </section>
         ) : activeRoute === 'product' ? (
           selectedProduct ? (
-            <section className="store-section product-route-page">
+            <section className="store-section product-route-page product-route-page--reset">
               <nav className="product-route-breadcrumb" aria-label="Product breadcrumb">
                 <button type="button" onClick={() => openHomeSection('products')}>
                   Shop
@@ -2432,412 +2410,227 @@ function App() {
                 <span>{selectedProduct.name}</span>
               </nav>
 
-              {/* ─── HERO 3-COL SHELL ─── */}
-              <div className="pdp-shell">
-
-                {/* Thumb column */}
-                <aside className="pdp-thumb-col" aria-label={`${selectedProduct.name} image views`}>
-                  {[
-                    { label: 'Front View', img: selectedProduct.image },
-                    { label: 'Left View',  img: selectedProduct.image },
-                    { label: 'Print Detail', img: selectedProduct.printDetailImage || selectedProduct.image },
-                    { label: 'Life Style',   img: selectedProduct.lifestyleImage   || selectedProduct.image },
-                    { label: selectedStoryModule.thumbLabel, img: selectedStoryModule.heroThumbImage, isNew: true },
-                  ].map((item) => (
+              <div className="catalog-pdp-hero">
+                <aside className="catalog-pdp-gallery" aria-label={`${selectedProduct.name} product views`}>
+                  {selectedProductGallery.map((item, index) => (
                     <button
-                      key={item.label}
+                      className={activeProductImageIndex === index ? 'active' : ''}
+                      key={`${selectedProduct.id}-${item.label}`}
                       type="button"
-                      className={`pdp-thumb-btn${activeThumbLabel === item.label ? ' active' : ''}${item.isNew ? ' is-new' : ''}`}
-                      onClick={() => setActiveThumbLabel(item.label)}
+                      onClick={() => setActiveProductImageIndex(index)}
                     >
-                      {item.isNew && <span className="pdp-thumb-new-badge">NEW</span>}
-                      <div className="pdp-thumb-photo">
-                        <img src={item.img} alt={`${selectedProduct.name} – ${item.label}`} />
-                      </div>
-                      <span className="pdp-thumb-label">{item.label}</span>
+                      <span>{item.label}</span>
+                      <img src={item.image} alt={`${selectedProduct.name} ${item.label}`} />
                     </button>
                   ))}
                 </aside>
 
-                {/* Main image */}
-                <div className="pdp-main-col">
-                  <div className="pdp-main-img-wrap">
-                    <img className="pdp-main-img" src={activePreviewImage} alt={selectedProduct.name} />
-                    <div className="pdp-social-proof">
-                      <span>👁️ 18 people viewing this</span>
-                      <span>🔥 6 sold today</span>
-                      <span>❤️ Trending in {selectedProduct.category}</span>
-                    </div>
-                    <div className="pdp-img-dots" aria-hidden="true">
-                      {[0,1,2,3,4].map(i => <span key={i} className={i === 0 ? 'active' : ''} />)}
-                    </div>
-                  </div>
-                </div>
+                <figure className="catalog-pdp-main-frame">
+                  <span className="catalog-pdp-tape catalog-pdp-tape--top" aria-hidden="true" />
+                  <img src={activeProductImage} alt={selectedProduct.name} />
+                  <figcaption>
+                    <span>{selectedProduct.sku}</span>
+                    <strong>{selectedProduct.tag}</strong>
+                  </figcaption>
+                </figure>
 
-                {/* Buy panel */}
-                <article className="pdp-buy-col product-catalog-order-form" aria-label="Purchase options">
-                  <h1 className="pdp-product-name">{selectedProduct.name}</h1>
-                  <div className="pdp-rating-row">
-                    <span className="pdp-stars" aria-label="4.8 out of 5 stars">★★★★★</span>
-                    <button className="pdp-rating-link" type="button">4.8 (124 reviews)</button>
+                <article className="catalog-pdp-buy-panel product-catalog-order-form" aria-label="Purchase options">
+                  <p className="receipt-label">1989 Catalog Order Form</p>
+                  <h1>{selectedProduct.name}</h1>
+                  <div className="catalog-pdp-rating">
+                    <span aria-label="4.8 out of 5 stars">★★★★★</span>
+                    <button type="button">4.8 rating / 124 reviews</button>
                   </div>
-                  <p className="pdp-tagline">{selectedProduct.shortDetail}</p>
+                  <p className="catalog-pdp-short">{selectedProduct.shortDetail}</p>
 
-                  <div className="pdp-stock-row">
-                    <span className={`pdp-stock-badge${selectedProduct.stockState === 'low-stock' ? ' low' : ''}`}>
-                      {selectedProduct.stockState === 'low-stock' ? '⚠ LOW STOCK' : '✓ IN STOCK'}
-                    </span>
-                    <span className="pdp-sku-label">SKU: {selectedProduct.sku?.replace('SKU-', '')}</span>
+                  <div className="catalog-pdp-price-row">
+                    <strong>{formatPrice(selectedVariantPrice)}</strong>
+                    <span>{selectedProduct.stockState === 'low-stock' ? 'Low stock' : 'In stock'} / Ships from USA</span>
                   </div>
 
-                  {/* Retro price ticket */}
-                  <div className="pdp-price-ticket">
-                    <div className="pdp-price-ticket-left">
-                      <span className="pdp-price-was">${(selectedVariantPrice * 1.15).toFixed(2)}</span>
-                      <span className="pdp-price-now">{formatPrice(selectedVariantPrice)}</span>
-                    </div>
-                    <div className="pdp-price-ticket-right">
-                      <span className="pdp-save-label">YOU SAVE 15%</span>
-                      <button
-                        className="pdp-bundle-quick-btn"
-                        type="button"
-                        onClick={() => {
-                          const bundleItems = relatedProducts.slice(0, 3)
-                          ;[selectedProduct, ...bundleItems].forEach(p => addToCart(p, null))
-                        }}
-                      >
-                        ADD BUNDLE TO CART
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Options */}
-                  <div className="pdp-options-area product-catalog-options">
+                  <div className="catalog-pdp-options">
                     {selectedOptionGroups.map((group) => (
-                      <div className="pdp-option-group" key={group.name}>
-                        <span className="pdp-option-label">{group.name.toUpperCase()}</span>
-                        <div className="pdp-option-btns">
+                      <fieldset key={group.name}>
+                        <legend>{group.name}</legend>
+                        <div>
                           {group.options.map((option) => (
                             <button
+                              className={selectedOptions[group.name] === option.label ? 'active' : ''}
                               key={option.label}
                               type="button"
-                              className={`pdp-opt-btn${selectedOptions[group.name] === option.label ? ' active' : ''}`}
-                              onClick={() => setSelectedOptions(cur => ({ ...cur, [group.name]: option.label }))}
+                              onClick={() => setSelectedOptions((current) => ({ ...current, [group.name]: option.label }))}
                             >
                               {option.label}
                               {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
                             </button>
                           ))}
                         </div>
-                      </div>
+                      </fieldset>
                     ))}
                   </div>
 
-                  {/* Quantity */}
-                  <div className="pdp-qty-row">
-                    <span className="pdp-option-label">QUANTITY</span>
-                    <div className="pdp-qty-stepper">
-                      <button type="button" aria-label="Decrease quantity"
-                        onClick={() => setSelectedProductQuantity(q => Math.max(1, q - 1))}>
-                        <Minus size={14} />
+                  <div className="catalog-pdp-quantity">
+                    <span>Quantity</span>
+                    <div>
+                      <button
+                        type="button"
+                        aria-label="Decrease quantity"
+                        onClick={() => setSelectedProductQuantity((quantity) => Math.max(1, quantity - 1))}
+                      >
+                        <Minus size={15} />
                       </button>
                       <strong>{selectedProductQuantity}</strong>
-                      <button type="button" aria-label="Increase quantity"
-                        onClick={() => setSelectedProductQuantity(q => Math.min(9, q + 1))}>
-                        <Plus size={14} />
+                      <button
+                        type="button"
+                        aria-label="Increase quantity"
+                        onClick={() => setSelectedProductQuantity((quantity) => Math.min(9, quantity + 1))}
+                      >
+                        <Plus size={15} />
                       </button>
                     </div>
                   </div>
 
-                  {/* Inline trust */}
-                  <div className="pdp-inline-trust">
-                    <span><Truck size={14} /> Ships in 2-4 days</span>
-                    <span><ShieldCheck size={14} /> Printed in USA</span>
-                    <span><CheckCircle2 size={14} /> Secure checkout</span>
-                  </div>
-
-                  {/* CTAs */}
-                  <div className="pdp-cta-stack detail-actions product-route-actions product-catalog-actions">
-                    <button
-                      className="pdp-btn-buy"
-                      type="button"
-                      disabled={selectedProduct.stockState === 'sold-out'}
-                      onClick={addSelectedProductToCart}
-                    >
-                      ⚡ BUY NOW
+                  <div className="catalog-pdp-actions">
+                    <button className="catalog-pdp-buy-now" type="button" onClick={buySelectedProductNow}>
+                      Buy Now
                     </button>
-                    <button
-                      className="pdp-btn-cart checkout-button"
-                      type="button"
-                      disabled={selectedProduct.stockState === 'sold-out'}
-                      onClick={addSelectedProductToCart}
-                    >
+                    <button className="catalog-pdp-add-cart" type="button" onClick={addSelectedProductToCart}>
                       <ShoppingCart size={16} />
-                      {selectedProduct.stockState === 'sold-out' ? 'Sold Out' : 'Add to Cart'}
+                      Add to Cart
                     </button>
                   </div>
 
-                  {/* Wishlist */}
-                  <div className="pdp-secondary-actions">
-                    <button className="pdp-secondary-btn" type="button" onClick={() => navigateToAccount('wishlist')}>
-                      <Heart size={15} /> Add to Wishlist
-                    </button>
-                    <button className="pdp-secondary-btn" type="button" aria-label="Save">
-                      <Tags size={15} /> Save
-                    </button>
-                  </div>
-
-                  {/* Payment logos */}
-                  <div className="pdp-payment-logos" aria-label="Accepted payment methods">
-                    {['VISA', 'MC', 'AMEX', 'PayPal', 'Apple Pay', 'G Pay'].map(m => (
-                      <span key={m} className="pdp-pay-badge">{m}</span>
-                    ))}
+                  <div className="catalog-pdp-panel-trust">
+                    <span><Truck size={15} /> Ships in 2-4 business days</span>
+                    <span><ShieldCheck size={15} /> Secure checkout</span>
+                    <span><CheckCircle2 size={15} /> 30-day guarantee</span>
                   </div>
                 </article>
               </div>
 
-              {/* ─── FEATURE BADGE STRIP ─── */}
-              <div className="pdp-feature-strip">
-                {[
-                  { icon: '🎨', title: 'VIBRANT PRINT', sub: 'Fade-resistant design' },
-                  { icon: '🇺🇸', title: 'MADE IN USA', sub: 'Printed & shipped from LA' },
-                  { icon: '📦', title: 'MADE TO ORDER', sub: 'Printed just for you' },
-                  { icon: '✨', title: 'PREMIUM QUALITY', sub: 'Built to last' },
-                ].map(f => (
-                  <div key={f.title} className="pdp-feature-badge">
-                    <span className="pdp-feat-icon">{f.icon}</span>
-                    <strong>{f.title}</strong>
-                    <small>{f.sub}</small>
-                  </div>
-                ))}
+              <div className="catalog-pdp-trust-strip">
+                <span><Package size={18} /> Made to order</span>
+                <span><Truck size={18} /> US shipping plan</span>
+                <span><Gift size={18} /> Gift-ready nostalgia</span>
+                <span><ShieldCheck size={18} /> No real payment in demo</span>
               </div>
 
-              {/* ─── STORY / BUNDLE / GIFT 3-COL ─── */}
-              <div className="pdp-story-row">
-
-                {/* Story column */}
-                <div className="pdp-story-col pdp-story-col--story">
-                  <p className="pdp-story-eyebrow">★ THE STORY BEHIND THE DESIGN ★</p>
-                  <h2 className="pdp-story-headline">Classic style.<br />Timeless vibes.</h2>
-                  <p className="pdp-story-body">
-                    Inspired by vintage diner signs, bold colors, and the golden era of American roadside culture.
-                    Made for nostalgia chasers, road trippers, and anyone who wants a little retro magic in their everyday.
+              <section className="catalog-pdp-story-grid" aria-label="Product story and bundles">
+                <article className="catalog-pdp-story-card">
+                  <p className="receipt-label">Story Behind The Design</p>
+                  <h2>Roadside memories, poured into a daily object.</h2>
+                  <p>
+                    Built around diner counters, mall weekends, handwritten receipts, and the kind of small souvenir
+                    that makes a shelf feel personal.
                   </p>
-                  <div className="pdp-polaroid-card">
-                    <img src={selectedStoryModule.leftImage || selectedProduct.image} alt="Design story scene" />
-                    <span>{selectedStoryModule.leftCaption || 'Made with care'}</span>
+                  <div className="catalog-pdp-proof-stamps">
+                    <span>Paper catalog texture</span>
+                    <span>Diner counter mood</span>
+                    <span>1989 shelf energy</span>
                   </div>
-                  <div className="pdp-story-stamp">
-                    <span>MADE FOR</span>
-                    <span>DREAMERS</span>
-                  </div>
-                  <p className="pdp-story-closer"><em>More than a product — it&apos;s a vibe.</em></p>
-                </div>
+                </article>
 
-                {/* Bundle column */}
-                <div className="pdp-story-col pdp-story-col--bundle">
-                  <p className="pdp-story-eyebrow">★ COMPLETE THE LOOK ★</p>
-                  <p className="pdp-bundle-sub">Bundle &amp; Save 15%</p>
-                  <div className="pdp-bundle-items">
-                    {[selectedProduct, ...products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 3)]
-                      .map((p, i, arr) => (
-                        <span key={p.id} className="pdp-bundle-slot">
-                          <img src={p.image} alt={p.name} />
-                          <small>{p.name.split(' ').slice(0, 2).join(' ')}</small>
-                          {i < arr.length - 1 && <span className="pdp-bundle-plus">+</span>}
-                        </span>
-                      ))
-                    }
-                  </div>
-                  <div className="pdp-bundle-price-box">
-                    <span className="pdp-bundle-was">
-                      ${(relatedProducts.slice(0,3).reduce((s,p) => s + p.price, selectedProduct.price) * 1.15).toFixed(2)}
-                    </span>
-                    <span className="pdp-bundle-now">
-                      {formatPrice(relatedProducts.slice(0,3).reduce((s,p) => s + p.price, selectedProduct.price) * 0.85)}
-                    </span>
-                    <span className="pdp-bundle-save-tag">YOU SAVE 15%</span>
-                  </div>
-                  <button
-                    className="pdp-bundle-add-btn"
-                    type="button"
-                    onClick={() => [selectedProduct, ...relatedProducts.slice(0,3)].forEach(p => addToCart(p, null))}
-                  >
-                    ADD BUNDLE TO CART
-                  </button>
-                </div>
-
-                {/* Gift column */}
-                <div className="pdp-story-col pdp-story-col--gift">
-                  <div className="pdp-gift-header">
-                    <Gift size={18} /> <strong>PERFECT GIFT FOR</strong>
-                  </div>
-                  <ul className="pdp-gift-list">
-                    {['Retro & Vintage Fans', '90s Nostalgia Lovers', 'Dad, Mom & Friends', 'Coworkers', 'Birthday Gifts'].map(item => (
-                      <li key={item}><span className="pdp-gift-check">✓</span> {item}</li>
-                    ))}
+                <article className="catalog-pdp-gift-card">
+                  <p className="receipt-label">Gift-ready nostalgia</p>
+                  <h2>Easy yes for retro fans.</h2>
+                  <ul>
+                    <li>Birthday desk upgrade</li>
+                    <li>Holiday stocking filler</li>
+                    <li>Friend who quotes old movies</li>
+                    <li>Home office coffee ritual</li>
                   </ul>
-                  <div className="pdp-gift-image">
-                    <img src={selectedStoryModule.decorImage || selectedProduct.image} alt="Gift ready" />
+                </article>
+
+                <article className="catalog-pdp-bundle-card">
+                  <p className="receipt-label">Complete the Look</p>
+                  <h2>Build a small nostalgia set.</h2>
+                  <div className="catalog-pdp-bundle-items">
+                    {bundleProducts.map((product) => (
+                      <span key={`bundle-${product.id}`}>
+                        <img src={product.image} alt={product.name} />
+                        <small>{product.name}</small>
+                      </span>
+                    ))}
                   </div>
-                  <div className="pdp-gift-ready-tag">GIFT<br />READY</div>
-                </div>
-              </div>
+                  <div className="catalog-pdp-bundle-price">
+                    <span>{formatPrice(bundlePrice)}</span>
+                    <strong>{formatPrice(bundleDealPrice)}</strong>
+                  </div>
+                  <button type="button" onClick={() => bundleProducts.forEach((product) => addToCart(product, null))}>
+                    Add Bundle
+                  </button>
+                </article>
+              </section>
 
-              {/* ─── TRUST STRIP ─── */}
-              <div className="pdp-trust-strip product-catalog-service-strip">
-                <div className="pdp-trust-item">
-                  <CheckCircle2 size={22} className="pdp-trust-icon" />
-                  <div><strong>30-DAY GUARANTEE</strong><p>Love it or get your money back.</p></div>
-                </div>
-                <div className="pdp-trust-item">
-                  <Truck size={22} className="pdp-trust-icon" />
-                  <div><strong>ORDER TODAY, GET IT BY</strong><p>Aug 14 – Aug 18. Fast &amp; reliable delivery.</p></div>
-                </div>
-                <div className="pdp-trust-item">
-                  <Package size={22} className="pdp-trust-icon" />
-                  <div><strong>MADE TO ORDER</strong><p>Printed just for you after ordering.</p></div>
-                </div>
-              </div>
+              <section className="catalog-pdp-reviews-faq">
+                <article>
+                  <p className="receipt-label">Customer Proof</p>
+                  <h2>Feels like something from the good shelf.</h2>
+                  <div className="catalog-pdp-review-list">
+                    {[
+                      ['James R.', 'The print feels sharp and the mug looks exactly like the photos.'],
+                      ['Sarah M.', 'Bought it as a gift and the retro vibe landed immediately.'],
+                      ['Mike D.', 'Solid daily mug. The packaging looked gift-ready.'],
+                    ].map(([name, body]) => (
+                      <blockquote key={name}>
+                        <strong>★★★★★ {name}</strong>
+                        <p>{body}</p>
+                      </blockquote>
+                    ))}
+                  </div>
+                </article>
 
-              {/* ─── SEEN IN REAL LIFE ─── */}
-              <div className="pdp-irl-section">
-                <div className="pdp-section-header">
-                  <span className="pdp-section-star">★</span>
-                  <strong>SEEN IN REAL LIFE</strong>
-                  <span className="pdp-section-star">★</span>
-                  <span className="pdp-irl-ig">📷 Tag us @dinerclub.co to get featured!</span>
-                </div>
-                <div className="pdp-irl-grid">
-                  {[0,1,2,3,4,5].map(i => (
-                    <div key={i} className="pdp-irl-cell">
-                      <img
-                        src={i % 2 === 0 ? selectedProduct.image : (selectedProduct.lifestyleImage || selectedProduct.image)}
-                        alt={`Customer photo ${i + 1}`}
-                      />
-                    </div>
+                <article>
+                  <p className="receipt-label">Frequently Asked Questions</p>
+                  <h2>Fast answers before checkout.</h2>
+                  {[
+                    ['How long does it take?', 'Production usually takes 2-4 business days before shipping.'],
+                    ['Is this a real checkout?', 'This demo saves the order locally and does not capture payment.'],
+                    ['Can I gift it?', 'Yes. The page is designed around gift confidence and clear shipping expectations.'],
+                  ].map(([question, answer]) => (
+                    <details key={question}>
+                      <summary>{question}<ChevronDown size={15} /></summary>
+                      <p>{answer}</p>
+                    </details>
                   ))}
-                </div>
-              </div>
+                </article>
+              </section>
 
-              {/* ─── REVIEWS + FAQ ─── */}
-              <div className="pdp-reviews-faq-row">
-
-                <div className="pdp-reviews-col">
-                  <h2 className="pdp-section-title">CUSTOMER REVIEWS</h2>
-                  <div className="pdp-reviews-summary">
-                    <div className="pdp-reviews-big-score">
-                      <span className="pdp-big-rating">4.8</span>
-                      <span className="pdp-big-stars">★★★★★</span>
-                      <small>Based on 124 reviews</small>
-                    </div>
-                    <div className="pdp-star-bars">
-                      {[['5',89],['4',10],['3',2],['2',0],['1',0]].map(([star, pct]) => (
-                        <div key={star} className="pdp-star-bar-row">
-                          <span>{star} ★</span>
-                          <div className="pdp-star-bar-track">
-                            <div className="pdp-star-bar-fill" style={{width: `${pct}%`}} />
-                          </div>
-                          <span>{pct}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="pdp-review-cards">
-                    {[
-                      { name: 'James R.', stars: 5, title: 'Exceeded Expectations!', body: 'Love the quality and the retro design. Colors are vibrant and exactly as pictured!', verified: true },
-                      { name: 'Sarah M.', stars: 5, title: 'Great Quality', body: "The print is vibrant and hasn't faded after many washes. Highly recommend!", verified: true },
-                      { name: 'Mike D.',  stars: 5, title: 'Awesome Gift',  body: 'Bought this for my dad and he loved it. Great packaging too.', verified: true },
-                    ].map(review => (
-                      <div key={review.name} className="pdp-review-card">
-                        <div className="pdp-review-stars">{'★'.repeat(review.stars)}</div>
-                        <strong className="pdp-review-title">{review.title}</strong>
-                        <p className="pdp-review-body">{review.body}</p>
-                        <div className="pdp-review-author">
-                          — {review.name}
-                          {review.verified && <span className="pdp-verified">✓ Verified Buyer</span>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <button className="pdp-read-more-btn" type="button">READ MORE REVIEWS</button>
-                </div>
-
-                <div className="pdp-faq-col">
-                  <h2 className="pdp-section-title">FAQ</h2>
-                  <div className="pdp-faq-list">
-                    {[
-                      ['What materials are used?',  'We use premium quality materials selected for durability and comfort.'],
-                      ['Will the print fade?',      'The print is fade-resistant and designed to last through regular use.'],
-                      ['How long is shipping?',     '2-4 business days production + 2-5 days shipping.'],
-                      ['Is it made in the USA?',    'Yes, printed and shipped from Los Angeles, CA.'],
-                      ['Can I return or exchange?',  'Absolutely! We offer a 30-day satisfaction guarantee on all orders.'],
-                    ].map(([q, a], i) => (
-                      <details key={i} className="pdp-faq-item">
-                        <summary className="pdp-faq-question">
-                          {q} <ChevronDown size={15} className="pdp-faq-chevron" />
-                        </summary>
-                        <p className="pdp-faq-answer">{a}</p>
-                      </details>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* ─── YOU MAY ALSO LIKE ─── */}
               {relatedProducts.length > 0 && (
-                <div className="pdp-related-section product-route-related">
-                  <div className="pdp-related-header">
-                    <span>—</span><strong>YOU MAY ALSO LIKE</strong><span>—</span>
+                <section className="catalog-pdp-related product-route-related">
+                  <div className="section-heading">
+                    <div>
+                      <p className="receipt-label">More from the shelf</p>
+                      <h2>You may also like</h2>
+                    </div>
                   </div>
-                  <div className="pdp-related-grid">
-                    {relatedProducts.slice(0, 5).map(product => (
-                      <article key={product.id} className="pdp-related-card">
-                        <button
-                          className="pdp-related-img-btn"
-                          type="button"
-                          aria-label={`View ${product.name} details`}
-                          onClick={() => openProductDetail(product)}
-                        >
+                  <div className="catalog-pdp-related-grid">
+                    {relatedProducts.slice(0, 4).map((product) => (
+                      <article key={`related-${product.id}`}>
+                        <button type="button" onClick={() => openProductDetail(product)}>
                           <img src={product.image} alt={product.name} />
                         </button>
-                        <div className="pdp-related-info">
-                          <button className="pdp-related-name" type="button" onClick={() => openProductDetail(product)}>
-                            {product.name}
-                          </button>
-                          <div className="pdp-related-rating">★★★★★</div>
-                          <strong className="pdp-related-price">{formatPrice(product.price)}</strong>
-                        </div>
+                        <span>{product.category}</span>
+                        <h3>{product.name}</h3>
+                        <strong>{formatPrice(product.price)}</strong>
                       </article>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
 
-              {/* ─── STICKY BOTTOM BAR ─── */}
-              <div className="pdp-sticky-bar">
-                <div className="pdp-sticky-left">
-                  <img className="pdp-sticky-thumb" src={selectedProduct.image} alt={selectedProduct.name} />
-                  <div>
-                    <strong className="pdp-sticky-name">{selectedProduct.name}</strong>
-                    <span className="pdp-sticky-stars">★★★★★ 4.8 (124 reviews)</span>
-                    <span className="pdp-sticky-viewers">👁️ 18 people viewing</span>
-                  </div>
+              <div className="catalog-pdp-sticky">
+                <div>
+                  <img src={selectedProduct.image} alt="" aria-hidden="true" />
+                  <span>
+                    <strong>{selectedProduct.name}</strong>
+                    <small>{formatPrice(selectedVariantPrice)} / Ships in 2-4 business days</small>
+                  </span>
                 </div>
-                <div className="pdp-sticky-mid">
-                  <span><Truck size={13} /> Get it by Aug 14 – Aug 18</span>
-                  <span><CheckCircle2 size={13} /> 30-Day Guarantee</span>
-                </div>
-                <button
-                  className="pdp-sticky-buy"
-                  type="button"
-                  disabled={selectedProduct.stockState === 'sold-out'}
-                  onClick={addSelectedProductToCart}
-                >
-                  ⚡ BUY NOW • {formatPrice(selectedVariantPrice)}
+                <button type="button" onClick={addSelectedProductToCart}>
+                  Add to Cart
                 </button>
               </div>
-
             </section>
           ) : (
             <section className="store-section product-route-page">

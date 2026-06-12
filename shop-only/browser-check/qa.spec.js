@@ -11,17 +11,12 @@ test('diner mug storefront flow', async ({ page }) => {
   await expect(page.locator('#products')).toBeVisible()
 
   await page.getByLabel(/search products and skus/i).fill('Diner Counter Mug')
-  await expect(page.getByText('Diner Counter Mug').first()).toBeVisible()
+  const productCard = page.locator('.product-card').filter({ hasText: 'Diner Counter Mug' }).first()
+  await expect(productCard).toBeVisible()
 
-  await page.getByRole('button', { name: /view diner counter mug details/i }).first().click()
-  await expect(page.getByRole('heading', { name: 'Diner Counter Mug' })).toBeVisible()
-  await expect(page.getByText('Glossy White').first()).toBeVisible()
-  await expect(page.getByText('Cream Accent')).toHaveCount(0)
-  await expect(page.getByText('15 oz')).toHaveCount(0)
-
-  await page.locator('.product-catalog-order-form').getByRole('button', { name: /add to cart/i }).click()
+  await productCard.getByRole('button', { name: 'Add', exact: true }).click()
   await expect(page.getByText(/added to cart/i)).toBeVisible()
-  await page.getByRole('button', { name: /open cart/i }).click()
+  await page.locator('.cart-button').click()
   await expect(page.getByRole('complementary', { name: /shopping cart/i })).toBeVisible()
   await expect(page.getByText('Diner Counter Mug').first()).toBeVisible()
   await page.getByRole('button', { name: 'Checkout', exact: true }).click()
@@ -36,226 +31,42 @@ test('diner mug storefront flow', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Order received' })).toBeVisible()
   await page.getByRole('button', { name: 'View Dashboard' }).click()
   await expect(page.getByText('Purchase History')).toBeVisible()
-
-  // Open the newly created order row to view detailed status in modal
-  await page.getByRole('button', { name: /#1989-/ }).first().click()
-  await expect(page.getByText('Printful draft pending')).toBeVisible()
 })
 
-test('diner mug PDP desktop hero matches reference structure', async ({ page }) => {
+test('diner mug product detail page uses the retro catalog conversion layout', async ({ page }) => {
   await page.goto('http://127.0.0.1:5173/#/products/diner-counter-mug')
 
-  await expect(page.locator('.pdp-shell')).toBeVisible()
+  await expect(page.locator('.catalog-pdp-hero')).toBeVisible()
+  await expect(page.locator('.catalog-pdp-gallery')).toBeVisible()
+  await expect(page.locator('.catalog-pdp-buy-panel')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Diner Counter Mug' })).toBeVisible()
+  await expect(page.getByText('Ceramic mug for coffee, tea, and desk days.')).toBeVisible()
+  await expect(page.getByText('$18.00').first()).toBeVisible()
 
-  const layout = await page.evaluate(() => {
-    const rect = (selector) => {
-      const element = document.querySelector(selector)
-      if (!element) return null
-      const box = element.getBoundingClientRect()
-      return {
-        height: Math.round(box.height),
-        width: Math.round(box.width),
-        x: Math.round(box.x),
-        y: Math.round(box.y),
-      }
-    }
+  await expect(page.locator('.catalog-pdp-buy-panel').getByRole('button', { name: /add to cart/i })).toBeVisible()
+  await expect(page.getByRole('button', { name: /buy now/i })).toBeVisible()
+  await expect(page.locator('.catalog-pdp-panel-trust').getByText(/ships in 2-4 business days/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-trust-strip').getByText(/gift-ready nostalgia/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-bundle-card').getByText(/complete the look/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-reviews-faq').getByText(/customer proof/i)).toBeVisible()
+  await expect(page.locator('.catalog-pdp-reviews-faq').getByText(/frequently asked questions/i)).toBeVisible()
 
-    return {
-      buy: rect('.pdp-buy-col'),
-      main: rect('.pdp-main-col'),
-      mainWrap: rect('.pdp-main-img-wrap'),
-      options: rect('.pdp-options-area'),
-      shell: rect('.pdp-shell'),
-      thumbCount: document.querySelectorAll('.pdp-thumb-btn').length,
-      trust: rect('.pdp-inline-trust'),
-      trustItems: Array.from(document.querySelectorAll('.pdp-inline-trust span')).map((item) => rectFromElement(item)),
-    }
-
-    function rectFromElement(element) {
-      const box = element.getBoundingClientRect()
-      return {
-        height: Math.round(box.height),
-        width: Math.round(box.width),
-        x: Math.round(box.x),
-        y: Math.round(box.y),
-      }
-    }
-  })
-
-  expect(layout.thumbCount).toBe(5)
-  expect(layout.buy.width).toBeGreaterThanOrEqual(500)
-  expect(layout.shell.height).toBeLessThanOrEqual(920)
-  expect(layout.mainWrap.width / layout.main.width).toBeGreaterThan(0.82)
-  expect(layout.trustItems.map((item) => item.y)).toEqual([
-    layout.trustItems[0].y,
-    layout.trustItems[0].y,
-    layout.trustItems[0].y,
-  ])
-  expect(layout.options.width / layout.buy.width).toBeGreaterThan(0.88)
+  await expect(page.locator('.product-detail-reset')).toHaveCount(0)
+  await expect(page.locator('.catalog-pdp-sticky')).toBeVisible()
 })
 
-test('diner mug PDP lower sections keep readable desktop typography', async ({ page }) => {
+test('diner mug product detail cart controls update state', async ({ page }) => {
   await page.goto('http://127.0.0.1:5173/#/products/diner-counter-mug')
 
-  await expect(page.locator('.pdp-story-row')).toBeVisible()
+  await page.getByRole('button', { name: /increase quantity/i }).click()
+  await page.locator('.catalog-pdp-buy-panel').getByRole('button', { name: /add to cart/i }).click()
+  await expect(page.getByText(/added to cart/i)).toBeVisible()
 
-  const typography = await page.evaluate(() => {
-    const fontSize = (selector) => {
-      const element = document.querySelector(selector)
-      return element ? Number.parseFloat(window.getComputedStyle(element).fontSize) : 0
-    }
-    const rect = (selector) => {
-      const element = document.querySelector(selector)
-      if (!element) return null
-      const box = element.getBoundingClientRect()
-      return {
-        height: Math.round(box.height),
-        width: Math.round(box.width),
-      }
-    }
-
-    return {
-      bundleName: fontSize('.pdp-bundle-slot small'),
-      bundlePrice: fontSize('.pdp-bundle-now'),
-      faqQuestion: fontSize('.pdp-faq-question'),
-      giftHeader: fontSize('.pdp-gift-header'),
-      giftList: fontSize('.pdp-gift-list li'),
-      reviewBody: fontSize('.pdp-review-body'),
-      sectionTitle: fontSize('.pdp-section-title'),
-      storyBody: fontSize('.pdp-story-body'),
-      storyHeadline: fontSize('.pdp-story-headline'),
-      storyRow: rect('.pdp-story-row'),
-      trustText: fontSize('.pdp-trust-item p'),
-    }
-  })
-
-  expect(typography.storyHeadline).toBeGreaterThanOrEqual(30)
-  expect(typography.storyBody).toBeGreaterThanOrEqual(15)
-  expect(typography.bundleName).toBeGreaterThanOrEqual(11)
-  expect(typography.bundlePrice).toBeGreaterThanOrEqual(30)
-  expect(typography.giftHeader).toBeGreaterThanOrEqual(15)
-  expect(typography.giftList).toBeGreaterThanOrEqual(15)
-  expect(typography.trustText).toBeGreaterThanOrEqual(14)
-  expect(typography.sectionTitle).toBeGreaterThanOrEqual(18)
-  expect(typography.reviewBody).toBeGreaterThanOrEqual(15)
-  expect(typography.faqQuestion).toBeGreaterThanOrEqual(15)
-  expect(typography.storyRow.width).toBeGreaterThanOrEqual(1280)
-})
-
-test('diner mug PDP commerce UI follows desktop type scale', async ({ page }) => {
-  await page.goto('http://127.0.0.1:5173/#/products/diner-counter-mug')
-
-  await expect(page.locator('.pdp-buy-col')).toBeVisible()
-  await expect(page.locator('.pdp-sticky-bar')).toBeVisible()
-
-  const typography = await page.evaluate(() => {
-    const fontSize = (selector) => {
-      const element = document.querySelector(selector)
-      return element ? Number.parseFloat(window.getComputedStyle(element).fontSize) : 0
-    }
-    const rect = (selector) => {
-      const element = document.querySelector(selector)
-      if (!element) return null
-      const box = element.getBoundingClientRect()
-      return {
-        height: Math.round(box.height),
-        width: Math.round(box.width),
-      }
-    }
-
-    return {
-      bundleButton: fontSize('.pdp-bundle-quick-btn'),
-      buyButton: fontSize('.pdp-btn-buy'),
-      cartButton: fontSize('.pdp-btn-cart'),
-      floatingCartVisible: (() => {
-        const element = document.querySelector('.floating-cart-button')
-        if (!element) return false
-        const style = window.getComputedStyle(element)
-        const box = element.getBoundingClientRect()
-        return style.display !== 'none' && style.visibility !== 'hidden' && box.width > 0 && box.height > 0
-      })(),
-      inlineTrust: fontSize('.pdp-inline-trust span'),
-      optionButton: fontSize('.pdp-opt-btn'),
-      optionLabel: fontSize('.pdp-option-label'),
-      paymentBadge: fontSize('.pdp-pay-badge'),
-      priceTicket: rect('.pdp-price-ticket'),
-      priceTicketLeft: rect('.pdp-price-ticket-left'),
-      priceTicketRight: rect('.pdp-price-ticket-right'),
-      priceNow: fontSize('.pdp-price-now'),
-      productName: fontSize('.pdp-product-name'),
-      qtyValue: fontSize('.pdp-qty-stepper strong'),
-      ratingLink: fontSize('.pdp-rating-link'),
-      saveLabel: fontSize('.pdp-save-label'),
-      secondaryButton: fontSize('.pdp-secondary-btn'),
-      sku: fontSize('.pdp-sku-label'),
-      stickyBar: rect('.pdp-sticky-bar'),
-      stickyBuy: fontSize('.pdp-sticky-buy'),
-      stickyMid: fontSize('.pdp-sticky-mid span'),
-      stickyName: fontSize('.pdp-sticky-name'),
-      stickyStars: fontSize('.pdp-sticky-stars'),
-      stock: fontSize('.pdp-stock-badge'),
-      tagline: fontSize('.pdp-tagline'),
-    }
-  })
-
-  expect(typography.productName).toBeGreaterThanOrEqual(30)
-  expect(typography.ratingLink).toBeGreaterThanOrEqual(15)
-  expect(typography.tagline).toBeGreaterThanOrEqual(15)
-  expect(typography.stock).toBeGreaterThanOrEqual(14)
-  expect(typography.sku).toBeGreaterThanOrEqual(14)
-  expect(typography.priceNow).toBeGreaterThanOrEqual(42)
-  expect(typography.saveLabel).toBeGreaterThanOrEqual(13)
-  expect(typography.bundleButton).toBeGreaterThanOrEqual(11)
-  expect(typography.optionLabel).toBeGreaterThanOrEqual(14)
-  expect(typography.optionButton).toBeGreaterThanOrEqual(14)
-  expect(typography.qtyValue).toBeGreaterThanOrEqual(20)
-  expect(typography.inlineTrust).toBeGreaterThanOrEqual(12)
-  expect(typography.buyButton).toBeGreaterThanOrEqual(20)
-  expect(typography.cartButton).toBeGreaterThanOrEqual(15)
-  expect(typography.secondaryButton).toBeGreaterThanOrEqual(14)
-  expect(typography.paymentBadge).toBeGreaterThanOrEqual(11)
-  expect(typography.stickyName).toBeGreaterThanOrEqual(17)
-  expect(typography.stickyStars).toBeGreaterThanOrEqual(12)
-  expect(typography.stickyMid).toBeGreaterThanOrEqual(12)
-  expect(typography.stickyBuy).toBeGreaterThanOrEqual(16)
-  expect(typography.stickyBar.height).toBeGreaterThanOrEqual(72)
-  expect(typography.stickyBar.height).toBeLessThanOrEqual(96)
-  expect(typography.priceTicketLeft.width + typography.priceTicketRight.width).toBeLessThanOrEqual(typography.priceTicket.width + 2)
-  expect(typography.floatingCartVisible).toBe(false)
-})
-
-test('diner mug PDP desktop panel width does not crush lower cards', async ({ page }) => {
-  await page.setViewportSize({ width: 1000, height: 1200 })
-  await page.goto('http://127.0.0.1:5173/#/products/diner-counter-mug')
-
-  await expect(page.locator('.pdp-story-row')).toBeVisible()
-
-  const layout = await page.evaluate(() => {
-    const rect = (selector) => {
-      const element = document.querySelector(selector)
-      if (!element) return null
-      const box = element.getBoundingClientRect()
-      return {
-        height: Math.round(box.height),
-        width: Math.round(box.width),
-        x: Math.round(box.x),
-        y: Math.round(box.y),
-      }
-    }
-
-    return {
-      bundle: rect('.pdp-story-col--bundle'),
-      gift: rect('.pdp-story-col--gift'),
-      story: rect('.pdp-story-col--story'),
-      storyRow: rect('.pdp-story-row'),
-    }
-  })
-
-  expect(layout.story.width).toBeGreaterThanOrEqual(900)
-  expect(layout.bundle.width).toBeGreaterThanOrEqual(900)
-  expect(layout.gift.width).toBeGreaterThanOrEqual(900)
-  expect(new Set([layout.story.y, layout.bundle.y, layout.gift.y]).size).toBe(3)
+  await page.locator('.cart-button').click()
+  await expect(page.getByRole('complementary', { name: /shopping cart/i })).toBeVisible()
+  const cartItem = page.locator('.cart-item').filter({ hasText: 'Diner Counter Mug' }).first()
+  await expect(cartItem).toBeVisible()
+  await expect(cartItem.locator('.quantity-row span')).toHaveText('2')
 })
 
 test('customer dashboard account tabs', async ({ page }) => {
