@@ -45,10 +45,20 @@ test('diner mug product detail page uses the retro catalog conversion layout', a
 
   await expect(page.locator('.catalog-pdp-buy-panel').getByRole('button', { name: /add to cart/i })).toBeVisible()
   await expect(page.getByRole('button', { name: /buy now/i })).toBeVisible()
-  const heroPanelHeights = await page.locator('.catalog-pdp-main-frame, .catalog-pdp-buy-panel').evaluateAll((panels) =>
-    panels.map((panel) => Math.round(panel.getBoundingClientRect().height)),
-  )
-  expect(heroPanelHeights).toEqual([heroPanelHeights[0], heroPanelHeights[0]])
+  // The product image frame is a clean 1:1 square; the info panel sizes to its
+  // own content (no forced square, no inner scrollbar).
+  const mainFrameBox = await page.locator('.catalog-pdp-main-frame').evaluate((frame) => {
+    const rect = frame.getBoundingClientRect()
+    return { width: Math.round(rect.width), height: Math.round(rect.height) }
+  })
+  expect(Math.abs(mainFrameBox.width - mainFrameBox.height)).toBeLessThanOrEqual(2)
+  const buyPanelScroll = await page.locator('.catalog-pdp-buy-panel').evaluate((panel) => ({
+    overflowing: panel.scrollHeight - panel.clientHeight,
+    overflowY: getComputedStyle(panel).overflowY,
+  }))
+  expect(buyPanelScroll.overflowing).toBeLessThanOrEqual(2)
+  expect(buyPanelScroll.overflowY).not.toBe('auto')
+  expect(buyPanelScroll.overflowY).not.toBe('scroll')
   await expect(page.locator('.catalog-pdp-panel-trust').getByText(/ships in 2-4 business days/i)).toBeVisible()
   await expect(page.locator('.catalog-pdp-trust-strip').getByText(/gift-ready/i)).toBeVisible()
   await expect(page.locator('.catalog-pdp-memory-row').getByText(/back in the day/i)).toBeVisible()

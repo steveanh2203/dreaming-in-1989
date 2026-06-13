@@ -3088,7 +3088,7 @@
 
 .catalog-pdp-hero {
   display: grid;
-  grid-template-columns: 148px minmax(420px, 1fr) minmax(410px, 0.84fr);
+  grid-template-columns: 148px minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
   align-items: start;
 }
@@ -3138,12 +3138,14 @@
 
 .catalog-pdp-main-frame {
   position: relative;
-  align-self: stretch;
-  min-height: 690px;
+  align-self: start;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
   margin: 0;
   display: grid;
   align-content: center;
   justify-items: center;
+  overflow: hidden;
   padding: clamp(28px, 4vw, 58px);
   background:
     linear-gradient(rgba(255, 247, 221, 0.54), rgba(240, 213, 168, 0.26)),
@@ -3214,7 +3216,7 @@
 
 .catalog-pdp-buy-panel {
   position: relative;
-  align-self: stretch;
+  align-self: start;
   display: grid;
   gap: 15px;
   margin: 0;
@@ -3815,10 +3817,18 @@
     grid-template-columns: 118px minmax(0, 1fr);
   }
 
+  /* Below desktop the panels stack, so drop the 1:1 square treatment. */
+  .catalog-pdp-main-frame {
+    aspect-ratio: auto;
+    min-height: 520px;
+  }
+
   .catalog-pdp-buy-panel {
     grid-column: 1 / -1;
     position: relative;
     top: auto;
+    aspect-ratio: auto;
+    overflow: visible;
   }
 
   .catalog-pdp-memory-row,
@@ -4102,7 +4112,7 @@
 .product-catalog-order-form {
   position: relative;
   gap: 12px;
-  margin: 0 0 0 18px;
+  margin: 0;
   padding: 24px 24px 24px 44px; /* Left indent for spiral rings */
   background:
     linear-gradient(90deg, rgba(117, 70, 41, 0.02) 1px, transparent 1px),
@@ -5688,6 +5698,33 @@
   min-height: 48px;
   font-weight: 800;
   border-radius: 5px;
+}
+
+.cart-drawer .freeship-meter {
+  margin-bottom: var(--space-3);
+}
+
+.cart-reassurance {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0;
+}
+
+.cart-reassurance span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--green);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cart-summary .pay-badges {
+  justify-content: center;
 }
 
 .checkout-button:disabled {
@@ -10671,28 +10708,32 @@
   }
 
   .hero {
-    min-height: 720px;
-    align-items: start;
-    padding-top: var(--space-7);
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 84px 0 var(--space-6);
   }
 
   .hero-content {
     width: calc(100% - 32px);
-    margin: 0 auto;
+    margin: 0 auto var(--space-5);
   }
 
   .hero h1 {
-    font-size: 52px;
+    font-size: 46px;
   }
 
   .hero-receipt {
-    right: var(--space-4);
-    bottom: var(--space-4);
-    left: var(--space-4);
-    width: auto;
-    min-height: 330px;
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: calc(100% - 32px);
+    min-height: auto;
+    margin: 0 auto;
     padding: 25px var(--space-4) 24px;
-    transform: rotate(0.5deg);
+    transform: rotate(0.4deg);
   }
 
   .receipt-lines {
@@ -10709,8 +10750,39 @@
   }
 
   .hero-dots {
-    right: var(--space-4);
-    bottom: 372px;
+    position: static;
+    justify-content: center;
+    margin: var(--space-4) auto 0;
+  }
+
+  /* Override the desktop memory-entered hero layout so the receipt stacks
+     under the headline instead of overlapping it on small screens. */
+  .shop-app.memory-entered .hero {
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shop-app.memory-entered .hero-content {
+    width: calc(100% - 32px);
+    margin: 0 auto var(--space-5);
+  }
+
+  .shop-app.memory-entered .hero h1 {
+    font-size: 46px;
+  }
+
+  .shop-app.memory-entered .hero-receipt {
+    right: auto;
+    bottom: auto;
+    width: calc(100% - 32px);
+    min-height: auto;
+  }
+
+  .shop-app.memory-entered .hero-dots {
+    right: auto;
+    bottom: auto;
   }
 
   .service-strip,
@@ -11410,4 +11482,1029 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   .pdp-inline-trust span:last-child { border-bottom: 0; }
   .pdp-sticky-bar { padding: 10px 14px; gap: 12px; }
   .pdp-sticky-buy { padding: 0 16px; min-height: 44px; font-size: 14px; }
+}
+
+/* =====================================================================
+   CONVERSION + WARMTH TOOLKIT (Pha 0)
+   Reusable primitives built only on existing tokens.
+   ===================================================================== */
+
+/* --- Social proof: stars + count --- */
+.proof-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.proof-rating .proof-stars {
+  color: #c9821a;
+  font-size: 14px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.proof-rating .proof-count {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* --- Stock / urgency pill --- */
+.stock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  font-family: var(--font-retro);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.stock-pill::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.stock-pill--in {
+  color: #0b6b3a;
+  background: rgba(11, 107, 58, 0.12);
+  border-color: rgba(11, 107, 58, 0.32);
+}
+
+.stock-pill--low {
+  color: #9a5b00;
+  background: rgba(255, 178, 75, 0.22);
+  border-color: rgba(154, 91, 0, 0.4);
+}
+
+.stock-pill--out {
+  color: var(--muted);
+  background: rgba(122, 67, 36, 0.14);
+  border-color: rgba(122, 67, 36, 0.36);
+}
+
+/* --- Inline trust ribbon (hero / sections) --- */
+.trust-ribbon {
+  width: min(1440px, calc(100% - 48px));
+  margin: var(--space-5) auto var(--space-6);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  color: var(--cream);
+  font-family: var(--font-retro);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(180deg, #15433e 0%, #0b2b29 100%);
+  border: 2px solid var(--wood);
+  border-radius: 8px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.22), 0 16px 28px var(--shadow);
+}
+
+.trust-ribbon span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.trust-ribbon svg {
+  color: var(--amber);
+  flex-shrink: 0;
+}
+
+/* --- Payment badges --- */
+.pay-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.pay-badges span {
+  padding: 3px 8px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--paper-soft);
+  border: 1px solid rgba(117, 70, 41, 0.4);
+  border-radius: 4px;
+}
+
+/* --- Free shipping progress meter --- */
+.freeship-meter {
+  padding: var(--space-3);
+  background: var(--paper-soft);
+  border: 1px solid rgba(117, 70, 41, 0.4);
+  border-radius: 6px;
+}
+
+.freeship-meter p {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-retro);
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.freeship-meter p strong {
+  color: var(--red);
+}
+
+.freeship-meter .freeship-track {
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(117, 70, 41, 0.2);
+  overflow: hidden;
+}
+
+.freeship-meter .freeship-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--amber), #c9821a);
+  transition: width 280ms ease;
+}
+
+.freeship-meter.is-unlocked .freeship-fill {
+  background: linear-gradient(90deg, #0b6b3a, #0b4a35);
+}
+
+/* Anchor CTAs inherit --ink via `.shop-app a { color: inherit }`; force the
+   intended cream so the red/outline buttons stay high-contrast. */
+.shop-app a.primary-button,
+.shop-app a.secondary-button {
+  color: var(--cream);
+}
+
+/* --- Product card warmth + conversion polish --- */
+.product-card {
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.22), 0 22px 40px var(--shadow);
+}
+
+.product-card .proof-rating {
+  margin: 4px 0 2px;
+}
+
+.product-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  flex-wrap: wrap;
+}
+
+.product-card-meta .sold-hint {
+  font-family: var(--font-retro);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+/* Make price + Add row read as the clear action */
+.product-buy {
+  padding-top: var(--space-3);
+  border-top: 1px dashed rgba(117, 70, 41, 0.4);
+}
+
+.product-card .product-buy strong {
+  font-size: 23px;
+  color: var(--ink);
+}
+
+.product-card .product-buy button {
+  background:
+    linear-gradient(rgba(255, 242, 216, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%);
+  border-color: var(--red-dark);
+  box-shadow: inset 0 1px 0 rgba(255, 242, 216, 0.24), 0 3px 0 #4a1010;
+}
+
+.product-card .product-buy button:hover {
+  box-shadow: inset 0 1px 0 rgba(255, 242, 216, 0.3), 0 4px 0 #4a1010;
+}
+
+.product-card .product-buy button:active {
+  box-shadow: inset 0 1px 0 rgba(255, 242, 216, 0.16), 0 1px 0 #4a1010;
+}
+
+.product-card .product-buy button:disabled {
+  filter: grayscale(0.5) brightness(0.9);
+}
+
+/* --- Bundle savings framing --- */
+.bundle-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px var(--space-2);
+}
+
+.bundle-price s {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bundle-save {
+  font-family: var(--font-ui);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #0b6b3a;
+  background: rgba(11, 107, 58, 0.14);
+  border: 1px solid rgba(11, 107, 58, 0.34);
+  border-radius: 4px;
+  padding: 2px 7px;
+}
+
+/* --- PDP buy-panel additions --- */
+.catalog-pdp-value-bullets {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.catalog-pdp-value-bullets li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.catalog-pdp-value-bullets svg {
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.catalog-pdp-freeship {
+  margin: 0;
+  padding: 10px 12px;
+  color: var(--green);
+  font-family: var(--font-retro);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  background: rgba(11, 107, 58, 0.1);
+  border: 1px dashed rgba(11, 107, 58, 0.4);
+  border-radius: 5px;
+}
+
+.catalog-pdp-buy-panel .pay-badges {
+  justify-content: center;
+}
+
+/* --- PDP info tabs (real tabs) --- */
+.catalog-pdp-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  border-bottom: 2px solid rgba(117, 70, 41, 0.32);
+}
+
+.catalog-pdp-tablist button {
+  padding: 10px 18px;
+  color: var(--muted);
+  font-family: var(--font-retro);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.catalog-pdp-tablist button.active {
+  color: var(--red);
+  border-bottom-color: var(--red);
+}
+
+.catalog-pdp-tabpanel {
+  color: var(--ink);
+  font-family: var(--font-editorial);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.catalog-pdp-tabpanel p {
+  margin: 0;
+}
+
+.catalog-pdp-review-snippets {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.catalog-pdp-review-score {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 800;
+}
+
+.catalog-pdp-review-score span {
+  color: #c9821a;
+  letter-spacing: 1px;
+}
+
+.catalog-pdp-review-snippets blockquote {
+  margin: 0;
+  padding: var(--space-4);
+  background: rgba(255, 247, 221, 0.7);
+  border-left: 3px solid var(--amber);
+  border-radius: 4px;
+}
+
+.catalog-pdp-review-snippets blockquote strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+
+/* --- PDP mobile sticky add-to-cart bar (hidden on desktop) --- */
+.pdp-mobile-buybar {
+  display: none;
+}
+
+/* --- Sticky category bar inside products section --- */
+.products-section .category-bar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  padding: var(--space-3) var(--space-3);
+  margin: 0 calc(var(--space-3) * -1) var(--space-4);
+  background: var(--paper);
+  border-bottom: 1px solid rgba(117, 70, 41, 0.4);
+  box-shadow: 0 6px 14px rgba(8, 19, 18, 0.14);
+}
+
+/* --- PDP mobile sticky add-to-cart bar (mobile only) --- */
+@media (max-width: 720px) {
+  .product-route-active .pdp-mobile-buybar {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 10px var(--space-4);
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    background: var(--paper);
+    border-top: 2px solid var(--wood);
+    box-shadow: 0 -8px 22px rgba(8, 19, 18, 0.28);
+  }
+
+  .pdp-mobile-buybar-price {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pdp-mobile-buybar-price small {
+    color: var(--muted);
+    font-family: var(--font-retro);
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .pdp-mobile-buybar-price strong {
+    color: var(--red);
+    font-family: var(--font-retro);
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .pdp-mobile-buybar button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 48px;
+    padding: 0 var(--space-5);
+    color: var(--cream);
+    font-family: var(--font-ui);
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, var(--red), var(--red-dark));
+    border: 2px solid var(--red-dark);
+    border-radius: 6px;
+    box-shadow: 0 3px 0 #4a1010;
+  }
+
+  /* keep the last content above the fixed bar */
+  .product-route-active .catalog-pdp-related {
+    margin-bottom: 96px;
+  }
+}
+
+/* --- Checkout order summary + reassurance --- */
+.checkout-summary {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  background: var(--paper-soft);
+  border: 1px solid rgba(117, 70, 41, 0.4);
+  border-radius: 6px;
+}
+
+.checkout-summary ul {
+  margin: var(--space-3) 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.checkout-summary li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.checkout-summary li span {
+  color: var(--muted);
+}
+
+.checkout-summary-lines {
+  display: grid;
+  gap: 5px;
+  padding-top: var(--space-3);
+  border-top: 1px dashed rgba(117, 70, 41, 0.45);
+}
+
+.checkout-summary-lines span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.checkout-summary-lines .checkout-summary-total {
+  margin-top: 4px;
+  padding-top: var(--space-2);
+  border-top: 1px solid rgba(117, 70, 41, 0.4);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.checkout-reassurance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.checkout-reassurance > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.checkout-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* --- Collection card secondary "View" button --- */
+.product-card .product-buy button.collection-view-detail {
+  min-width: 64px;
+  color: var(--ink);
+  background: var(--paper-soft);
+  border: 2px solid var(--wood);
+  box-shadow: 0 3px 0 rgba(62, 36, 24, 0.5);
+}
+
+.product-card .product-buy button.collection-view-detail:hover {
+  filter: brightness(0.98);
+  box-shadow: 0 4px 0 rgba(62, 36, 24, 0.5);
+}
+
+.collection-product-card .buy-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* =====================================================================
+   NOSTALGIA PACK — marquee, sunburst stickers, receipt cart/success,
+   rubber stamps, cassette bundles, TV test-card states, scroll reveals
+   ===================================================================== */
+
+/* --- LED promo marquee --- */
+.promo-marquee {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  color: var(--cream);
+  background:
+    linear-gradient(rgba(255, 242, 216, 0.05) 1px, transparent 1px),
+    linear-gradient(180deg, #15433e 0%, #081f1d 100%);
+  background-size: 100% 4px, auto;
+  border-bottom: 2px solid var(--wood);
+}
+
+.promo-marquee-track {
+  display: inline-flex;
+  flex-shrink: 0;
+  white-space: nowrap;
+  will-change: transform;
+  animation: promo-marquee-scroll 38s linear infinite;
+}
+
+.promo-marquee-group {
+  display: inline-flex;
+  align-items: center;
+}
+
+.promo-marquee-group > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  font-family: var(--font-retro);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+.promo-marquee-group > span svg {
+  color: var(--cyan);
+}
+
+.promo-marquee-star {
+  color: var(--cyan) !important;
+  padding: 7px 4px !important;
+}
+
+@keyframes promo-marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-marquee-track {
+    animation: none;
+    justify-content: center;
+    width: 100%;
+  }
+  .promo-marquee-group:nth-child(2) {
+    display: none;
+  }
+}
+
+/* --- Price-gun sunburst flash on product cards --- */
+.product-image span.price-sunburst,
+.price-sunburst {
+  position: absolute;
+  top: -10px;
+  left: auto;
+  right: -8px;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  color: var(--red-dark) !important;
+  font-family: var(--font-retro-signage);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.01em;
+  background: radial-gradient(circle at 50% 42%, #ffd07a 0 42%, var(--amber) 42% 100%) !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  transform: rotate(-12deg);
+  filter: drop-shadow(0 3px 3px rgba(31, 18, 13, 0.4));
+  clip-path: polygon(
+    50% 0%, 60% 18%, 79% 10%, 75% 31%, 95% 35%, 80% 50%,
+    95% 65%, 75% 69%, 79% 90%, 60% 82%, 50% 100%, 40% 82%,
+    21% 90%, 25% 69%, 5% 65%, 20% 50%, 5% 35%, 25% 31%,
+    21% 10%, 40% 18%
+  );
+}
+
+/* --- Order confirmation as a printed receipt slip --- */
+.order-receipt {
+  --zig: 11px;
+  position: relative;
+  width: min(360px, 100%);
+  margin: var(--space-3) auto;
+  padding: 30px 26px 26px;
+  gap: var(--space-2);
+  background:
+    linear-gradient(90deg, rgba(31, 18, 13, 0.04) 1px, transparent 1px),
+    linear-gradient(180deg, #fffaf0 0%, #f6e7c8 100%);
+  background-size: 6px 100%, auto;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.32);
+  -webkit-mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--zig) var(--zig) repeat-x,
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--zig) var(--zig) repeat-x,
+    linear-gradient(#000 0 0) center / 100% calc(100% - 2 * var(--zig)) no-repeat;
+  mask:
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--zig) var(--zig) repeat-x,
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--zig) var(--zig) repeat-x,
+    linear-gradient(#000 0 0) center / 100% calc(100% - 2 * var(--zig)) no-repeat;
+}
+
+.order-receipt-head {
+  display: grid;
+  gap: 2px;
+  font-family: var(--font-retro);
+}
+
+.order-receipt-head strong {
+  font-size: 17px;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+}
+
+.order-receipt-head span {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.order-receipt .receipt-dash {
+  width: 100%;
+}
+
+.order-receipt h2 {
+  color: var(--ink) !important;
+  font-size: 30px !important;
+}
+
+.order-receipt .order-receipt-thanks {
+  margin: 0;
+  font-family: var(--font-stamp);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  color: var(--red-dark);
+}
+
+.order-receipt .receipt-barcode {
+  width: 80%;
+  height: 40px;
+  margin: 4px auto var(--space-2);
+}
+
+.order-receipt-stamp {
+  position: absolute;
+  top: 64px;
+  right: 18px;
+  padding: 4px 12px;
+  color: var(--red);
+  font-family: var(--font-stamp);
+  font-size: 22px;
+  letter-spacing: 0.1em;
+  border: 3px double var(--red);
+  border-radius: 6px;
+  opacity: 0.78;
+  transform: rotate(-14deg);
+}
+
+/* --- Rubber-stamp seal (reusable accent) --- */
+.stamp-seal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  color: var(--red-dark);
+  font-family: var(--font-stamp);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid rgba(114, 24, 24, 0.7);
+  border-radius: 5px;
+  opacity: 0.82;
+  transform: rotate(-3deg);
+}
+
+/* --- Cart receipt footer --- */
+.cart-receipt-footer {
+  margin-top: var(--space-3);
+  text-align: center;
+}
+
+.cart-receipt-footer .receipt-barcode {
+  height: 30px;
+  margin: 0 auto var(--space-1);
+  opacity: 0.7;
+}
+
+.cart-receipt-footer span {
+  font-family: var(--font-stamp);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* --- Cassette J-card styling for bundle cards --- */
+.cassette-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin: var(--space-3) var(--space-3) 0;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, #1c1c1f 0%, #2c2c30 100%);
+  border: 2px solid #0d0d0f;
+  border-radius: 6px;
+}
+
+.cassette-reel {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #f0d5a8 0 5px, #5a3a23 5px 8px, #2c2c30 8px 100%);
+  border: 2px solid #f0d5a8;
+}
+
+.cassette-reel::before {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 1px dashed rgba(240, 213, 168, 0.6);
+}
+
+.cassette-tape-line {
+  flex: 1;
+  max-width: 180px;
+  padding: 5px 10px;
+  text-align: center;
+  color: var(--ink);
+  font-family: var(--font-retro);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  background: var(--cream);
+  border-radius: 3px;
+}
+
+.cassette-tracklist-label {
+  margin: var(--space-3) 0 6px !important;
+  font-family: var(--font-stamp);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--red-dark) !important;
+}
+
+.bundle-item-list--tracks {
+  counter-reset: track;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bundle-item-list--tracks li {
+  counter-increment: track;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--font-retro);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.bundle-item-list--tracks li::before {
+  content: 'A' counter(track);
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--red-dark);
+}
+
+.bundle-item-list--tracks li::after {
+  content: '';
+  flex: 1;
+  margin: 0 2px 3px;
+  border-bottom: 1px dotted rgba(117, 70, 41, 0.5);
+}
+
+/* --- TV test-card "Please stand by" empty state --- */
+.empty-results--tv {
+  gap: var(--space-4);
+}
+
+.tv-testcard {
+  position: relative;
+  width: min(320px, 100%);
+  aspect-ratio: 4 / 3;
+  border: 4px solid #14110d;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 2px rgba(255, 242, 216, 0.18), 0 8px 18px var(--shadow);
+}
+
+.smpte-bars {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    #c0c0c0 0 14.28%,
+    #c9c000 14.28% 28.56%,
+    #00c9c9 28.56% 42.84%,
+    #00a300 42.84% 57.12%,
+    #c900c9 57.12% 71.4%,
+    #c20000 71.4% 85.68%,
+    #1f1fae 85.68% 100%
+  );
+  filter: saturate(0.92) brightness(0.96);
+}
+
+.tv-testcard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px);
+  pointer-events: none;
+}
+
+.tv-standby {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  color: var(--cream);
+  font-family: var(--font-retro-signage);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  background: rgba(8, 19, 18, 0.82);
+  border: 1px solid rgba(255, 242, 216, 0.4);
+  border-radius: 4px;
+}
+
+/* --- PDP panel bottom row: payments + guarantee stamp --- */
+.catalog-pdp-panel-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* --- Scroll-reveal for home sections (progressive enhancement) --- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .shop-app:not(.product-route-active):not(.account-route-active) .store-section {
+      animation: section-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+    }
+  }
+}
+
+@keyframes section-reveal {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Filmstrip divider --- */
+.film-divider {
+  width: min(1440px, calc(100% - 48px));
+  margin: var(--space-6) auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 var(--space-5);
+  color: var(--cream);
+  font-family: var(--font-retro-signage);
+  font-size: clamp(13px, 1.6vw, 18px);
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  background:
+    /* sprocket holes top & bottom */
+    repeating-linear-gradient(90deg, transparent 0 10px, #0b0b0d 10px 18px, transparent 18px 28px) top / 100% 9px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 10px, #0b0b0d 10px 18px, transparent 18px 28px) bottom / 100% 9px no-repeat,
+    linear-gradient(180deg, #161616, #232326);
+  border: 2px solid #0b0b0d;
+  border-radius: 6px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.24), inset 0 0 0 9px #161616;
+}
+
+.film-divider span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--amber);
+}
+
+.film-divider span::before,
+.film-divider span::after {
+  content: '★';
+  color: var(--cyan);
+}
+
+/* --- Neon "OPEN" diner sign on the hero --- */
+.hero-neon-sign {
+  position: absolute;
+  z-index: 2;
+  right: max(24px, calc((100vw - 1440px) / 2 + 24px));
+  top: 26px;
+  display: grid;
+  gap: 3px;
+  padding: 12px 18px;
+  text-align: center;
+  background: rgba(8, 19, 18, 0.55);
+  border: 2px solid rgba(85, 231, 255, 0.55);
+  border-radius: 10px;
+  box-shadow: 0 0 18px rgba(85, 231, 255, 0.3), inset 0 0 14px rgba(85, 231, 255, 0.12);
+  backdrop-filter: blur(2px);
+}
+
+.hero-neon-sign strong {
+  font-family: var(--font-retro-signage);
+  font-size: 22px;
+  letter-spacing: 0.12em;
+  color: #d7fbff;
+  text-shadow: 0 0 6px var(--cyan), 0 0 14px rgba(85, 231, 255, 0.8);
+  animation: neon-flicker 4.5s infinite steps(1);
+}
+
+.hero-neon-sign small {
+  font-family: var(--font-retro);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--amber);
+}
+
+@keyframes neon-flicker {
+  0%, 92%, 96%, 100% { opacity: 1; }
+  93%, 95% { opacity: 0.55; }
+  94% { opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-neon-sign strong { animation: none; }
+}
+
+@media (max-width: 900px) {
+  .hero-neon-sign { display: none; }
 }
