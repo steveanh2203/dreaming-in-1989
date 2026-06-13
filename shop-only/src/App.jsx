@@ -11,6 +11,7 @@ import {
   Heart,
   Home,
   Image,
+  Lock,
   LogIn,
   LogOut,
   Mail,
@@ -746,6 +747,34 @@ const getSelectedOptions = (groups, selectedOptions) =>
 
 const formatPrice = (value) => `$${value.toFixed(2)}`
 const collapsedCartItemCount = 2
+const FREE_SHIPPING_THRESHOLD = 75
+
+// Deterministic demo social-proof so cards/PDP can show ratings without a backend.
+const hashString = (value) => {
+  let hash = 0
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 31 + value.charCodeAt(index)) >>> 0
+  }
+  return hash
+}
+
+const getProductProof = (product) => {
+  if (!product) return { rating: 4.8, reviewCount: 120, soldCount: 200 }
+  const seed = hashString(String(product.id ?? product.name ?? 'product'))
+  const rating = Math.round((4.5 + (seed % 5) / 10) * 10) / 10 // 4.5 - 4.9
+  const reviewCount = 38 + (seed % 240)
+  const soldCount = 120 + ((seed >> 3) % 880)
+  return { rating, reviewCount, soldCount }
+}
+
+// Retro price-gun "starburst" flash — only for a few highlight tags so cards
+// stay scannable instead of every card shouting at once.
+const sunburstLabels = {
+  'Best Seller': 'HOT!',
+  'Under $20': 'DEAL!',
+  'Low Stock': 'LAST FEW',
+}
+const getSunburstLabel = (product) => sunburstLabels[product?.tag] ?? null
 
 const escapePdfText = (value) =>
   String(value ?? '')
@@ -1229,6 +1258,7 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
   const [activeProductImageIndex, setActiveProductImageIndex] = useState(0)
+  const [pdpTab, setPdpTab] = useState('Details')
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [customer, setCustomer] = useState(() => getStoredCustomer())
@@ -1447,6 +1477,7 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+  const selectedProductProof = getProductProof(selectedProduct)
   const selectedProductGallery = selectedProduct
     ? [
         { label: 'Catalog Front', image: selectedProduct.image },
@@ -1562,6 +1593,7 @@ function App() {
     setSelectedOptions(getDefaultOptions(product))
     setSelectedProductQuantity(1)
     setActiveProductImageIndex(0)
+    setPdpTab('Details')
     window.history.pushState(null, '', getProductPath(product))
     window.dispatchEvent(new Event('hashchange'))
   }
@@ -2083,6 +2115,24 @@ function App() {
 
   return (
     <div className={appClassName}>
+      <div className="promo-marquee" role="region" aria-label="Store announcements">
+        <div className="promo-marquee-track" aria-hidden="true">
+          {Array.from({ length: 2 }).map((_, group) => (
+            <span className="promo-marquee-group" key={group}>
+              <span><Truck size={13} /> Free shipping over $75</span>
+              <span className="promo-marquee-star">★</span>
+              <span>New drops every Friday</span>
+              <span className="promo-marquee-star">★</span>
+              <span><Gift size={13} /> Gift-ready packaging</span>
+              <span className="promo-marquee-star">★</span>
+              <span>Made to order in the USA</span>
+              <span className="promo-marquee-star">★</span>
+              <span>Use code REWIND10 for 10% off</span>
+              <span className="promo-marquee-star">★</span>
+            </span>
+          ))}
+        </div>
+      </div>
       <header className="site-header">
         <div className="header-main">
           <a className="brand" href="#top" aria-label="Dreaming in 1989 home">
@@ -2438,15 +2488,37 @@ function App() {
                   <p className="receipt-label">1989 Catalog Order Form</p>
                   <h1>{selectedProduct.name}</h1>
                   <div className="catalog-pdp-rating">
-                    <span aria-label="4.8 out of 5 stars">★★★★★</span>
-                    <button type="button">4.8 rating / 124 reviews</button>
+                    <span aria-label={`${selectedProductProof.rating} out of 5 stars`}>★★★★★</span>
+                    <button type="button" onClick={() => setPdpTab('Reviews')}>
+                      {selectedProductProof.rating.toFixed(1)} rating / {selectedProductProof.reviewCount} reviews
+                    </button>
                   </div>
                   <p className="catalog-pdp-short">{selectedProduct.shortDetail}</p>
 
                   <div className="catalog-pdp-price-row">
                     <strong>{formatPrice(selectedVariantPrice)}</strong>
-                    <span>{selectedProduct.stockState === 'low-stock' ? 'Low stock' : 'In stock'} / Ships from USA</span>
+                    <span
+                      className={`stock-pill stock-pill--${
+                        selectedProduct.stockState === 'sold-out'
+                          ? 'out'
+                          : selectedProduct.stockState === 'low-stock'
+                            ? 'low'
+                            : 'in'
+                      }`}
+                    >
+                      {selectedProduct.stockState === 'sold-out'
+                        ? 'Sold out'
+                        : selectedProduct.stockState === 'low-stock'
+                          ? 'Only a few left'
+                          : 'In stock'}
+                    </span>
                   </div>
+
+                  <ul className="catalog-pdp-value-bullets">
+                    <li><CheckCircle2 size={15} /> Made to order in the USA</li>
+                    <li><Sparkles size={15} /> Original 1989-style artwork</li>
+                    <li><Gift size={15} /> Gift-ready packaging</li>
+                  </ul>
 
                   <div className="catalog-pdp-options">
                     {selectedOptionGroups.map((group) => (
@@ -2503,9 +2575,36 @@ function App() {
                   <div className="catalog-pdp-panel-trust">
                     <span><Truck size={15} /> Ships in 2-4 business days</span>
                     <span><ShieldCheck size={15} /> Secure checkout</span>
-                    <span><CheckCircle2 size={15} /> 30-day guarantee</span>
+                    <span><RefreshCcw size={15} /> 30-day guarantee</span>
+                  </div>
+
+                  <p className="catalog-pdp-freeship">
+                    {selectedVariantPrice >= FREE_SHIPPING_THRESHOLD
+                      ? 'This item ships free.'
+                      : `Add ${formatPrice(FREE_SHIPPING_THRESHOLD - selectedVariantPrice)} more for free shipping.`}
+                  </p>
+
+                  <div className="catalog-pdp-panel-bottom">
+                    <div className="pay-badges" aria-label="Accepted payments">
+                      <span>Visa</span>
+                      <span>Mastercard</span>
+                      <span>Amex</span>
+                      <span>PayPal</span>
+                    </div>
+                    <span className="stamp-seal" aria-hidden="true">★ Satisfaction Guaranteed</span>
                   </div>
                 </article>
+              </div>
+
+              <div className="pdp-mobile-buybar" aria-hidden="false">
+                <span className="pdp-mobile-buybar-price">
+                  <small>{selectedProduct.name}</small>
+                  <strong>{formatPrice(selectedVariantPrice)}</strong>
+                </span>
+                <button type="button" onClick={addSelectedProductToCart}>
+                  <ShoppingCart size={17} />
+                  {selectedProduct.stockState === 'sold-out' ? 'Sold out' : 'Add to Cart'}
+                </button>
               </div>
 
               <div className="catalog-pdp-trust-strip">
@@ -2535,17 +2634,48 @@ function App() {
               </section>
 
               <section className="catalog-pdp-info-tabs" aria-label="Product details and policies">
-                {[
-                  ['Details', 'Soft cotton feel, printed on demand, built for everyday nostalgia.'],
-                  ['Size guide', 'Classic fit. Choose your usual size or size up for a relaxed weekend look.'],
-                  ['Shipping', 'Made to order in 2-4 business days before carrier transit.'],
-                  ['Reviews', '4.8 rating from catalog demo buyers and gift shoppers.'],
-                ].map(([label, copy], index) => (
-                  <article className={index === 0 ? 'active' : ''} key={label}>
-                    <h2>{label}</h2>
-                    <p>{copy}</p>
-                  </article>
-                ))}
+                <div className="catalog-pdp-tablist" role="tablist" aria-label="Product information">
+                  {['Details', 'Size guide', 'Shipping', 'Reviews'].map((label) => (
+                    <button
+                      key={label}
+                      role="tab"
+                      type="button"
+                      id={`pdp-tab-${label}`}
+                      aria-selected={pdpTab === label}
+                      aria-controls="pdp-tabpanel"
+                      className={pdpTab === label ? 'active' : ''}
+                      onClick={() => setPdpTab(label)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div className="catalog-pdp-tabpanel" id="pdp-tabpanel" role="tabpanel" aria-labelledby={`pdp-tab-${pdpTab}`}>
+                  {pdpTab === 'Details' && (
+                    <p>Soft, made-to-order build with original 1989-style artwork. Printed on demand so each one ships fresh — no warehouse fade, no mass-market feel.</p>
+                  )}
+                  {pdpTab === 'Size guide' && (
+                    <p>Classic, true-to-size fit. Choose your usual size, or size up for a relaxed weekend look. Measurements are listed on each product page before checkout.</p>
+                  )}
+                  {pdpTab === 'Shipping' && (
+                    <p>Made to order in 2-4 business days before carrier transit. Free shipping over {formatPrice(FREE_SHIPPING_THRESHOLD)}. Ships from the USA with tracking.</p>
+                  )}
+                  {pdpTab === 'Reviews' && (
+                    <div className="catalog-pdp-review-snippets">
+                      <p className="catalog-pdp-review-score">
+                        <span aria-hidden="true">★★★★★</span> {selectedProductProof.rating.toFixed(1)} out of 5 · {selectedProductProof.reviewCount} reviews
+                      </p>
+                      <blockquote>
+                        <strong>“Better than I expected.”</strong>
+                        Came in fast and the print is crisp. Exactly the throwback vibe I wanted. — Dana R.
+                      </blockquote>
+                      <blockquote>
+                        <strong>“Gift-perfect.”</strong>
+                        Bought it for a friend who grew up in the era. She loved the packaging. — Marcus T.
+                      </blockquote>
+                    </div>
+                  )}
+                </div>
               </section>
 
               <section className="catalog-pdp-bundle-save" aria-label="Bundle and save">
@@ -2723,7 +2853,9 @@ function App() {
             </div>
 
             <div className="collection-route-grid">
-              {collectionProducts.map((product) => (
+              {collectionProducts.map((product) => {
+                const proof = getProductProof(product)
+                return (
                 <article className="product-card collection-product-card" key={`collection-${product.id}`}>
                   <button
                     className="media-square product-image product-image-button product-image--cutout"
@@ -2732,23 +2864,60 @@ function App() {
                   >
                     <img src={product.image} alt={product.name} />
                     <span>{product.tag}</span>
+                    {getSunburstLabel(product) && (
+                      <span className="price-sunburst" aria-hidden="true">{getSunburstLabel(product)}</span>
+                    )}
                   </button>
                   <div className="product-copy">
                     <p className="sku">{product.sku}</p>
                     <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
                       {product.name}
                     </button>
+                    <span className="proof-rating">
+                      <span className="proof-stars" aria-hidden="true">★★★★★</span>
+                      <span className="proof-count">{proof.rating.toFixed(1)} ({proof.reviewCount})</span>
+                    </span>
                     <p>{product.shortDetail}</p>
+                  </div>
+                  <div className="product-card-meta">
+                    <span
+                      className={`stock-pill stock-pill--${
+                        product.stockState === 'sold-out' ? 'out' : product.stockState === 'low-stock' ? 'low' : 'in'
+                      }`}
+                    >
+                      {product.stockState === 'sold-out'
+                        ? 'Sold out'
+                        : product.stockState === 'low-stock'
+                          ? 'Only a few left'
+                          : 'In stock'}
+                    </span>
+                    {product.stockState !== 'sold-out' && (
+                      <span className="sold-hint">{proof.soldCount}+ sold</span>
+                    )}
                   </div>
                   <div className="product-buy">
                     <strong>{formatPrice(product.price)}</strong>
                     <span className="buy-actions">
-                      <button type="button" onClick={() => openProductDetail(product)}>View Detail</button>
-                      <button type="button" onClick={(event) => addToCart(product, event)}>Add</button>
+                      <button
+                        className="collection-view-detail"
+                        type="button"
+                        onClick={() => openProductDetail(product)}
+                      >
+                        View
+                      </button>
+                      <button
+                        type="button"
+                        disabled={product.stockState === 'sold-out'}
+                        onClick={(event) => addToCart(product, event)}
+                      >
+                        <ShoppingCart size={16} />
+                        {product.stockState === 'sold-out' ? 'Sold out' : 'Add'}
+                      </button>
                     </span>
                   </div>
                 </article>
-              ))}
+                )
+              })}
             </div>
           </section>
         ) : activeRoute === 'tracking' ? (
@@ -2814,6 +2983,10 @@ function App() {
               />
             ))}
           </div>
+          <div className="hero-neon-sign" aria-hidden="true">
+            <strong>OPEN</strong>
+            <small>Est. 1989</small>
+          </div>
           <div className="hero-content">
             <p className="receipt-label">New drop ready now</p>
             <h1>Retro goods for everyday nostalgia.</h1>
@@ -2867,36 +3040,12 @@ function App() {
           </div>
         </section>
 
-        <section className="service-strip" aria-label="Store service benefits">
-          <div className="service-ticket">
-            <Truck size={18} />
-            <span>
-              <strong>Shipping estimate</strong>
-              <small>Printed in 2-5 days</small>
-            </span>
-          </div>
-          <div className="service-ticket">
-            <CheckCircle2 size={18} />
-            <span>
-              <strong>Refund policy</strong>
-              <small>Help within 30 days</small>
-            </span>
-          </div>
-          <div className="service-ticket">
-            <ShieldCheck size={18} />
-            <span>
-              <strong>Secure checkout</strong>
-              <small>SSL protected</small>
-            </span>
-          </div>
-          <div className="service-ticket">
-            <Package size={18} />
-            <span>
-              <strong>Made to order</strong>
-              <small>POD fulfilled</small>
-            </span>
-          </div>
-        </section>
+        <div className="trust-ribbon" role="list" aria-label="Store promises">
+          <span role="listitem"><Truck size={16} /> Free shipping over $75</span>
+          <span role="listitem"><RefreshCcw size={16} /> 30-day easy returns</span>
+          <span role="listitem"><ShieldCheck size={16} /> Secure checkout</span>
+          <span role="listitem"><Package size={16} /> Made to order in the USA</span>
+        </div>
 
         <section className="store-section department-section" aria-label="Shop by department">
           <div className="section-heading">
@@ -2953,11 +3102,16 @@ function App() {
                   <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
                     {product.name}
                   </button>
+                  <span className="proof-rating">
+                    <span className="proof-stars" aria-hidden="true">★★★★★</span>
+                    <span className="proof-count">{getProductProof(product).rating.toFixed(1)}</span>
+                  </span>
                   <p>{product.shortDetail}</p>
                   <div className="bundle-buy">
                     <strong>{formatPrice(product.price)}</strong>
                     <span className="buy-actions">
                       <button type="button" onClick={(event) => addToCart(product, event)}>
+                        <ShoppingCart size={16} />
                         Add
                       </button>
                     </span>
@@ -2967,6 +3121,10 @@ function App() {
             ))}
           </div>
         </section>
+
+        <div className="film-divider" role="separator" aria-label="Good times, great memories">
+          <span>Good Times · Great Memories · Always In Stock</span>
+        </div>
 
         <section id="products" className="store-section products-section">
           <div className="section-heading">
@@ -3001,7 +3159,9 @@ function App() {
 
           {visibleProducts.length ? (
             <div className="product-grid">
-              {visibleProducts.map((product) => (
+              {visibleProducts.map((product) => {
+                const proof = getProductProof(product)
+                return (
                 <article className="product-card" key={product.id}>
                   <button
                     className="media-square product-image product-image-button product-image--cutout"
@@ -3011,13 +3171,36 @@ function App() {
                   >
                     <img src={product.image} alt={product.name} />
                     <span>{product.tag}</span>
+                    {getSunburstLabel(product) && (
+                      <span className="price-sunburst" aria-hidden="true">{getSunburstLabel(product)}</span>
+                    )}
                   </button>
                   <div className="product-copy">
                     <p className="sku">{product.sku}</p>
                     <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
                       {product.name}
                     </button>
+                    <span className="proof-rating">
+                      <span className="proof-stars" aria-hidden="true">★★★★★</span>
+                      <span className="proof-count">{proof.rating.toFixed(1)} ({proof.reviewCount})</span>
+                    </span>
                     <p>{product.shortDetail}</p>
+                  </div>
+                  <div className="product-card-meta">
+                    <span
+                      className={`stock-pill stock-pill--${
+                        product.stockState === 'sold-out' ? 'out' : product.stockState === 'low-stock' ? 'low' : 'in'
+                      }`}
+                    >
+                      {product.stockState === 'sold-out'
+                        ? 'Sold out'
+                        : product.stockState === 'low-stock'
+                          ? 'Only a few left'
+                          : 'In stock'}
+                    </span>
+                    {product.stockState !== 'sold-out' && (
+                      <span className="sold-hint">{proof.soldCount}+ sold</span>
+                    )}
                   </div>
                   <div className="product-buy">
                     <strong>{formatPrice(product.price)}</strong>
@@ -3032,17 +3215,16 @@ function App() {
                       </button>
                     </span>
                   </div>
-                  {product.stockState !== 'in-stock' && (
-                    <p className="stock-note">
-                      {product.stockState === 'low-stock' ? 'Only a few left' : 'Restock soon'}
-                    </p>
-                  )}
                 </article>
-              ))}
+                )
+              })}
             </div>
           ) : (
-            <div className="empty-results">
-              <Sparkles size={26} />
+            <div className="empty-results empty-results--tv">
+              <div className="tv-testcard" aria-hidden="true">
+                <div className="smpte-bars" />
+                <span className="tv-standby">PLEASE STAND BY</span>
+              </div>
               <h3>No products found</h3>
               <p>Clear search or browse all products.</p>
               <button
@@ -3068,19 +3250,29 @@ function App() {
           </div>
           <div className="bundle-grid">
             {bundles.map((bundle) => (
-              <article className="bundle-card" key={bundle.id}>
+              <article className="bundle-card bundle-card--cassette" key={bundle.id}>
                 <img className="media-banner" src={bundle.image} alt={bundle.name} />
+                <div className="cassette-strip" aria-hidden="true">
+                  <span className="cassette-reel" />
+                  <span className="cassette-tape-line">MIXTAPE · SIDE A</span>
+                  <span className="cassette-reel" />
+                </div>
                 <div>
                   <p className="receipt-label">Bundle value {formatPrice(bundle.value)}</p>
                   <h3>{bundle.name}</h3>
                   <p>{bundle.shortDetail}</p>
-                  <ul className="bundle-item-list">
+                  <p className="cassette-tracklist-label">Tracklist</p>
+                  <ul className="bundle-item-list bundle-item-list--tracks">
                     {bundle.items.map((item) => (
                       <li key={item}>{item}</li>
                     ))}
                   </ul>
                   <div className="bundle-buy">
-                    <strong>{formatPrice(bundle.price)}</strong>
+                    <span className="bundle-price">
+                      <strong>{formatPrice(bundle.price)}</strong>
+                      <s>{formatPrice(bundle.value)}</s>
+                      <em className="bundle-save">Save {formatPrice(bundle.value - bundle.price)}</em>
+                    </span>
                     <button type="button" onClick={(event) => addToCart(bundle, event)}>
                       Add Bundle
                     </button>
@@ -3429,6 +3621,21 @@ function App() {
 
         {cart.length ? (
           <>
+            <div className={`freeship-meter ${subtotal >= FREE_SHIPPING_THRESHOLD ? 'is-unlocked' : ''}`}>
+              <p>
+                {subtotal >= FREE_SHIPPING_THRESHOLD ? (
+                  <>You&apos;ve unlocked <strong>free shipping</strong>!</>
+                ) : (
+                  <>Add <strong>{formatPrice(FREE_SHIPPING_THRESHOLD - subtotal)}</strong> more for free shipping.</>
+                )}
+              </p>
+              <div className="freeship-track">
+                <div
+                  className="freeship-fill"
+                  style={{ width: `${Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100)}%` }}
+                />
+              </div>
+            </div>
             <div className="cart-items">
               {visibleCartItems.map((item) => (
                 <div className="cart-item" key={item.id}>
@@ -3505,8 +3712,23 @@ function App() {
             </span>
           </div>
           <button className="checkout-button" type="button" disabled={!cart.length} onClick={openCheckout}>
+            <ShieldCheck size={17} />
             Checkout
           </button>
+          <div className="cart-reassurance">
+            <span><ShieldCheck size={14} /> Secure SSL checkout</span>
+            <span><RefreshCcw size={14} /> 30-day easy returns</span>
+          </div>
+          <div className="pay-badges" aria-label="Accepted payments">
+            <span>Visa</span>
+            <span>Mastercard</span>
+            <span>Amex</span>
+            <span>PayPal</span>
+          </div>
+          <div className="cart-receipt-footer">
+            <div className="receipt-barcode" aria-hidden="true" />
+            <span>Thank you! Come again.</span>
+          </div>
         </div>
       </aside>
 
@@ -4585,10 +4807,19 @@ function App() {
               <X size={22} />
             </button>
             {checkoutDone ? (
-              <div className="success-state">
-                <CheckCircle2 size={48} />
+              <div className="success-state order-receipt">
+                <div className="order-receipt-head">
+                  <strong>1989 SUPPLY CO.</strong>
+                  <span>Good Times. Guaranteed.</span>
+                </div>
+                <div className="receipt-dash" aria-hidden="true" />
+                <span className="order-receipt-stamp" aria-hidden="true">PAID</span>
+                <CheckCircle2 size={44} />
                 <h2 id="checkout-title">Order received</h2>
                 <p>Your order request is saved to the customer dashboard. No real payment or Printful order was created.</p>
+                <div className="receipt-dash" aria-hidden="true" />
+                <p className="order-receipt-thanks">★ Thank you! Come again. ★</p>
+                <div className="receipt-barcode" aria-hidden="true" />
                 <div className="success-actions">
                   <button
                     type="button"
@@ -4613,9 +4844,28 @@ function App() {
               </div>
             ) : (
               <form onSubmit={submitCheckout}>
-                <p className="receipt-label">Secure checkout</p>
+                <p className="receipt-label"><Lock size={13} /> Secure checkout</p>
                 <h2 id="checkout-title">Shipping Details</h2>
                 <p className="checkout-note">Enter the shipping details for your made-to-order items.</p>
+
+                <section className="checkout-summary" aria-label="Order summary">
+                  <p className="receipt-label">Order summary · {itemCount} item{itemCount === 1 ? '' : 's'}</p>
+                  <ul>
+                    {cart.map((item) => (
+                      <li key={item.id}>
+                        <span>{item.name} × {item.quantity}</span>
+                        <strong>{formatPrice(item.price * item.quantity)}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="checkout-summary-lines">
+                    <span>Subtotal <strong>{formatPrice(subtotal)}</strong></span>
+                    {discount > 0 && <span>Discount <strong>-{formatPrice(discount)}</strong></span>}
+                    <span>Shipping <strong>{shipping ? formatPrice(shipping) : 'Free'}</strong></span>
+                    <span className="checkout-summary-total">Total <strong>{formatPrice(total)}</strong></span>
+                  </div>
+                </section>
+
                 <div className="form-grid">
                   <label>
                     Full name
@@ -4691,8 +4941,18 @@ function App() {
                   <strong>{formatPrice(total)}</strong>
                 </div>
                 <button className="checkout-button" type="submit">
+                  <Lock size={16} />
                   Place Order
                 </button>
+                <div className="checkout-reassurance">
+                  <span><Lock size={14} /> SSL-encrypted &amp; secure</span>
+                  <div className="pay-badges" aria-label="Accepted payments">
+                    <span>Visa</span>
+                    <span>Mastercard</span>
+                    <span>Amex</span>
+                    <span>PayPal</span>
+                  </div>
+                </div>
               </form>
             )}
           </section>
