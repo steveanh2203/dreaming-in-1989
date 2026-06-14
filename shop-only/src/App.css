@@ -3661,15 +3661,15 @@
 }
 
 .catalog-pdp-memory-row {
+  width: min(1120px, calc(100% - 48px));
   display: grid;
-  grid-template-columns: minmax(420px, 1.08fr) minmax(260px, 0.72fr) minmax(220px, 0.48fr);
-  gap: 16px;
+  grid-template-columns: minmax(440px, 0.96fr) minmax(520px, 1.04fr);
+  gap: 18px;
   align-items: stretch;
 }
 
 .catalog-pdp-lifestyle-card,
 .catalog-pdp-backstory-card,
-.catalog-pdp-postcard-card,
 .catalog-pdp-info-tabs article,
 .catalog-pdp-bundle-save,
 .catalog-pdp-complete-look,
@@ -3684,28 +3684,42 @@
   box-shadow: 0 6px 0 rgba(31, 18, 13, 0.12);
 }
 
-.catalog-pdp-lifestyle-card,
-.catalog-pdp-postcard-card {
+.catalog-pdp-lifestyle-card {
   overflow: hidden;
   padding: 10px;
 }
 
-.catalog-pdp-lifestyle-card img,
-.catalog-pdp-postcard-card img {
+.catalog-pdp-lifestyle-card img {
   width: 100%;
   height: 100%;
-  min-height: 260px;
+  min-height: 320px;
   object-fit: cover;
+  object-position: center;
   border: 1px solid rgba(117, 70, 41, 0.32);
-  filter: sepia(0.12) saturate(0.92) contrast(1.02);
+  border-radius: 2px;
+  filter: sepia(0.08) saturate(1.02) contrast(1.05);
 }
 
-.catalog-pdp-backstory-card,
+.catalog-pdp-backstory-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px;
+  gap: 16px 22px;
+  align-content: start;
+  padding: 28px 30px 22px;
+}
+
 .catalog-pdp-era-grid article {
   display: grid;
   align-content: start;
   gap: 12px;
   padding: 22px;
+}
+
+.catalog-pdp-backstory-copy {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
 }
 
 .catalog-pdp-backstory-card h2,
@@ -3715,12 +3729,19 @@
   color: var(--green);
   font-family: var(--font-retro);
   font-size: clamp(24px, 2.3vw, 34px);
+  letter-spacing: 0;
   line-height: 1.05;
   text-transform: uppercase;
+  word-spacing: -0.24em;
+}
+
+.catalog-pdp-backstory-card h2 {
+  max-width: 560px;
+  font-size: clamp(25px, 2.15vw, 34px);
+  letter-spacing: 0.04em;
 }
 
 .catalog-pdp-backstory-card p,
-.catalog-pdp-postcard-card p,
 .catalog-pdp-era-grid p,
 .catalog-pdp-era-grid li {
   margin: 0;
@@ -3731,33 +3752,109 @@
   line-height: 1.5;
 }
 
-.catalog-pdp-backstory-card > span {
-  justify-self: start;
-  margin-top: 4px;
-  padding: 8px 12px;
-  color: var(--red);
-  font-family: var(--font-stamp);
-  font-size: 18px;
-  text-transform: uppercase;
-  border: 2px dashed rgba(189, 42, 37, 0.55);
-  transform: rotate(-2deg);
+.catalog-pdp-story-stamp {
+  align-self: start;
+  justify-self: center;
+  display: block;
+  width: 126px;
+  height: 126px;
+  margin-top: 12px;
+  transform: rotate(-8deg);
 }
 
-.catalog-pdp-postcard-card {
-  display: grid;
+.catalog-pdp-story-stamp img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Back In The Day should read as one compact landscape strip, not two tall cards. */
+.catalog-pdp-memory-row {
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
+  gap: 0;
+  min-height: 304px;
+  padding: 10px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.035) 1px, transparent 1px),
+    rgba(255, 247, 221, 0.78);
+  background-size: 7px 100%, auto;
+  border: 2px solid rgba(117, 70, 41, 0.5);
+  border-radius: 6px;
+  box-shadow: 0 6px 0 rgba(31, 18, 13, 0.12);
+}
+
+.catalog-pdp-memory-row .catalog-pdp-lifestyle-card,
+.catalog-pdp-memory-row .catalog-pdp-backstory-card {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-lifestyle-card {
+  padding: 0;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-lifestyle-card img {
+  min-height: 0;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 3px;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-backstory-card {
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 10px 18px;
+  align-content: center;
+  padding: 12px 20px 10px 28px;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-backstory-copy {
   gap: 8px;
-  align-content: start;
 }
 
-.catalog-pdp-postcard-card img {
-  min-height: 180px;
+.catalog-pdp-memory-row .catalog-pdp-backstory-card h2 {
+  font-size: 23px;
+  letter-spacing: 0.02em;
 }
 
-.catalog-pdp-postcard-card p {
-  padding: 0 2px 2px;
-  font-family: var(--font-retro);
-  font-size: 13px;
+.catalog-pdp-memory-row .catalog-pdp-backstory-card p {
+  max-width: 470px;
+  font-size: 12.5px;
   line-height: 1.35;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-story-bullets {
+  gap: 3px;
+  margin-top: 1px;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-story-bullets li {
+  font-size: 11.5px;
+  line-height: 1.24;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-care-grid {
+  width: min(100%, 430px);
+  margin-top: 3px;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-care-grid span {
+  padding: 8px 10px;
+  font-size: 10.5px;
+  line-height: 1.2;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-care-grid strong {
+  font-size: 8.5px;
+}
+
+.catalog-pdp-memory-row .catalog-pdp-story-stamp {
+  width: 104px;
+  height: 104px;
+  margin-top: 26px;
 }
 
 .catalog-pdp-info-tabs {
@@ -3819,6 +3916,42 @@
 .catalog-pdp-bundle-save,
 .catalog-pdp-complete-look {
   padding: 22px;
+}
+
+.catalog-pdp-bundle-save {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  padding: 22px 26px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.catalog-pdp-bundle-save::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  pointer-events: none;
+  background: url("./assets/pdp-generated/bundle-coupon-paper-bg-transparent.png") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 6px 0 rgba(31, 18, 13, 0.12));
+}
+
+.catalog-pdp-bundle-save::after {
+  position: absolute;
+  inset: 10px 12px;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+  border: 1px dashed rgba(117, 70, 41, 0.24);
+  border-radius: 4px;
+}
+
+.catalog-pdp-bundle-save > * {
+  position: relative;
+  z-index: 1;
 }
 
 .catalog-pdp-bundle-save-grid {
@@ -3973,38 +4106,73 @@
 
 .catalog-pdp-panel-bottom .pay-badges {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 5px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
 }
 
 .catalog-pdp-panel-bottom .payment-badge {
-  min-height: 22px;
-  padding: 2px 4px;
-  gap: 3px;
-  font-size: 8.5px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 4px 6px;
 }
 
-.catalog-pdp-panel-bottom .payment-badge-icon {
-  width: 21px;
-  height: 14px;
+.catalog-pdp-panel-bottom .payment-badge-mark {
+  min-width: 0;
 }
 
-.catalog-pdp-panel-bottom .payment-badge-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.secure-checkout-title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-retro);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.secure-checkout-assurance {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  padding: 8px 2px 0;
+}
+
+.secure-checkout-assurance span {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  gap: 2px 8px;
+  align-items: center;
+  min-width: 0;
+  color: var(--green);
+}
+
+.secure-checkout-assurance svg {
+  grid-row: 1 / span 2;
+  width: 23px;
+  height: 23px;
+  color: var(--pine);
+  stroke-width: 2;
+}
+
+.secure-checkout-assurance strong {
+  color: var(--green);
+  font-family: var(--font-retro);
+  font-size: 10.5px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.catalog-pdp-panel-bottom .catalog-pdp-panel-trust {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
-  padding-top: 0;
-  border-top: 0;
-}
-
-.catalog-pdp-panel-bottom .catalog-pdp-panel-trust span {
-  gap: 4px;
-  font-size: 8.5px;
+.secure-checkout-assurance small {
+  color: var(--muted);
+  font-family: var(--font-editorial);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.15;
 }
 
 .catalog-pdp-value-band {
@@ -4058,17 +4226,18 @@
 
 .catalog-pdp-story-bullets {
   display: grid;
-  gap: 6px;
-  margin: 0;
+  gap: 7px;
+  margin: 2px 0 0;
   padding: 0;
   list-style: none;
 }
 
 .catalog-pdp-story-bullets li {
-  color: var(--muted);
+  color: #6a351f;
   font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.28;
 }
 
 .catalog-pdp-story-bullets li::before {
@@ -4078,20 +4247,27 @@
   font-weight: 900;
 }
 
+.catalog-pdp-story-bullets li::before {
+  content: '\2713';
+}
+
 .catalog-pdp-care-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  border: 1px solid rgba(117, 70, 41, 0.34);
+  margin-top: 4px;
+  background: rgba(255, 252, 240, 0.36);
+  border: 1px solid rgba(117, 70, 41, 0.38);
 }
 
 .catalog-pdp-care-grid span {
   display: grid;
   gap: 4px;
-  padding: 10px;
+  padding: 13px 14px;
   color: var(--muted);
   font-family: var(--font-editorial);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
+  line-height: 1.25;
 }
 
 .catalog-pdp-care-grid span + span {
@@ -4183,7 +4359,6 @@
 }
 
 .catalog-pdp-kit-checkout button,
-.catalog-pdp-reviews-section .catalog-pdp-section-title button,
 .catalog-pdp-related article > button:last-child,
 .catalog-pdp-final-cta button {
   min-height: 38px;
@@ -4275,6 +4450,33 @@
   background: var(--muted);
 }
 
+.catalog-pdp-reviews-summary button {
+  justify-self: center;
+  width: min(100%, 180px);
+  min-height: 32px;
+  margin-top: 8px;
+  padding: 0 14px;
+  color: #5a321f;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 240, 0.72), rgba(240, 213, 168, 0.32));
+  border: 1.5px solid rgba(117, 70, 41, 0.62);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 252, 240, 0.5),
+    0 2px 0 rgba(62, 36, 24, 0.14);
+  cursor: pointer;
+}
+
+.catalog-pdp-reviews-summary button:hover {
+  color: var(--red);
+  border-color: rgba(189, 42, 37, 0.72);
+}
+
 .catalog-pdp-reviews-grid blockquote strong {
   color: var(--ink);
   font-family: var(--font-ui);
@@ -4294,42 +4496,94 @@
   display: grid;
 }
 
+.catalog-pdp-faq-section {
+  padding: 15px 28px 13px;
+  background: url("./assets/pdp-generated/faq-paper-panel-bg-transparent.png") center / 100% 100% no-repeat;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.catalog-pdp-faq-section .catalog-pdp-section-title {
+  margin-bottom: 9px;
+}
+
+.catalog-pdp-faq-section .receipt-label {
+  margin: 0;
+  color: var(--green);
+  font-family: var(--font-retro);
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .catalog-pdp-faq-list details {
-  border-top: 1px solid rgba(117, 70, 41, 0.32);
+  border-top: 1px solid rgba(117, 70, 41, 0.34);
 }
 
 .catalog-pdp-faq-list details:last-child {
-  border-bottom: 1px solid rgba(117, 70, 41, 0.32);
+  border-bottom: 1px solid rgba(117, 70, 41, 0.34);
 }
 
 .catalog-pdp-faq-list summary {
   display: grid;
-  grid-template-columns: 108px 1fr auto;
+  grid-template-columns: 32px auto auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 12px;
-  padding: 16px 0;
-  color: var(--ink);
+  gap: 11px;
+  min-height: 37px;
+  padding: 0 8px 0 2px;
+  color: #5a321f;
   font-family: var(--font-retro);
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 900;
   cursor: pointer;
   list-style: none;
+  text-transform: uppercase;
 }
 
 .catalog-pdp-faq-list summary::-webkit-details-marker {
   display: none;
 }
 
+.catalog-pdp-faq-icon {
+  color: rgba(117, 70, 41, 0.9);
+}
+
 .catalog-pdp-faq-list summary span {
-  color: var(--red);
+  min-width: 78px;
+  color: #6d3f25;
   text-transform: uppercase;
 }
 
+.catalog-pdp-faq-list summary b {
+  color: rgba(117, 70, 41, 0.75);
+  font-weight: 900;
+}
+
+.catalog-pdp-faq-list summary strong {
+  min-width: 0;
+  color: #5a321f;
+  font-size: 14.5px;
+  font-weight: 900;
+  line-height: 1.12;
+}
+
+.catalog-pdp-faq-chevron {
+  color: #6d3f25;
+  transition: transform 140ms ease;
+}
+
+.catalog-pdp-faq-list details[open] .catalog-pdp-faq-chevron {
+  transform: rotate(180deg);
+}
+
 .catalog-pdp-faq-list p {
-  margin: -4px 0 16px 120px;
+  margin: -1px 52px 13px 124px;
   color: var(--muted);
   font-family: var(--font-editorial);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.45;
 }
@@ -4406,6 +4660,29 @@
   background: linear-gradient(180deg, var(--red), var(--red-dark));
 }
 
+.product-route-page.product-route-page--reset {
+  --pdp-content-width: 1120px;
+  --pdp-content-gutter: 48px;
+}
+
+.product-route-page--reset .product-route-breadcrumb,
+.product-route-page--reset .catalog-pdp-hero,
+.product-route-page--reset .catalog-pdp-value-band,
+.product-route-page--reset .catalog-pdp-trust-strip,
+.product-route-page--reset .catalog-pdp-memory-row,
+.product-route-page--reset .catalog-pdp-info-tabs,
+.product-route-page--reset .catalog-pdp-bundle-save,
+.product-route-page--reset .catalog-pdp-complete-look,
+.product-route-page--reset .catalog-pdp-era-grid,
+.product-route-page--reset .catalog-pdp-reviews-section,
+.product-route-page--reset .catalog-pdp-faq-section,
+.product-route-page--reset .catalog-pdp-related,
+.product-route-page--reset .catalog-pdp-final-cta {
+  width: min(var(--pdp-content-width), calc(100% - var(--pdp-content-gutter)));
+  margin-right: auto;
+  margin-left: auto;
+}
+
 @media (max-width: 1180px) {
   .catalog-pdp-hero {
     grid-template-columns: 118px minmax(0, 1fr);
@@ -4431,6 +4708,19 @@
     grid-template-columns: 1fr;
   }
 
+  .catalog-pdp-backstory-card {
+    grid-template-columns: minmax(0, 1fr) 120px;
+  }
+
+  .catalog-pdp-memory-row {
+    min-height: 0;
+  }
+
+  .catalog-pdp-memory-row .catalog-pdp-lifestyle-card img {
+    height: auto;
+    min-height: 240px;
+  }
+
   .catalog-pdp-value-band,
   .catalog-pdp-kit,
   .catalog-pdp-reviews-grid,
@@ -4453,6 +4743,10 @@
 }
 
 @media (max-width: 720px) {
+  .product-route-page.product-route-page--reset {
+    --pdp-content-gutter: 24px;
+  }
+
   .catalog-pdp-hero,
   .catalog-pdp-trust-strip,
   .catalog-pdp-memory-row,
@@ -4523,15 +4817,23 @@
   }
 
   .catalog-pdp-faq-list summary {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 28px auto auto minmax(0, 1fr) auto;
+    gap: 7px;
+    min-height: 42px;
+    padding-right: 2px;
+    font-size: 12.5px;
   }
 
   .catalog-pdp-faq-list summary span {
-    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .catalog-pdp-faq-list summary strong {
+    font-size: 12.5px;
   }
 
   .catalog-pdp-faq-list p {
-    margin-left: 0;
+    margin: 0 0 14px 35px;
   }
 
   .catalog-pdp-info-tabs article,
@@ -4539,6 +4841,36 @@
   .catalog-pdp-info-tabs article:last-child {
     border-left: 2px solid rgba(117, 70, 41, 0.5);
     border-radius: 6px;
+  }
+
+  .catalog-pdp-lifestyle-card img {
+    min-height: 240px;
+  }
+
+  .catalog-pdp-backstory-card {
+    grid-template-columns: 1fr;
+    padding: 22px 18px;
+  }
+
+  .catalog-pdp-memory-row .catalog-pdp-backstory-card {
+    grid-template-columns: 1fr;
+    padding: 18px 16px;
+  }
+
+  .catalog-pdp-story-stamp {
+    justify-self: start;
+    width: 104px;
+    height: 104px;
+    margin-top: 4px;
+  }
+
+  .catalog-pdp-care-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-pdp-care-grid span + span {
+    border-top: 1px dashed rgba(117, 70, 41, 0.32);
+    border-left: 0;
   }
 
 }
@@ -12201,6 +12533,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   .pdp-buy-col { padding: 18px 16px; }
   .pdp-product-name { font-size: 26px; }
   .pdp-options-area { grid-template-columns: 1fr; }
+  .catalog-pdp-panel-bottom .pay-badges { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .secure-checkout-assurance { grid-template-columns: 1fr; gap: 8px; }
   .pdp-irl-grid { grid-template-columns: repeat(2, 1fr); }
   .pdp-related-grid { grid-template-columns: repeat(2, 1fr); }
   .pdp-feature-strip { grid-template-columns: 1fr 1fr; }
@@ -12320,101 +12654,140 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 
 .payment-badge {
+  display: inline-grid;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 34px;
+  padding: 4px 9px;
+  font-family: var(--font-ui);
+  color: #14110d;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 241, 229, 0.96));
+  border: 1px solid rgba(117, 70, 41, 0.34);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 1px 0 rgba(62, 36, 24, 0.12);
+}
+
+.payment-badge-mark {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 28px;
-  padding: 4px 9px 4px 6px;
-  font-family: var(--font-ui);
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-  background: var(--paper-soft);
-  border: 1px solid rgba(117, 70, 41, 0.4);
-  border-radius: 4px;
-}
-
-.payment-badge-icon {
-  position: relative;
-  flex: 0 0 auto;
-  width: 25px;
-  height: 17px;
-  display: inline-block;
-  background: #fff7dd;
-  border: 1px solid rgba(117, 70, 41, 0.35);
-  border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-}
-
-.payment-badge--visa .payment-badge-icon::before,
-.payment-badge--amex .payment-badge-icon::before,
-.payment-badge--paypal .payment-badge-icon::before {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 900;
+  justify-content: center;
+  min-width: 42px;
+  min-height: 20px;
   line-height: 1;
 }
 
-.payment-badge--visa .payment-badge-icon::before {
-  content: 'V';
+.payment-badge-mark span {
+  display: inline-block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+.payment-badge--visa .payment-badge-mark span {
   color: #1a4fa3;
+  font-size: 16px;
   font-style: italic;
+  letter-spacing: -0.08em;
 }
 
-.payment-badge--mastercard .payment-badge-icon {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
+.payment-badge--mastercard .payment-badge-mark {
+  width: 42px;
 }
 
-.payment-badge--mastercard .payment-badge-icon::before,
-.payment-badge--mastercard .payment-badge-icon::after {
+.payment-badge--mastercard .payment-badge-mark::before,
+.payment-badge--mastercard .payment-badge-mark::after {
   content: '';
   position: absolute;
-  top: 2px;
-  width: 13px;
-  height: 13px;
+  top: 1px;
+  width: 21px;
+  height: 21px;
   border-radius: 999px;
 }
 
-.payment-badge--mastercard .payment-badge-icon::before {
-  left: 3px;
+.payment-badge--mastercard .payment-badge-mark::before {
+  left: 5px;
   background: #d7282f;
 }
 
-.payment-badge--mastercard .payment-badge-icon::after {
-  right: 3px;
+.payment-badge--mastercard .payment-badge-mark::after {
+  right: 5px;
   background: rgba(247, 158, 27, 0.88);
   mix-blend-mode: multiply;
 }
 
-.payment-badge--amex .payment-badge-icon {
+.payment-badge--amex .payment-badge-mark {
+  min-width: 46px;
+  min-height: 22px;
+  color: #fff;
   background: linear-gradient(180deg, #45a7d8, #1d62a8);
-  border-color: #174b82;
+  border: 1px solid #174b82;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
-.payment-badge--amex .payment-badge-icon::before {
-  content: 'A';
-  color: #fff7dd;
+.payment-badge--amex .payment-badge-mark span {
+  color: #fff;
+  font-size: 13px;
+  letter-spacing: -0.09em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.32);
 }
 
-.payment-badge--paypal .payment-badge-icon {
-  background: #fff;
+.payment-badge--apple-pay .payment-badge-mark {
+  gap: 4px;
+  color: #111;
 }
 
-.payment-badge--paypal .payment-badge-icon::before {
-  content: 'P';
+.payment-badge--apple-pay .payment-badge-mark::before {
+  content: '';
+  width: 12px;
+  height: 15px;
+  background:
+    radial-gradient(circle at 62% 3px, #111 0 3px, transparent 3.5px),
+    radial-gradient(circle at 42% 10px, #111 0 7px, transparent 7.5px);
+  transform: rotate(-8deg);
+}
+
+.payment-badge--apple-pay .payment-badge-mark span {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.07em;
+}
+
+.payment-badge--google-pay .payment-badge-mark {
+  gap: 3px;
+}
+
+.payment-badge--google-pay .payment-badge-mark::before {
+  content: 'G';
+  color: #4285f4;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.payment-badge--google-pay .payment-badge-mark span {
+  color: #5f6368;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.07em;
+}
+
+.payment-badge--paypal .payment-badge-mark span {
   color: #003087;
+  font-size: 15px;
+  font-style: italic;
+  letter-spacing: -0.08em;
 }
 
 /* --- Free shipping progress meter --- */
@@ -13349,7 +13722,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
 .catalog-pdp-panel-bottom .pay-badges {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
   width: 100%;
 }
@@ -13357,12 +13730,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 .catalog-pdp-panel-bottom .payment-badge {
   justify-content: center;
   min-width: 0;
+  min-height: 34px;
   padding: 4px 6px;
-}
-
-.catalog-pdp-panel-bottom .payment-badge-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* --- Scroll-reveal for home sections (progressive enhancement) --- */
@@ -13502,7 +13871,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 /* --- PDP full-page concept final overrides --- */
 .product-route-page .catalog-pdp-buy-panel.product-catalog-order-form {
   gap: 5px;
-  height: 500px;
+  height: 540px;
   padding: 12px 14px;
   overflow: hidden;
 }
@@ -13585,16 +13954,65 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   padding-top: 5px;
 }
 
+.product-route-page .secure-checkout-title {
+  font-size: 10px;
+}
+
 .product-route-page .catalog-pdp-panel-bottom .payment-badge {
-  min-height: 20px;
-  padding: 2px 3px;
+  min-height: 26px;
+  padding: 2px 4px;
 }
 
-.product-route-page .catalog-pdp-panel-bottom .payment-badge-label {
-  display: none;
+.product-route-page .catalog-pdp-panel-bottom .payment-badge-mark span {
+  font-size: 11px;
 }
 
-.product-route-page .catalog-pdp-panel-bottom .catalog-pdp-panel-trust span {
+.product-route-page .catalog-pdp-panel-bottom .payment-badge--visa .payment-badge-mark span {
+  font-size: 12px;
+}
+
+.product-route-page .catalog-pdp-panel-bottom .payment-badge--mastercard .payment-badge-mark::before,
+.product-route-page .catalog-pdp-panel-bottom .payment-badge--mastercard .payment-badge-mark::after {
+  top: 3px;
+  width: 15px;
+  height: 15px;
+}
+
+.product-route-page .catalog-pdp-panel-bottom .payment-badge--amex .payment-badge-mark {
+  min-width: 34px;
+  min-height: 17px;
+}
+
+.product-route-page .catalog-pdp-panel-bottom .payment-badge--apple-pay .payment-badge-mark::before {
+  width: 9px;
+  height: 12px;
+}
+
+.product-route-page .catalog-pdp-panel-bottom .payment-badge--google-pay .payment-badge-mark::before {
+  font-size: 12px;
+}
+
+.product-route-page .secure-checkout-assurance {
+  gap: 6px;
+  padding-top: 3px;
+}
+
+.product-route-page .secure-checkout-assurance span {
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 1px 5px;
+}
+
+.product-route-page .secure-checkout-assurance svg {
+  width: 17px;
+  height: 17px;
+}
+
+.product-route-page .secure-checkout-assurance strong {
+  font-size: 7.5px;
+  letter-spacing: -0.01em;
+}
+
+.product-route-page .secure-checkout-assurance small {
   font-size: 8px;
 }
 

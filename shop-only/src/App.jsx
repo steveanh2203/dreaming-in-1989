@@ -71,6 +71,8 @@ import mallWeekendHoodieFrontImage from './assets/pdp-generated/mall-weekend-hoo
 import mallWeekendHoodieLifestyleImage from './assets/pdp-generated/mall-weekend-hoodie-lifestyle.png'
 import mallWeekendHoodiePrintDetailImage from './assets/pdp-generated/mall-weekend-hoodie-print-detail.png'
 import mallWeekendToteGeneratedImage from './assets/pdp-generated/mall-weekend-tote-generated.png'
+import backInTheDayMallReferenceImage from './assets/pdp-generated/back-in-the-day-mall-reference.png'
+import goodTimesStampImage from './assets/pdp-generated/good-times-stamp-generated.png'
 import rewindClubTeeGeneratedImage from './assets/pdp-generated/rewind-club-tee-generated.png'
 import rewindStickerPackGeneratedImage from './assets/pdp-generated/rewind-sticker-pack-generated.png'
 import varsityHoodieGeneratedImage from './assets/pdp-generated/varsity-hoodie-generated.png'
@@ -90,21 +92,46 @@ const getCategoryFromSlug = (slug) =>
 const getProductPath = (product) => `#/products/${product.id}`
 
 const paymentBadges = [
-  { id: 'visa', label: 'Visa' },
+  { id: 'visa', label: 'Visa', mark: 'VISA' },
   { id: 'mastercard', label: 'Mastercard' },
-  { id: 'amex', label: 'Amex' },
-  { id: 'paypal', label: 'PayPal' },
+  { id: 'amex', label: 'American Express', mark: 'AMEX' },
+  { id: 'apple-pay', label: 'Apple Pay', mark: 'Pay' },
+  { id: 'google-pay', label: 'Google Pay', mark: 'Pay' },
+  { id: 'paypal', label: 'PayPal', mark: 'PayPal' },
 ]
 
 function PaymentBadges() {
   return (
     <div className="pay-badges" aria-label="Accepted payments">
       {paymentBadges.map((payment) => (
-        <span className={`payment-badge payment-badge--${payment.id}`} key={payment.id}>
-          <span className="payment-badge-icon" aria-hidden="true" />
-          <span className="payment-badge-label">{payment.label}</span>
+        <span className={`payment-badge payment-badge--${payment.id}`} key={payment.id} aria-label={payment.label}>
+          <span className="payment-badge-mark" aria-hidden="true">
+            {payment.mark && <span>{payment.mark}</span>}
+          </span>
         </span>
       ))}
+    </div>
+  )
+}
+
+function SecureCheckoutAssurance() {
+  return (
+    <div className="secure-checkout-assurance" aria-label="Checkout protection">
+      <span>
+        <RefreshCcw size={23} />
+        <strong>30-day returns</strong>
+        <small>Easy &amp; Hassle-free</small>
+      </span>
+      <span>
+        <Lock size={23} />
+        <strong>Secure checkout</strong>
+        <small>SSL encrypted</small>
+      </span>
+      <span>
+        <ShieldCheck size={23} />
+        <strong>100% satisfaction</strong>
+        <small>Love it or Your Money Back</small>
+      </span>
     </div>
   )
 }
@@ -2835,12 +2862,9 @@ function App() {
                     </button>
                   </div>
                   <div className="catalog-pdp-panel-bottom" aria-label="Secure payment and purchase protection">
+                    <p className="secure-checkout-title">Secure checkout</p>
                     <PaymentBadges />
-                    <div className="catalog-pdp-panel-trust">
-                      <span><Lock size={13} /> SSL</span>
-                      <span><RefreshCcw size={13} /> Returns</span>
-                      <span><ShieldCheck size={13} /> Protected</span>
-                    </div>
+                    <SecureCheckoutAssurance />
                   </div>
                 </article>
               </div>
@@ -2865,28 +2889,29 @@ function App() {
 
               <section className="catalog-pdp-memory-row" aria-label="Product memory and story">
                 <article className="catalog-pdp-lifestyle-card">
-                  <img src={selectedProduct.lifestyleImage || mallWeekendImage} alt={`${selectedProduct.name} lifestyle inspiration`} />
+                  <img src={backInTheDayMallReferenceImage} alt="Sunset mall storefront memory" />
                 </article>
                 <article className="catalog-pdp-backstory-card">
-                  <p className="receipt-label">Back In The Day</p>
-                  <h2>Weekend plans were simple.</h2>
-                  <p>
-                    The food court, the mixtapes, the new tee, and one small souvenir that made the whole weekend feel
-                    like yours. This piece keeps that mall-run feeling without turning the page into clutter.
-                  </p>
-                  <ul className="catalog-pdp-story-bullets">
-                    <li>Lightweight yet cozy everyday fleece</li>
-                    <li>Original 1989-style artwork</li>
-                    <li>Made on demand, no warehouse fade</li>
-                  </ul>
-                  <div className="catalog-pdp-care-grid">
-                    <span><strong>Material</strong> Cotton-blend soft fleece</span>
-                    <span><strong>Care</strong> Machine wash cold, tumble dry low</span>
+                  <div className="catalog-pdp-backstory-copy">
+                    <h2>Back In The Day</h2>
+                    <p>
+                      Weekends at the mall were the highlight of the week. The food court. The mixtapes. The new tee.
+                      This hoodie is a throwback to simpler times, when the biggest decision was which store to hit first.
+                    </p>
+                    <ul className="catalog-pdp-story-bullets">
+                      <li>Lightweight yet cozy midweight fleece</li>
+                      <li>Ringer details for that authentic 80s vibe</li>
+                      <li>Vintage mall graphic printed on the chest</li>
+                      <li>Unisex fit - perfect for everyday wear</li>
+                    </ul>
+                    <div className="catalog-pdp-care-grid">
+                      <span><strong>Material</strong> 60% Cotton / 40% Polyester<br />Soft midweight fleece</span>
+                      <span><strong>Care</strong> Machine wash cold<br />Tumble dry low</span>
+                    </div>
                   </div>
-                </article>
-                <article className="catalog-pdp-postcard-card">
-                  <img src={videoStoreImage} alt="Retro night storefront memory" />
-                  <p>Good times. Great finds. Built for everyday wear.</p>
+                  <div className="catalog-pdp-story-stamp" aria-hidden="true">
+                    <img src={goodTimesStampImage} alt="" />
+                  </div>
                 </article>
               </section>
 
@@ -2926,7 +2951,6 @@ function App() {
                     <p className="receipt-label">What real customers are saying</p>
                     <h2>Proof before the checkout counter.</h2>
                   </div>
-                  <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductProof.reviewCount} reviews</button>
                 </div>
                 <div className="catalog-pdp-reviews-grid">
                   <article className="catalog-pdp-reviews-summary">
@@ -2940,6 +2964,7 @@ function App() {
                         <small>{value}%</small>
                       </p>
                     ))}
+                    <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductProof.reviewCount} reviews</button>
                   </article>
                   {[
                     ['Perfect throwback vibe', 'The ringer details and print are spot on. Feels like something I found in an old mall store in 1989.', 'Jason R.'],
@@ -2959,19 +2984,24 @@ function App() {
               <section className="catalog-pdp-faq-section" aria-label="Questions and answers">
                 <div className="catalog-pdp-section-title">
                   <div>
-                    <p className="receipt-label">Questions? We have got answers.</p>
-                    <h2>Before you check out.</h2>
+                    <p className="receipt-label">Questions? We've got answers.</p>
                   </div>
                 </div>
                 <div className="catalog-pdp-faq-list">
                   {[
-                    ['Shipping', 'When will my order arrive?', 'Made to order in 2-4 business days, then shipped with tracking from the USA.'],
-                    ['Returns', 'What is your return policy?', 'You have 30 days for easy returns if the piece is not right for you.'],
-                    ['Sizing', 'How does this fit?', 'Classic true-to-size fit. Size up if you want a relaxed weekend look.'],
-                    ['Care', 'How should I wash it?', 'Machine wash cold and tumble dry low to protect the print.'],
-                  ].map(([label, question, answer]) => (
+                    [Truck, 'Shipping', 'When will my order arrive?', 'Made to order in 2-4 business days, then shipped with tracking from the USA.'],
+                    [RefreshCcw, 'Returns', 'What is your return policy?', 'You have 30 days for easy returns if the piece is not right for you.'],
+                    [Package, 'Sizing', 'How does this fit?', 'Classic true-to-size fit. Size up if you want a relaxed weekend look.'],
+                    [Lock, 'Care', 'How should I wash it?', 'Machine wash cold and tumble dry low to protect the print.'],
+                  ].map(([Icon, label, question, answer]) => (
                     <details key={label}>
-                      <summary><span>{label}</span>{question}<ChevronDown size={17} /></summary>
+                      <summary>
+                        <Icon className="catalog-pdp-faq-icon" size={22} strokeWidth={1.7} aria-hidden="true" />
+                        <span>{label}</span>
+                        <b aria-hidden="true">-</b>
+                        <strong>{question}</strong>
+                        <ChevronDown className="catalog-pdp-faq-chevron" size={17} />
+                      </summary>
                       <p>{answer}</p>
                     </details>
                   ))}
