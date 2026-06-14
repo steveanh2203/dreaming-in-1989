@@ -57,16 +57,23 @@ import shelfDecorLineupImage from './assets/gift-counter/shelf-decor-lineup-v2.p
 import under25LineupImage from './assets/gift-counter/under-25-lineup-v2.png'
 import albumWallPrintImage from './assets/products-cutout/album-wall-print.png'
 import arcadePosterImage from './assets/products-cutout/arcade-poster.png'
-import cartoonPinPackImage from './assets/products-cutout/cartoon-pin-pack.png'
 import dinerMugImage from './assets/products-cutout/diner-mug-transparent-mockup.jpg'
 import dinerTrayImage from './assets/products-cutout/diner-tray.png'
-import mallToteImage from './assets/products-cutout/mall-tote.png'
-import rewindTeeImage from './assets/products-cutout/rewind-tee.png'
 import rewindTeeDetailImage from './assets/products-cutout/rewind-tee-detail.png'
 import rewindTeeLifestyleImage from './assets/products-cutout/rewind-tee-lifestyle.png'
 import dinerMugLifestyleImage from './assets/products-cutout/diner-mug-lifestyle.png'
 import vhsCalendarImage from './assets/products-cutout/vhs-calendar.png'
 import videoNightSignImage from './assets/products-cutout/video-night-sign.png'
+import foodCourtPosterGeneratedImage from './assets/pdp-generated/food-court-poster-generated.png'
+import mallRunDadHatGeneratedImage from './assets/pdp-generated/mall-run-dad-hat-generated.png'
+import mallWeekendHoodieBackImage from './assets/pdp-generated/mall-weekend-hoodie-back.png'
+import mallWeekendHoodieFrontImage from './assets/pdp-generated/mall-weekend-hoodie-front.png'
+import mallWeekendHoodieLifestyleImage from './assets/pdp-generated/mall-weekend-hoodie-lifestyle.png'
+import mallWeekendHoodiePrintDetailImage from './assets/pdp-generated/mall-weekend-hoodie-print-detail.png'
+import mallWeekendToteGeneratedImage from './assets/pdp-generated/mall-weekend-tote-generated.png'
+import rewindClubTeeGeneratedImage from './assets/pdp-generated/rewind-club-tee-generated.png'
+import rewindStickerPackGeneratedImage from './assets/pdp-generated/rewind-sticker-pack-generated.png'
+import varsityHoodieGeneratedImage from './assets/pdp-generated/varsity-hoodie-generated.png'
 import retroCartImage from './assets/ui/retro-cart.png'
 import RevenueDashboard from './RevenueDashboard.jsx'
 import './App.css'
@@ -81,6 +88,26 @@ const getCategoryFromSlug = (slug) =>
   categories.find((category) => getCategorySlug(category) === slug) ?? 'All'
 
 const getProductPath = (product) => `#/products/${product.id}`
+
+const paymentBadges = [
+  { id: 'visa', label: 'Visa' },
+  { id: 'mastercard', label: 'Mastercard' },
+  { id: 'amex', label: 'Amex' },
+  { id: 'paypal', label: 'PayPal' },
+]
+
+function PaymentBadges() {
+  return (
+    <div className="pay-badges" aria-label="Accepted payments">
+      {paymentBadges.map((payment) => (
+        <span className={`payment-badge payment-badge--${payment.id}`} key={payment.id}>
+          <span className="payment-badge-icon" aria-hidden="true" />
+          <span className="payment-badge-label">{payment.label}</span>
+        </span>
+      ))}
+    </div>
+  )
+}
 
 const accountRouteBase = '/my-account'
 const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
@@ -124,17 +151,22 @@ const getOrderDateOnlyTime = (dateLabel) => {
 }
 
 const productImages = {
-  rewindTee: rewindTeeImage,
-  rewindHoodie: rewindTeeImage,
-  mallTote: mallToteImage,
+  rewindTee: rewindClubTeeGeneratedImage,
+  rewindHoodie: mallWeekendHoodieFrontImage,
+  varsityHoodie: varsityHoodieGeneratedImage,
+  mallRunDadHat: mallRunDadHatGeneratedImage,
+  mallTote: mallWeekendToteGeneratedImage,
   dinerMug: dinerMugImage,
   arcadePoster: arcadePosterImage,
-  stickerPack: cartoonPinPackImage,
+  foodCourtPoster: foodCourtPosterGeneratedImage,
+  stickerPack: rewindStickerPackGeneratedImage,
   deskCalendar: vhsCalendarImage,
   notebook: videoNightSignImage,
   coasterSet: dinerTrayImage,
   wallCanvas: albumWallPrintImage,
 }
+
+const getInitialProductImageIndex = () => 0
 
 const imageUseMeta = {
   product: {
@@ -177,8 +209,35 @@ const products = [
     category: 'Apparel',
     tag: 'Best Seller',
     image: productImages.rewindHoodie,
+    backImage: mallWeekendHoodieBackImage,
+    lifestyleImage: mallWeekendHoodieLifestyleImage,
+    printDetailImage: mallWeekendHoodiePrintDetailImage,
     imageUse: 'product',
     sku: 'SKU-1989-022',
+    stockState: 'in-stock',
+  },
+  {
+    id: '1999-varsity-hoodie',
+    name: '1999 Varsity Hoodie',
+    shortDetail: 'Red fleece pullover with a sunset mall mark.',
+    price: 59,
+    category: 'Apparel',
+    tag: 'New Drop',
+    image: productImages.varsityHoodie,
+    imageUse: 'product',
+    sku: 'SKU-1989-025',
+    stockState: 'in-stock',
+  },
+  {
+    id: 'mall-run-dad-hat',
+    name: 'Mall Run Dad Hat',
+    shortDetail: 'Washed cotton cap for easy weekend errands.',
+    price: 24,
+    category: 'Apparel',
+    tag: 'New',
+    image: productImages.mallRunDadHat,
+    imageUse: 'product',
+    sku: 'SKU-1989-026',
     stockState: 'in-stock',
   },
   {
@@ -217,6 +276,18 @@ const products = [
     imageUse: 'product',
     sku: 'SKU-1989-051',
     stockState: 'low-stock',
+  },
+  {
+    id: 'food-court-poster',
+    name: 'Food Court Poster',
+    shortDetail: 'Retro food court wall art for bedrooms and studios.',
+    price: 20,
+    category: 'Wall Art',
+    tag: 'Gift Pick',
+    image: productImages.foodCourtPoster,
+    imageUse: 'product',
+    sku: 'SKU-1989-052',
+    stockState: 'in-stock',
   },
   {
     id: 'rewind-sticker-pack',
@@ -1258,7 +1329,6 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
   const [activeProductImageIndex, setActiveProductImageIndex] = useState(0)
-  const [pdpTab, setPdpTab] = useState('Details')
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
   const [customer, setCustomer] = useState(() => getStoredCustomer())
@@ -1315,7 +1385,7 @@ function App() {
         setSelectedProduct(nextProduct)
         setSelectedOptions(getDefaultOptions(nextProduct))
         setSelectedProductQuantity(1)
-        setActiveProductImageIndex(0)
+        setActiveProductImageIndex(getInitialProductImageIndex(nextProduct))
         setActiveRoute('product')
         window.scrollTo({ top: 0, behavior: 'smooth' })
         return
@@ -1371,7 +1441,6 @@ function App() {
   useEffect(() => {
     const overlayOpen =
       cartOpen ||
-      checkoutOpen ||
       authOpen ||
       accountOpen ||
       profileEditorOpen ||
@@ -1407,7 +1476,6 @@ function App() {
     addressEditorMode,
     authOpen,
     cartOpen,
-    checkoutOpen,
     logoutConfirmOpen,
     orderDetailOpen,
     profileEditorOpen,
@@ -1480,19 +1548,33 @@ function App() {
   const selectedProductProof = getProductProof(selectedProduct)
   const selectedProductGallery = selectedProduct
     ? [
-        { label: 'Catalog Front', image: selectedProduct.image },
-        { label: 'Lifestyle', image: selectedProduct.lifestyleImage || selectedProduct.image },
-        { label: 'Print Detail', image: selectedProduct.printDetailImage || selectedProduct.image },
+        { label: 'Front', image: selectedProduct.image },
+        ...(selectedProduct.backImage ? [{ label: 'Back', image: selectedProduct.backImage }] : []),
+        ...(selectedProduct.lifestyleImage ? [{ label: 'Lifestyle', image: selectedProduct.lifestyleImage }] : []),
+        ...(selectedProduct.printDetailImage ? [{ label: 'Print Detail', image: selectedProduct.printDetailImage }] : []),
       ]
     : []
   const activeProductImage = selectedProductGallery[activeProductImageIndex]?.image ?? selectedProduct?.image
+  const curatedRelatedProductIds = selectedProduct?.id === 'mall-weekend-hoodie'
+    ? ['rewind-club-tee', '1999-varsity-hoodie', 'mall-run-dad-hat', 'food-court-poster']
+    : null
   const relatedProducts = selectedProduct
-    ? [
-        ...products.filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id),
-        ...products.filter((product) => product.category !== selectedProduct.category),
-      ].slice(0, 6)
+    ? curatedRelatedProductIds
+      ? curatedRelatedProductIds
+          .map((productId) => products.find((product) => product.id === productId))
+          .filter(Boolean)
+      : [
+          ...products.filter((product) => product.category === selectedProduct.category && product.id !== selectedProduct.id),
+          ...products.filter((product) => product.category !== selectedProduct.category),
+        ].slice(0, 6)
     : []
-  const bundleProducts = selectedProduct ? [selectedProduct, ...relatedProducts.slice(0, 2)] : []
+  const bundleProducts = selectedProduct
+    ? (selectedProduct.id === 'mall-weekend-hoodie'
+      ? ['mall-weekend-hoodie', 'mall-weekend-tote', 'rewind-sticker-pack']
+      : [selectedProduct.id, ...relatedProducts.slice(0, 2).map((product) => product.id)])
+        .map((productId) => products.find((product) => product.id === productId))
+        .filter(Boolean)
+    : []
   const bundlePrice = bundleProducts.reduce((sum, product) => sum + product.price, 0)
   const bundleDealPrice = Math.round(bundlePrice * 0.88 * 100) / 100
   const featuredDropImage = featuredDrop.image
@@ -1592,8 +1674,7 @@ function App() {
     setSelectedProduct(product)
     setSelectedOptions(getDefaultOptions(product))
     setSelectedProductQuantity(1)
-    setActiveProductImageIndex(0)
-    setPdpTab('Details')
+    setActiveProductImageIndex(getInitialProductImageIndex(product))
     window.history.pushState(null, '', getProductPath(product))
     window.dispatchEvent(new Event('hashchange'))
   }
@@ -2033,10 +2114,12 @@ function App() {
 
   const openCheckout = () => {
     if (!cart.length) return
+    setCartOpen(false)
     setCheckoutDone(false)
     setPaymentMethod('paypal')
     setPaypalDemoState('idle')
     setCheckoutOpen(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const submitCheckout = (event) => {
@@ -2110,6 +2193,7 @@ function App() {
     'shop-app',
     'memory-entered',
     activeRoute === 'product' ? 'product-route-active' : '',
+    checkoutOpen ? 'checkout-page-active' : '',
     accountRouteOpen ? 'account-route-active' : '',
   ].filter(Boolean).join(' ')
 
@@ -2280,7 +2364,177 @@ function App() {
       </header>
 
       <main id="top">
-        {activePolicyRoute ? (
+        {checkoutOpen ? (
+          <section className={`checkout-page ${checkoutDone ? 'checkout-page--done' : ''}`} aria-labelledby="checkout-title">
+            <div className="checkout-page-head">
+              <button
+                className="checkout-back-button"
+                type="button"
+                onClick={() => {
+                  setCheckoutOpen(false)
+                  if (!checkoutDone) setCartOpen(true)
+                }}
+              >
+                <ChevronLeft size={18} />
+                {checkoutDone ? 'Back to shop' : 'Back to cart'}
+              </button>
+              <span><Lock size={14} /> Secure SSL checkout</span>
+            </div>
+
+            <section className="checkout-modal checkout-page-panel" aria-labelledby="checkout-title">
+              {checkoutDone ? (
+                <div className="success-state order-receipt checkout-page-success">
+                  <div className="order-receipt-head">
+                    <strong>1989 SUPPLY CO.</strong>
+                    <span>Good Times. Guaranteed.</span>
+                  </div>
+                  <div className="receipt-dash" aria-hidden="true" />
+                  <span className="order-receipt-stamp" aria-hidden="true">PAID</span>
+                  <CheckCircle2 size={44} />
+                  <h2 id="checkout-title">Order received</h2>
+                  <p>Your order request is saved to the customer dashboard. No real payment or Printful order was created.</p>
+                  <div className="receipt-dash" aria-hidden="true" />
+                  <p className="order-receipt-thanks">★ Thank you! Come again. ★</p>
+                  <div className="receipt-barcode" aria-hidden="true" />
+                  <div className="success-actions">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCheckoutOpen(false)
+                        setCartOpen(false)
+                      }}
+                    >
+                      Back to Shop
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCheckoutOpen(false)
+                        setCartOpen(false)
+                        openAccountDashboard('orders')
+                      }}
+                    >
+                      View Dashboard
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form className="checkout-page-form" onSubmit={submitCheckout}>
+                  <div className="checkout-page-primary">
+                    <p className="receipt-label"><Lock size={13} /> Secure checkout</p>
+                    <h2 id="checkout-title">Shipping Details</h2>
+                    <p className="checkout-note">Enter the shipping details for your made-to-order items.</p>
+
+                    <div className="form-grid">
+                      <label>
+                        Full name
+                        <input name="name" required placeholder="Marty McFly" />
+                      </label>
+                      <label>
+                        Email
+                        <input name="email" required type="email" placeholder="marty@example.com" />
+                      </label>
+                      <label className="wide">
+                        Address
+                        <input name="address" required placeholder="1989 Supply Street" />
+                      </label>
+                      <label>
+                        City
+                        <input name="city" required placeholder="Hill Valley" />
+                      </label>
+                      <label>
+                        ZIP
+                        <input name="zip" required inputMode="numeric" placeholder="90089" />
+                      </label>
+                      <label className="wide">
+                        Order note
+                        <span className="card-input card-input--note">
+                          <CreditCard size={18} />
+                          <textarea placeholder="Size, color, or delivery note" rows="3" />
+                        </span>
+                      </label>
+                    </div>
+
+                    <section className="payment-box" aria-label="Payment method">
+                      <div className="payment-box-head">
+                        <div>
+                          <p className="receipt-label">Payment</p>
+                          <h3>Pay with PayPal</h3>
+                        </div>
+                        <strong>{formatPrice(total)}</strong>
+                      </div>
+                      <div className="payment-methods" role="radiogroup" aria-label="Choose payment method">
+                        <button
+                          className={paymentMethod === 'paypal' ? 'active' : ''}
+                          type="button"
+                          role="radio"
+                          aria-checked={paymentMethod === 'paypal'}
+                          onClick={() => {
+                            setPaymentMethod('paypal')
+                            setPaypalDemoState('idle')
+                          }}
+                        >
+                          <Wallet size={18} />
+                          PayPal
+                        </button>
+                      </div>
+                      <div className={`paypal-demo-panel paypal-demo-panel--${paypalDemoState}`}>
+                        <div>
+                          <strong>PayPal checkout</strong>
+                          <p>Continue to PayPal to review and approve your payment.</p>
+                        </div>
+                        <button
+                          className="paypal-demo-button"
+                          type="button"
+                          onClick={() => setPaypalDemoState('approved')}
+                        >
+                          {paypalDemoState === 'approved' ? 'PayPal Approved' : 'Continue with PayPal'}
+                        </button>
+                      </div>
+                      {paypalDemoState === 'required' && (
+                        <p className="payment-warning">Please approve PayPal before placing the order.</p>
+                      )}
+                    </section>
+                  </div>
+
+                  <aside className="checkout-page-sidebar">
+                    <section className="checkout-summary" aria-label="Order summary">
+                      <p className="receipt-label">Order summary · {itemCount} item{itemCount === 1 ? '' : 's'}</p>
+                      <ul>
+                        {cart.map((item) => (
+                          <li key={item.id}>
+                            <span>{item.name} × {item.quantity}</span>
+                            <strong>{formatPrice(item.price * item.quantity)}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="checkout-summary-lines">
+                        <span>Subtotal <strong>{formatPrice(subtotal)}</strong></span>
+                        {discount > 0 && <span>Discount <strong>-{formatPrice(discount)}</strong></span>}
+                        <span>Shipping <strong>{shipping ? formatPrice(shipping) : 'Free'}</strong></span>
+                        <span className="checkout-summary-total">Total <strong>{formatPrice(total)}</strong></span>
+                      </div>
+                    </section>
+
+                    <div className="review-box">
+                      <CreditCard size={20} />
+                      <span>Review total</span>
+                      <strong>{formatPrice(total)}</strong>
+                    </div>
+                    <button className="checkout-button" type="submit">
+                      <Lock size={16} />
+                      Place Order
+                    </button>
+                    <div className="checkout-reassurance">
+                      <span><Lock size={14} /> SSL-encrypted &amp; secure</span>
+                      <PaymentBadges />
+                    </div>
+                  </aside>
+                </form>
+              )}
+            </section>
+          </section>
+        ) : activePolicyRoute ? (
           <section className="store-section policy-route-page">
             <div className="policy-route-nav" aria-label="Policy pages">
               {policyCards.map((policy) => (
@@ -2469,34 +2723,48 @@ function App() {
                       type="button"
                       onClick={() => setActiveProductImageIndex(index)}
                     >
-                      <span>{item.label}</span>
                       <img src={item.image} alt={`${selectedProduct.name} ${item.label}`} />
+                      <span>
+                        <b>{String(index + 1).padStart(2, '0')}</b> {item.label.replace('Catalog ', '')}
+                      </span>
                     </button>
                   ))}
                 </aside>
 
                 <figure className="catalog-pdp-main-frame">
                   <span className="catalog-pdp-tape catalog-pdp-tape--top" aria-hidden="true" />
+                  <span className="catalog-pdp-bestseller-stamp" aria-hidden="true">{selectedProduct.tag}</span>
                   <img src={activeProductImage} alt={selectedProduct.name} />
                   <figcaption>
-                    <span>{selectedProduct.sku}</span>
+                    <span><b>SKU</b> {selectedProduct.sku}</span>
                     <strong>{selectedProduct.tag}</strong>
                   </figcaption>
+                  <div className="catalog-pdp-feature-row" aria-label="Product highlights">
+                    <span><Package size={17} /> Made to order</span>
+                    <span><CheckCircle2 size={17} /> Premium print</span>
+                    <span><ShieldCheck size={17} /> Secure checkout</span>
+                  </div>
                 </figure>
 
                 <article className="catalog-pdp-buy-panel product-catalog-order-form" aria-label="Purchase options">
-                  <p className="receipt-label">1989 Catalog Order Form</p>
+                  <div className="catalog-pdp-order-head">
+                    <span>1989 Supply Co. Mail Order</span>
+                    <strong>No. 0221999</strong>
+                  </div>
                   <h1>{selectedProduct.name}</h1>
                   <div className="catalog-pdp-rating">
                     <span aria-label={`${selectedProductProof.rating} out of 5 stars`}>★★★★★</span>
-                    <button type="button" onClick={() => setPdpTab('Reviews')}>
+                    <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
                       {selectedProductProof.rating.toFixed(1)} rating / {selectedProductProof.reviewCount} reviews
                     </button>
                   </div>
                   <p className="catalog-pdp-short">{selectedProduct.shortDetail}</p>
 
                   <div className="catalog-pdp-price-row">
-                    <strong>{formatPrice(selectedVariantPrice)}</strong>
+                    <div>
+                      <strong>{formatPrice(selectedVariantPrice)}</strong>
+                      <small>Ships in 2-4 business days</small>
+                    </div>
                     <span
                       className={`stock-pill stock-pill--${
                         selectedProduct.stockState === 'sold-out'
@@ -2513,12 +2781,6 @@ function App() {
                           : 'In stock'}
                     </span>
                   </div>
-
-                  <ul className="catalog-pdp-value-bullets">
-                    <li><CheckCircle2 size={15} /> Made to order in the USA</li>
-                    <li><Sparkles size={15} /> Original 1989-style artwork</li>
-                    <li><Gift size={15} /> Gift-ready packaging</li>
-                  </ul>
 
                   <div className="catalog-pdp-options">
                     {selectedOptionGroups.map((group) => (
@@ -2560,41 +2822,35 @@ function App() {
                         <Plus size={15} />
                       </button>
                     </div>
+                    <strong className="catalog-pdp-low-stock">Only 7 left in stock!</strong>
                   </div>
 
                   <div className="catalog-pdp-actions">
-                    <button className="catalog-pdp-buy-now" type="button" onClick={buySelectedProductNow}>
-                      Buy Now
-                    </button>
                     <button className="catalog-pdp-add-cart" type="button" onClick={addSelectedProductToCart}>
                       <ShoppingCart size={16} />
                       Add to Cart
                     </button>
+                    <button className="catalog-pdp-buy-now" type="button" onClick={buySelectedProductNow}>
+                      Buy Now
+                    </button>
                   </div>
-
-                  <div className="catalog-pdp-panel-trust">
-                    <span><Truck size={15} /> Ships in 2-4 business days</span>
-                    <span><ShieldCheck size={15} /> Secure checkout</span>
-                    <span><RefreshCcw size={15} /> 30-day guarantee</span>
-                  </div>
-
-                  <p className="catalog-pdp-freeship">
-                    {selectedVariantPrice >= FREE_SHIPPING_THRESHOLD
-                      ? 'This item ships free.'
-                      : `Add ${formatPrice(FREE_SHIPPING_THRESHOLD - selectedVariantPrice)} more for free shipping.`}
-                  </p>
-
-                  <div className="catalog-pdp-panel-bottom">
-                    <div className="pay-badges" aria-label="Accepted payments">
-                      <span>Visa</span>
-                      <span>Mastercard</span>
-                      <span>Amex</span>
-                      <span>PayPal</span>
+                  <div className="catalog-pdp-panel-bottom" aria-label="Secure payment and purchase protection">
+                    <PaymentBadges />
+                    <div className="catalog-pdp-panel-trust">
+                      <span><Lock size={13} /> SSL</span>
+                      <span><RefreshCcw size={13} /> Returns</span>
+                      <span><ShieldCheck size={13} /> Protected</span>
                     </div>
-                    <span className="stamp-seal" aria-hidden="true">★ Satisfaction Guaranteed</span>
                   </div>
                 </article>
               </div>
+
+              <section className="catalog-pdp-value-band" aria-label="Purchase reassurance">
+                <span><PackageCheck size={22} /><strong>Made to order</strong><small>Printed just for you in the USA.</small></span>
+                <span><Truck size={22} /><strong>Ships in 2-4 days</strong><small>Carefully packed and tracked.</small></span>
+                <span><Lock size={22} /><strong>Secure checkout</strong><small>Your payment stays protected.</small></span>
+                <span><RefreshCcw size={22} /><strong>30-day returns</strong><small>Simple returns if it is not right.</small></span>
+              </section>
 
               <div className="pdp-mobile-buybar" aria-hidden="false">
                 <span className="pdp-mobile-buybar-price">
@@ -2607,160 +2863,119 @@ function App() {
                 </button>
               </div>
 
-              <div className="catalog-pdp-trust-strip">
-                <span><Truck size={18} /> Fast shipping</span>
-                <span><ShieldCheck size={18} /> Secure checkout</span>
-                <span><RefreshCcw size={18} /> Easy returns</span>
-                <span><Gift size={18} /> Gift-ready</span>
-              </div>
-
               <section className="catalog-pdp-memory-row" aria-label="Product memory and story">
                 <article className="catalog-pdp-lifestyle-card">
                   <img src={selectedProduct.lifestyleImage || mallWeekendImage} alt={`${selectedProduct.name} lifestyle inspiration`} />
                 </article>
                 <article className="catalog-pdp-backstory-card">
                   <p className="receipt-label">Back In The Day</p>
-                  <h2>Mall plans were simple.</h2>
+                  <h2>Weekend plans were simple.</h2>
                   <p>
-                    Grab a soda, meet your people, check the new releases, and bring home one small thing that made the
-                    weekend feel like yours.
+                    The food court, the mixtapes, the new tee, and one small souvenir that made the whole weekend feel
+                    like yours. This piece keeps that mall-run feeling without turning the page into clutter.
                   </p>
-                  <span>Memorizing 1989</span>
+                  <ul className="catalog-pdp-story-bullets">
+                    <li>Lightweight yet cozy everyday fleece</li>
+                    <li>Original 1989-style artwork</li>
+                    <li>Made on demand, no warehouse fade</li>
+                  </ul>
+                  <div className="catalog-pdp-care-grid">
+                    <span><strong>Material</strong> Cotton-blend soft fleece</span>
+                    <span><strong>Care</strong> Machine wash cold, tumble dry low</span>
+                  </div>
                 </article>
                 <article className="catalog-pdp-postcard-card">
                   <img src={videoStoreImage} alt="Retro night storefront memory" />
-                  <p>Good stops. Good light. Good memory shelf.</p>
+                  <p>Good times. Great finds. Built for everyday wear.</p>
                 </article>
-              </section>
-
-              <section className="catalog-pdp-info-tabs" aria-label="Product details and policies">
-                <div className="catalog-pdp-tablist" role="tablist" aria-label="Product information">
-                  {['Details', 'Size guide', 'Shipping', 'Reviews'].map((label) => (
-                    <button
-                      key={label}
-                      role="tab"
-                      type="button"
-                      id={`pdp-tab-${label}`}
-                      aria-selected={pdpTab === label}
-                      aria-controls="pdp-tabpanel"
-                      className={pdpTab === label ? 'active' : ''}
-                      onClick={() => setPdpTab(label)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="catalog-pdp-tabpanel" id="pdp-tabpanel" role="tabpanel" aria-labelledby={`pdp-tab-${pdpTab}`}>
-                  {pdpTab === 'Details' && (
-                    <p>Soft, made-to-order build with original 1989-style artwork. Printed on demand so each one ships fresh — no warehouse fade, no mass-market feel.</p>
-                  )}
-                  {pdpTab === 'Size guide' && (
-                    <p>Classic, true-to-size fit. Choose your usual size, or size up for a relaxed weekend look. Measurements are listed on each product page before checkout.</p>
-                  )}
-                  {pdpTab === 'Shipping' && (
-                    <p>Made to order in 2-4 business days before carrier transit. Free shipping over {formatPrice(FREE_SHIPPING_THRESHOLD)}. Ships from the USA with tracking.</p>
-                  )}
-                  {pdpTab === 'Reviews' && (
-                    <div className="catalog-pdp-review-snippets">
-                      <p className="catalog-pdp-review-score">
-                        <span aria-hidden="true">★★★★★</span> {selectedProductProof.rating.toFixed(1)} out of 5 · {selectedProductProof.reviewCount} reviews
-                      </p>
-                      <blockquote>
-                        <strong>“Better than I expected.”</strong>
-                        Came in fast and the print is crisp. Exactly the throwback vibe I wanted. — Dana R.
-                      </blockquote>
-                      <blockquote>
-                        <strong>“Gift-perfect.”</strong>
-                        Bought it for a friend who grew up in the era. She loved the packaging. — Marcus T.
-                      </blockquote>
-                    </div>
-                  )}
-                </div>
               </section>
 
               <section className="catalog-pdp-bundle-save" aria-label="Bundle and save">
                 <div className="catalog-pdp-section-title">
-                  <p className="receipt-label">Bundle & Save</p>
-                  <h2>Build the shelf, not just the shirt.</h2>
+                  <div>
+                    <p className="receipt-label">Complete The Weekend Kit</p>
+                    <h2>Grab everything you need for a perfect mall run.</h2>
+                  </div>
+                  <strong>Bundle & save 10%</strong>
                 </div>
-                <div className="catalog-pdp-bundle-save-grid">
-                  {[
-                    { title: 'Road Trip Bundle', items: bundleProducts, price: bundleDealPrice, value: bundlePrice },
-                    { title: 'Weekend Warrior Bundle', items: [selectedProduct, ...relatedProducts.slice(1, 3)], price: Math.round((selectedProduct.price + relatedProducts.slice(1, 3).reduce((sum, product) => sum + product.price, 0)) * 0.86 * 100) / 100, value: selectedProduct.price + relatedProducts.slice(1, 3).reduce((sum, product) => sum + product.price, 0) },
-                    { title: 'Nostalgia Bundle', items: [selectedProduct, ...relatedProducts.slice(2, 4)], price: Math.round((selectedProduct.price + relatedProducts.slice(2, 4).reduce((sum, product) => sum + product.price, 0)) * 0.84 * 100) / 100, value: selectedProduct.price + relatedProducts.slice(2, 4).reduce((sum, product) => sum + product.price, 0) },
-                  ].map((bundle) => (
-                    <article key={bundle.title}>
-                      <h3>{bundle.title}</h3>
-                      <div>
-                        {bundle.items.slice(0, 3).map((product) => (
-                          <img key={`${bundle.title}-${product.id}`} src={product.image} alt={product.name} />
-                        ))}
-                      </div>
-                      <p>
-                        <strong>{formatPrice(bundle.price)}</strong>
-                        <span>{formatPrice(bundle.value)}</span>
-                        <em>Save {Math.max(0, Math.round(((bundle.value - bundle.price) / bundle.value) * 100))}%</em>
-                      </p>
-                      <button type="button" onClick={() => bundle.items.forEach((product) => addToCart(product, null))}>
-                        Add Bundle To Cart
-                      </button>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-              <section className="catalog-pdp-complete-look" aria-label="Complete the look">
-                <div className="catalog-pdp-section-title">
-                  <p className="receipt-label">Complete The Look</p>
-                  <h2>Small add-ons with the same memory.</h2>
-                </div>
-                <div className="catalog-pdp-look-grid">
-                  {relatedProducts.slice(0, 4).map((product) => (
-                    <article key={`look-${product.id}`}>
-                      <button type="button" onClick={() => openProductDetail(product)}>
+                <div className="catalog-pdp-kit">
+                  <div className="catalog-pdp-kit-items">
+                    {bundleProducts.slice(0, 3).map((product, index) => (
+                      <article key={`kit-${product.id}`}>
                         <img src={product.image} alt={product.name} />
-                      </button>
-                      <h3>{product.name}</h3>
-                      <span>{formatPrice(product.price)}</span>
-                      <button type="button" onClick={(event) => addToCart(product, event)}>Add To Cart</button>
-                    </article>
-                  ))}
-                </div>
-              </section>
-
-              <section className="catalog-pdp-era-grid" aria-label="Story, soundtrack, and proof">
-                <article>
-                  <p className="receipt-label">The Story</p>
-                  <h2>A tiny souvenir from memory lane.</h2>
-                  <p>
-                    This design is built around the old weekend loop: mall lights, diner booths, video shelves, and the
-                    one graphic tee you kept reaching for.
-                  </p>
-                </article>
-                <article>
-                  <p className="receipt-label">Soundtrack Of The Era</p>
-                  <ul>
-                    <li>Summer of 89</li>
-                    <li>Drive By The Cars</li>
-                    <li>About Me / Staple Minds</li>
-                    <li>Born in the U.S.A.</li>
-                  </ul>
-                </article>
-                <article>
-                  <p className="receipt-label">Customer Notes</p>
-                  <div className="catalog-pdp-review-list">
-                    {[
-                      ['James R.', 'Verified buyer', 'The print feels sharp and the piece looks exactly like the photos.'],
-                      ['Sarah M.', 'Gift purchase', 'Bought it as a gift and the retro vibe landed immediately.'],
-                    ].map(([name, context, body]) => (
-                      <blockquote key={name}>
-                        <strong>★★★★★ {name}</strong>
-                        <span>{context}</span>
-                        <p>{body}</p>
-                      </blockquote>
+                        <strong>{product.name}</strong>
+                        <span>{formatPrice(product.price)}</span>
+                        {index < 2 && <b aria-hidden="true">+</b>}
+                      </article>
                     ))}
                   </div>
-                </article>
+                  <div className="catalog-pdp-kit-checkout">
+                    <p className="receipt-label">Bundle total</p>
+                    <strong>{formatPrice(bundleDealPrice)}</strong>
+                    <s>{formatPrice(bundlePrice)}</s>
+                    <button type="button" onClick={() => bundleProducts.forEach((product) => addToCart(product, null))}>
+                      Add Bundle To Cart
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section className="catalog-pdp-reviews-section" id="pdp-reviews" aria-label="Customer reviews">
+                <div className="catalog-pdp-section-title">
+                  <div>
+                    <p className="receipt-label">What real customers are saying</p>
+                    <h2>Proof before the checkout counter.</h2>
+                  </div>
+                  <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductProof.reviewCount} reviews</button>
+                </div>
+                <div className="catalog-pdp-reviews-grid">
+                  <article className="catalog-pdp-reviews-summary">
+                    <strong>{selectedProductProof.rating.toFixed(1)}</strong>
+                    <span aria-hidden="true">★★★★★</span>
+                    <small>Based on {selectedProductProof.reviewCount} reviews</small>
+                    {[72, 18, 7, 2, 1].map((value, index) => (
+                      <p key={`rating-bar-${5 - index}`}>
+                        <b>{5 - index} Stars</b>
+                        <i><em style={{ width: `${value}%` }} /></i>
+                        <small>{value}%</small>
+                      </p>
+                    ))}
+                  </article>
+                  {[
+                    ['Perfect throwback vibe', 'The ringer details and print are spot on. Feels like something I found in an old mall store in 1989.', 'Jason R.'],
+                    ['Super comfy', 'Soft, cozy, and gets better every wash. I wear it every weekend.', 'Melissa T.'],
+                    ['Love the design', 'So many compliments already. Shipping was fast and packaging was rad.', 'Tyler W.'],
+                  ].map(([title, body, name]) => (
+                    <blockquote key={title}>
+                      <span aria-hidden="true">★★★★★</span>
+                      <strong>{title}</strong>
+                      <p>{body}</p>
+                      <cite>{name} · Verified buyer</cite>
+                    </blockquote>
+                  ))}
+                </div>
+              </section>
+
+              <section className="catalog-pdp-faq-section" aria-label="Questions and answers">
+                <div className="catalog-pdp-section-title">
+                  <div>
+                    <p className="receipt-label">Questions? We have got answers.</p>
+                    <h2>Before you check out.</h2>
+                  </div>
+                </div>
+                <div className="catalog-pdp-faq-list">
+                  {[
+                    ['Shipping', 'When will my order arrive?', 'Made to order in 2-4 business days, then shipped with tracking from the USA.'],
+                    ['Returns', 'What is your return policy?', 'You have 30 days for easy returns if the piece is not right for you.'],
+                    ['Sizing', 'How does this fit?', 'Classic true-to-size fit. Size up if you want a relaxed weekend look.'],
+                    ['Care', 'How should I wash it?', 'Machine wash cold and tumble dry low to protect the print.'],
+                  ].map(([label, question, answer]) => (
+                    <details key={label}>
+                      <summary><span>{label}</span>{question}<ChevronDown size={17} /></summary>
+                      <p>{answer}</p>
+                    </details>
+                  ))}
+                </div>
               </section>
 
               {relatedProducts.length > 0 && (
@@ -2780,11 +2995,29 @@ function App() {
                         <span>{product.category}</span>
                         <h3>{product.name}</h3>
                         <strong>{formatPrice(product.price)}</strong>
+                        <button type="button" onClick={(event) => addToCart(product, event)}>Quick Add</button>
                       </article>
                     ))}
                   </div>
                 </section>
               )}
+
+              <aside className="catalog-pdp-final-cta" aria-label="Final purchase prompt">
+                <img src={selectedProduct.image} alt="" />
+                <div>
+                  <strong>{selectedProduct.name}</strong>
+                  <span>{selectedVariantSummary || 'Ready to order'}</span>
+                </div>
+                <b>{formatPrice(selectedVariantPrice)}</b>
+                <small>
+                  <i className={`stock-dot stock-dot--${selectedProduct.stockState}`} />
+                  {selectedProduct.stockState === 'sold-out' ? 'Sold out' : 'In stock'}
+                </small>
+                <button type="button" onClick={addSelectedProductToCart}>
+                  <ShoppingCart size={17} /> Add To Cart
+                </button>
+                <button type="button" onClick={buySelectedProductNow}>Buy Now</button>
+              </aside>
 
             </section>
           ) : (
@@ -3249,37 +3482,62 @@ function App() {
             <p className="section-note">Three ready-made carts for movie nights, counters, and mall-weekend shelves.</p>
           </div>
           <div className="bundle-grid">
-            {bundles.map((bundle) => (
-              <article className="bundle-card bundle-card--cassette" key={bundle.id}>
-                <img className="media-banner" src={bundle.image} alt={bundle.name} />
-                <div className="cassette-strip" aria-hidden="true">
-                  <span className="cassette-reel" />
-                  <span className="cassette-tape-line">MIXTAPE · SIDE A</span>
-                  <span className="cassette-reel" />
-                </div>
-                <div>
-                  <p className="receipt-label">Bundle value {formatPrice(bundle.value)}</p>
-                  <h3>{bundle.name}</h3>
-                  <p>{bundle.shortDetail}</p>
-                  <p className="cassette-tracklist-label">Tracklist</p>
-                  <ul className="bundle-item-list bundle-item-list--tracks">
-                    {bundle.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                  <div className="bundle-buy">
-                    <span className="bundle-price">
-                      <strong>{formatPrice(bundle.price)}</strong>
-                      <s>{formatPrice(bundle.value)}</s>
-                      <em className="bundle-save">Save {formatPrice(bundle.value - bundle.price)}</em>
-                    </span>
-                    <button type="button" onClick={(event) => addToCart(bundle, event)}>
-                      Add Bundle
-                    </button>
+            {bundles.map((bundle) => {
+              const bundleProducts = bundle.items.map((itemName) =>
+                products.find((product) => product.name === itemName) ?? {
+                  id: `${bundle.id}-${itemName}`,
+                  name: itemName,
+                  category: 'Bundle item',
+                  image: bundle.image,
+                },
+              )
+
+              return (
+                <article className="bundle-card bundle-card--kit" key={bundle.id}>
+                  <img className="media-banner" src={bundle.image} alt={bundle.name} />
+                  <div className="bundle-preview-strip" aria-label={`${bundle.name} product preview`}>
+                    <span className="bundle-preview-label">Ready-made kit</span>
+                    <div className="bundle-preview-photos">
+                      {bundleProducts.map((product, index) => (
+                        <span className="bundle-preview-photo" key={`${bundle.id}-preview-${product.id}`}>
+                          <img src={product.image} alt="" />
+                          <small>{index + 1}</small>
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                  <div>
+                    <p className="receipt-label">Bundle value {formatPrice(bundle.value)}</p>
+                    <h3>{bundle.name}</h3>
+                    <p>{bundle.shortDetail}</p>
+                    <p className="bundle-includes-label">Bundle includes</p>
+                    <ul className="bundle-item-list bundle-item-list--includes">
+                      {bundleProducts.map((product) => (
+                        <li key={`${bundle.id}-${product.id}`}>
+                          <span className="bundle-item-thumb">
+                            <img src={product.image} alt="" />
+                          </span>
+                          <span>
+                            <strong>{product.name}</strong>
+                            <small>{product.category}</small>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="bundle-buy">
+                      <span className="bundle-price">
+                        <strong>{formatPrice(bundle.price)}</strong>
+                        <s>{formatPrice(bundle.value)}</s>
+                        <em className="bundle-save">Save {formatPrice(bundle.value - bundle.price)}</em>
+                      </span>
+                      <button type="button" onClick={(event) => addToCart(bundle, event)}>
+                        Add Bundle
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </section>
 
@@ -3719,12 +3977,7 @@ function App() {
             <span><ShieldCheck size={14} /> Secure SSL checkout</span>
             <span><RefreshCcw size={14} /> 30-day easy returns</span>
           </div>
-          <div className="pay-badges" aria-label="Accepted payments">
-            <span>Visa</span>
-            <span>Mastercard</span>
-            <span>Amex</span>
-            <span>PayPal</span>
-          </div>
+          <PaymentBadges />
           <div className="cart-receipt-footer">
             <div className="receipt-barcode" aria-hidden="true" />
             <span>Thank you! Come again.</span>
@@ -4800,164 +5053,6 @@ function App() {
         </div>
       )}
 
-      {checkoutOpen && (
-        <div className="modal-backdrop" role="presentation">
-          <section className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
-            <button className="modal-close" type="button" aria-label="Close checkout" onClick={() => setCheckoutOpen(false)}>
-              <X size={22} />
-            </button>
-            {checkoutDone ? (
-              <div className="success-state order-receipt">
-                <div className="order-receipt-head">
-                  <strong>1989 SUPPLY CO.</strong>
-                  <span>Good Times. Guaranteed.</span>
-                </div>
-                <div className="receipt-dash" aria-hidden="true" />
-                <span className="order-receipt-stamp" aria-hidden="true">PAID</span>
-                <CheckCircle2 size={44} />
-                <h2 id="checkout-title">Order received</h2>
-                <p>Your order request is saved to the customer dashboard. No real payment or Printful order was created.</p>
-                <div className="receipt-dash" aria-hidden="true" />
-                <p className="order-receipt-thanks">★ Thank you! Come again. ★</p>
-                <div className="receipt-barcode" aria-hidden="true" />
-                <div className="success-actions">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCheckoutOpen(false)
-                      setCartOpen(false)
-                    }}
-                  >
-                    Back to Shop
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCheckoutOpen(false)
-                      setCartOpen(false)
-                      openAccountDashboard('orders')
-                    }}
-                  >
-                    View Dashboard
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={submitCheckout}>
-                <p className="receipt-label"><Lock size={13} /> Secure checkout</p>
-                <h2 id="checkout-title">Shipping Details</h2>
-                <p className="checkout-note">Enter the shipping details for your made-to-order items.</p>
-
-                <section className="checkout-summary" aria-label="Order summary">
-                  <p className="receipt-label">Order summary · {itemCount} item{itemCount === 1 ? '' : 's'}</p>
-                  <ul>
-                    {cart.map((item) => (
-                      <li key={item.id}>
-                        <span>{item.name} × {item.quantity}</span>
-                        <strong>{formatPrice(item.price * item.quantity)}</strong>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="checkout-summary-lines">
-                    <span>Subtotal <strong>{formatPrice(subtotal)}</strong></span>
-                    {discount > 0 && <span>Discount <strong>-{formatPrice(discount)}</strong></span>}
-                    <span>Shipping <strong>{shipping ? formatPrice(shipping) : 'Free'}</strong></span>
-                    <span className="checkout-summary-total">Total <strong>{formatPrice(total)}</strong></span>
-                  </div>
-                </section>
-
-                <div className="form-grid">
-                  <label>
-                    Full name
-                    <input name="name" required placeholder="Marty McFly" />
-                  </label>
-                  <label>
-                    Email
-                    <input name="email" required type="email" placeholder="marty@example.com" />
-                  </label>
-                  <label className="wide">
-                    Address
-                    <input name="address" required placeholder="1989 Supply Street" />
-                  </label>
-                  <label>
-                    City
-                    <input name="city" required placeholder="Hill Valley" />
-                  </label>
-                  <label>
-                    ZIP
-                    <input name="zip" required inputMode="numeric" placeholder="90089" />
-                  </label>
-                  <label className="wide">
-                    Order note
-                    <span className="card-input card-input--note">
-                      <CreditCard size={18} />
-                      <textarea placeholder="Size, color, or delivery note" rows="3" />
-                    </span>
-                  </label>
-                </div>
-                <section className="payment-box" aria-label="Payment method">
-                  <div className="payment-box-head">
-                    <div>
-                      <p className="receipt-label">Payment</p>
-                      <h3>Pay with PayPal</h3>
-                    </div>
-                    <strong>{formatPrice(total)}</strong>
-                  </div>
-                  <div className="payment-methods" role="radiogroup" aria-label="Choose payment method">
-                    <button
-                      className={paymentMethod === 'paypal' ? 'active' : ''}
-                      type="button"
-                      role="radio"
-                      aria-checked={paymentMethod === 'paypal'}
-                      onClick={() => {
-                        setPaymentMethod('paypal')
-                        setPaypalDemoState('idle')
-                      }}
-                    >
-                      <Wallet size={18} />
-                      PayPal
-                    </button>
-                  </div>
-                  <div className={`paypal-demo-panel paypal-demo-panel--${paypalDemoState}`}>
-                    <div>
-                      <strong>PayPal checkout</strong>
-                      <p>Continue to PayPal to review and approve your payment.</p>
-                    </div>
-                    <button
-                      className="paypal-demo-button"
-                      type="button"
-                      onClick={() => setPaypalDemoState('approved')}
-                    >
-                      {paypalDemoState === 'approved' ? 'PayPal Approved' : 'Continue with PayPal'}
-                    </button>
-                  </div>
-                  {paypalDemoState === 'required' && (
-                    <p className="payment-warning">Please approve PayPal before placing the order.</p>
-                  )}
-                </section>
-                <div className="review-box">
-                  <CreditCard size={20} />
-                  <span>Review total</span>
-                  <strong>{formatPrice(total)}</strong>
-                </div>
-                <button className="checkout-button" type="submit">
-                  <Lock size={16} />
-                  Place Order
-                </button>
-                <div className="checkout-reassurance">
-                  <span><Lock size={14} /> SSL-encrypted &amp; secure</span>
-                  <div className="pay-badges" aria-label="Accepted payments">
-                    <span>Visa</span>
-                    <span>Mastercard</span>
-                    <span>Amex</span>
-                    <span>PayPal</span>
-                  </div>
-                </div>
-              </form>
-            )}
-          </section>
-        </div>
-      )}
     </div>
   )
 }
