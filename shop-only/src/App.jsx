@@ -120,8 +120,66 @@ const accountRouteBase = '/my-account'
 const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
 const signInPath = '/sign-in'
 const createAccountPath = '/create-account'
+const forgotPasswordPath = '/forgot-password'
+const resetPasswordPath = '/reset-password'
 const orderFilterTabs = ['All', 'Pending', 'Processing', 'Shipping', 'Delivered', 'Cancelled']
 const defaultOrderDateRange = { start: '2020-12-01', end: new Date().toISOString().split('T')[0] }
+
+const getPasswordStrength = (password) => {
+  const value = String(password)
+  const checks = [
+    value.length >= 8,
+    /[a-z]/.test(value),
+    /[A-Z]/.test(value),
+    /\d/.test(value),
+    /[^A-Za-z0-9]/.test(value),
+  ]
+  const score = checks.filter(Boolean).length
+  const hasEnoughVariety = checks.slice(1).filter(Boolean).length >= 3
+  const isAcceptable = checks[0] && hasEnoughVariety
+
+  if (!value) {
+    return {
+      label: 'Password check',
+      message: 'Use 8+ characters with mixed letters, numbers, and a symbol.',
+      percent: 0,
+      score,
+      tone: 'idle',
+      isAcceptable: false,
+    }
+  }
+
+  if (!checks[0]) {
+    return {
+      label: 'Too short',
+      message: 'Add at least 8 characters before creating the account.',
+      percent: 22,
+      score,
+      tone: 'weak',
+      isAcceptable: false,
+    }
+  }
+
+  if (!isAcceptable) {
+    return {
+      label: score >= 3 ? 'Almost there' : 'Weak password',
+      message: 'Mix uppercase, lowercase, numbers, and symbols for a stronger password.',
+      percent: Math.max(36, score * 18),
+      score,
+      tone: score >= 3 ? 'fair' : 'weak',
+      isAcceptable: false,
+    }
+  }
+
+  return {
+    label: score >= 5 ? 'Strong password' : 'Good password',
+    message: score >= 5 ? 'Nice. This has strong variety.' : 'Good. Add a symbol or extra variety to make it stronger.',
+    percent: score >= 5 ? 100 : 82,
+    score,
+    tone: score >= 5 ? 'strong' : 'good',
+    isAcceptable: true,
+  }
+}
 
 const normalizePathname = (pathname) => {
   const normalizedPath = (pathname || '/').replace(/\/+$/, '')
@@ -1559,6 +1617,30 @@ const saveStoredCustomer = (customer) => {
   }
 }
 
+const authRequest = async (path, options = {}) => {
+  const response = await fetch(path, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers ?? {}),
+    },
+    ...options,
+  })
+  const payload = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(payload.error || 'Auth request failed.')
+  }
+
+  return payload
+}
+
+const mergeCustomerForDisplay = (apiCustomer, currentCustomer = null) => ({
+  ...apiCustomer,
+  orders: currentCustomer?.orders?.length ? currentCustomer.orders : demoCustomerOrders,
+  addresses: normalizeAccountAddresses(apiCustomer?.addresses?.length ? apiCustomer.addresses : currentCustomer?.addresses),
+})
+
 function App() {
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname || '/')
   const [activeCategory, setActiveCategory] = useState('All')
@@ -1566,6 +1648,10 @@ function App() {
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
+  const [authPasswordDraft, setAuthPasswordDraft] = useState('')
+  const [authPasswordTouched, setAuthPasswordTouched] = useState(false)
+  const [authPasswordNotice, setAuthPasswordNotice] = useState('')
+  const [authResetPath, setAuthResetPath] = useState('')
   const [checkoutDone, setCheckoutDone] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('paypal')
   const [paypalDemoState, setPaypalDemoState] = useState('idle')
@@ -1934,14 +2020,26 @@ function App() {
   const accountRouteOpen = Boolean(routeAccountTab)
   const accountScreenOpen = accountRouteOpen && Boolean(customer)
   const accountAuthOpen = accountRouteOpen && !customer
-  const authRouteOpen = currentPath === signInPath || currentPath === createAccountPath
+  const authRouteOpen =
+    currentPath === signInPath ||
+    currentPath === createAccountPath ||
+    currentPath === forgotPasswordPath ||
+    currentPath === resetPasswordPath
   const authPageOpen = authRouteOpen || accountAuthOpen
-  const activeAuthMode = currentPath === createAccountPath ? 'sign-up' : 'sign-in'
+  const activeAuthMode =
+    currentPath === createAccountPath
+      ? 'sign-up'
+      : currentPath === forgotPasswordPath
+        ? 'forgot-password'
+        : currentPath === resetPasswordPath
+          ? 'reset-password'
+          : 'sign-in'
   const authVisualImage = activeAuthMode === 'sign-up' ? authCreateAccountImage : authSignInImage
   const authVisualAlt =
     activeAuthMode === 'sign-up'
       ? 'Retro new customer desk with paper forms, stickers, and a cassette'
       : 'Retro video store customer counter with VHS tapes and a CRT television'
+  const passwordStrength = useMemo(() => getPasswordStrength(authPasswordDraft), [authPasswordDraft])
   const accountSettingsTabs = ['settings', 'addresses', 'payments']
   const isAccountSettingsTab = accountSettingsTabs.includes(displayedAccountTab)
   const accountLayoutMode =
@@ -1956,6 +2054,27 @@ function App() {
 
     document.querySelector('.account-screen-backdrop')?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }, [accountScreenOpen])
+
+  useEffect(() => {
+    let active = true
+
+    authRequest('/api/auth/me')
+      .then(({ customer: apiCustomer }) => {
+        if (!active || !apiCustomer) return
+        setCustomer((currentCustomer) => {
+          const nextCustomer = mergeCustomerForDisplay(apiCustomer, currentCustomer)
+          saveStoredCustomer(nextCustomer)
+          return nextCustomer
+        })
+      })
+      .catch(() => {
+        // Auth API may be offline during static UI work; keep the cached demo account if present.
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   const navigateToPath = useCallback((path) => {
     const nextPath = path || '/'
@@ -2217,7 +2336,11 @@ function App() {
   const openAuth = (mode = 'sign-in') => {
     setCartOpen(false)
     setCheckoutOpen(false)
-    navigateToPath(mode === 'sign-up' ? createAccountPath : signInPath)
+    setAuthPasswordDraft('')
+    setAuthPasswordTouched(false)
+    setAuthPasswordNotice('')
+    setAuthResetPath('')
+    navigateToPath(mode === 'sign-up' ? createAccountPath : mode === 'forgot-password' ? forgotPasswordPath : signInPath)
   }
 
   const openAccountDashboard = (tab = 'orders') => {
@@ -2235,32 +2358,125 @@ function App() {
     setOrdersExpanded(false)
   }
 
-  const handleAuthSubmit = (event) => {
+  const handleAuthSubmit = async (event) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const email = String(formData.get('email') ?? '').trim()
-    const fallbackName = email.split('@')[0] || 'Retro Shopper'
-    const name = String(formData.get('name') ?? '').trim() || fallbackName
-    const nextCustomer = {
-      name,
-      email,
-      joined: customer?.joined ?? 'June 2026',
-      orders: customer?.orders?.length ? customer.orders : demoCustomerOrders,
-      addresses: normalizeAccountAddresses(customer?.addresses),
+    const password = String(formData.get('password') ?? '')
+    const confirmPassword = String(formData.get('confirmPassword') ?? '')
+
+    if (activeAuthMode === 'sign-up') {
+      const submittedStrength = getPasswordStrength(password)
+
+      setAuthPasswordDraft(password)
+      setAuthPasswordTouched(true)
+
+      if (!submittedStrength.isAcceptable) {
+        setAuthPasswordNotice('Password is not strong enough yet. Add length and mix letters, numbers, and symbols.')
+        return
+      }
+
+      if (password !== confirmPassword) {
+        setAuthPasswordNotice('Confirm password needs to match the password field.')
+        return
+      }
     }
 
-    setCustomer(nextCustomer)
-    saveStoredCustomer(nextCustomer)
-    setAccountTab('orders')
-    setSelectedOrderId(nextCustomer.orders[0]?.id ?? null)
-    navigateToAccount('orders')
+    try {
+      const fallbackName = email.split('@')[0] || 'Retro Shopper'
+      const name = String(formData.get('name') ?? '').trim() || fallbackName
+      const endpoint = activeAuthMode === 'sign-up' ? '/api/auth/register' : '/api/auth/sign-in'
+      const payload = activeAuthMode === 'sign-up' ? { name, email, password } : { email, password }
+      const { customer: apiCustomer } = await authRequest(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+      const nextCustomer = mergeCustomerForDisplay(apiCustomer, customer)
+
+      setCustomer(nextCustomer)
+      saveStoredCustomer(nextCustomer)
+      setAuthPasswordNotice('')
+      setAccountTab('orders')
+      setSelectedOrderId(nextCustomer.orders[0]?.id ?? null)
+      navigateToAccount('orders')
+    } catch (error) {
+      setAuthPasswordNotice(error.message || 'Could not complete account sign in.')
+    }
+  }
+
+  const handleResetPasswordSubmit = async (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const password = String(formData.get('password') ?? '')
+    const confirmPassword = String(formData.get('confirmPassword') ?? '')
+    const token = new URLSearchParams(window.location.search).get('token') ?? ''
+    const submittedStrength = getPasswordStrength(password)
+
+    setAuthPasswordDraft(password)
+    setAuthPasswordTouched(true)
+
+    if (!token) {
+      setAuthPasswordNotice('Reset token is missing. Request a new reset link from your account.')
+      return
+    }
+
+    if (!submittedStrength.isAcceptable) {
+      setAuthPasswordNotice('Password is not strong enough yet. Add length and mix letters, numbers, and symbols.')
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setAuthPasswordNotice('Confirm password needs to match the password field.')
+      return
+    }
+
+    try {
+      await authRequest('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token, newPassword: password }),
+      })
+      setAuthPasswordDraft('')
+      setAuthPasswordTouched(false)
+      setAuthPasswordNotice('Password reset complete. Sign in with your new password.')
+      navigateToPath(signInPath)
+    } catch (error) {
+      setAuthPasswordNotice(error.message || 'Could not reset password.')
+    }
+  }
+
+  const handleForgotPasswordSubmit = async (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get('email') ?? '').trim()
+
+    setAuthResetPath('')
+
+    try {
+      const payload = await authRequest('/api/auth/request-reset', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      })
+      setAuthResetPath(payload.resetPath ?? '')
+      setAuthPasswordNotice(
+        payload.resetPath
+          ? 'Dev reset link is ready. Open it below to set a new password.'
+          : 'If that email exists, a reset link will be sent.',
+      )
+    } catch (error) {
+      setAuthPasswordNotice(error.message || 'Could not request reset link.')
+    }
   }
 
   const requestLogout = () => {
     setLogoutConfirmOpen(true)
   }
 
-  const logoutCustomer = () => {
+  const logoutCustomer = async () => {
+    try {
+      await authRequest('/api/auth/logout', { method: 'POST', body: '{}' })
+    } catch {
+      // Local logout should still complete if the dev auth server is unavailable.
+    }
     setCustomer(null)
     saveStoredCustomer(null)
     setAccountOpen(false)
@@ -2382,12 +2598,53 @@ function App() {
     reader.readAsDataURL(file)
   }
 
-  const updatePasswordDraft = () => {
-    setSecurityNotice('Password change saved for production handoff.')
+  const updatePasswordDraft = async (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const currentPassword = String(formData.get('currentPassword') ?? '')
+    const newPassword = String(formData.get('newPassword') ?? '')
+    const confirmPassword = String(formData.get('confirmPassword') ?? '')
+    const submittedStrength = getPasswordStrength(newPassword)
+
+    if (!submittedStrength.isAcceptable) {
+      setSecurityNotice('New password is not strong enough. Use 8+ characters with mixed letters, numbers, and a symbol.')
+      return
+    }
+
+    if (newPassword !== confirmPassword) {
+      setSecurityNotice('Confirm new password needs to match.')
+      return
+    }
+
+    try {
+      const { customer: apiCustomer } = await authRequest('/api/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      })
+      const nextCustomer = mergeCustomerForDisplay(apiCustomer, customer)
+      setCustomer(nextCustomer)
+      saveStoredCustomer(nextCustomer)
+      event.currentTarget.reset()
+      setSecurityNotice('Password updated. Existing sessions were refreshed.')
+    } catch (error) {
+      setSecurityNotice(error.message || 'Could not update password.')
+    }
   }
 
-  const sendResetLinkDraft = () => {
-    setSecurityNotice('Reset link is ready to send from the production email service.')
+  const sendResetLinkDraft = async () => {
+    try {
+      const payload = await authRequest('/api/auth/request-reset', {
+        method: 'POST',
+        body: JSON.stringify({ email: customer.email }),
+      })
+      setSecurityNotice(
+        payload.resetPath
+          ? `Dev reset link ready: ${payload.resetPath}`
+          : 'If that email exists, a reset link will be sent.',
+      )
+    } catch (error) {
+      setSecurityNotice(error.message || 'Could not request reset link.')
+    }
   }
 
   const reorderAccountOrder = (order) => {
@@ -2522,51 +2779,133 @@ function App() {
         <div className="auth-page-shell">
           <section className="auth-page-panel" aria-labelledby="auth-title">
             <p className="receipt-label">Customer counter</p>
-            <h1 id="auth-title">{activeAuthMode === 'sign-up' ? 'Create account' : 'Sign in'}</h1>
+            <h1 id="auth-title">
+              {activeAuthMode === 'sign-up'
+                ? 'Create account'
+                : activeAuthMode === 'forgot-password'
+                  ? 'Reset link'
+                : activeAuthMode === 'reset-password'
+                  ? 'Reset password'
+                  : 'Sign in'}
+            </h1>
             <p className="auth-page-lede">
               {activeAuthMode === 'sign-up'
                 ? 'Start a customer account for saved orders, quicker checkout, and support history.'
+                : activeAuthMode === 'forgot-password'
+                  ? 'Enter your account email and we will prepare a reset link.'
+                : activeAuthMode === 'reset-password'
+                  ? 'Choose a new password for your customer counter file.'
                 : 'Access saved orders, checkout details, wishlist picks, and account history.'}
             </p>
 
-            <form className={`auth-form auth-page-form auth-page-form--${activeAuthMode}`} onSubmit={handleAuthSubmit}>
+            <form
+              className={`auth-form auth-page-form auth-page-form--${activeAuthMode}`}
+              onSubmit={
+                activeAuthMode === 'reset-password'
+                  ? handleResetPasswordSubmit
+                  : activeAuthMode === 'forgot-password'
+                    ? handleForgotPasswordSubmit
+                    : handleAuthSubmit
+              }
+            >
               {activeAuthMode === 'sign-up' && (
                 <label>
                   Full name
                   <input name="name" autoComplete="name" placeholder="Alex Taylor" />
                 </label>
               )}
-              <label>
-                Email
-                <input name="email" required type="email" autoComplete="email" placeholder="alex@example.com" />
-              </label>
-              <label>
-                Password
-                <input
-                  required
-                  type="password"
-                  autoComplete={activeAuthMode === 'sign-up' ? 'new-password' : 'current-password'}
-                  placeholder="Your password"
-                />
-              </label>
-              {activeAuthMode === 'sign-up' && (
+              {activeAuthMode !== 'reset-password' && (
                 <label>
-                  Confirm password
-                  <input required type="password" autoComplete="new-password" placeholder="Type it once more" />
+                  Email
+                  <input name="email" required type="email" autoComplete="email" placeholder="alex@example.com" />
                 </label>
               )}
+              {activeAuthMode !== 'forgot-password' && (
+                <label>
+                  {activeAuthMode === 'reset-password' ? 'New password' : 'Password'}
+                  <input
+                    required
+                    name="password"
+                    type="password"
+                    value={authPasswordDraft}
+                    autoComplete={activeAuthMode === 'sign-in' ? 'current-password' : 'new-password'}
+                    aria-describedby={activeAuthMode !== 'sign-in' ? 'password-strength-note' : undefined}
+                    placeholder="Your password"
+                    onBlur={() => setAuthPasswordTouched(true)}
+                    onChange={(event) => {
+                      setAuthPasswordDraft(event.target.value)
+                      setAuthPasswordTouched(true)
+                      setAuthPasswordNotice('')
+                    }}
+                  />
+                </label>
+              )}
+              {activeAuthMode !== 'sign-in' && activeAuthMode !== 'forgot-password' && (
+                <label>
+                  {activeAuthMode === 'reset-password' ? 'Confirm new password' : 'Confirm password'}
+                  <input
+                    required
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Type it once more"
+                    onChange={() => setAuthPasswordNotice('')}
+                  />
+                </label>
+              )}
+              {activeAuthMode !== 'sign-in' && activeAuthMode !== 'forgot-password' && (authPasswordTouched || authPasswordDraft) && (
+                <div
+                  id="password-strength-note"
+                  className={`password-strength password-strength--${passwordStrength.tone}`}
+                  aria-live="polite"
+                >
+                  <div className="password-strength-meter" aria-hidden="true">
+                    <span style={{ width: `${passwordStrength.percent}%` }} />
+                  </div>
+                  <p>
+                    <strong>{passwordStrength.label}</strong>
+                    <span>{passwordStrength.message}</span>
+                  </p>
+                </div>
+              )}
+              {authPasswordNotice && (
+                <p className="auth-password-alert" role="alert">
+                  {authPasswordNotice}
+                </p>
+              )}
+              {authResetPath && (
+                <button className="auth-reset-link-button" type="button" onClick={() => navigateToPath(authResetPath)}>
+                  Open dev reset link
+                </button>
+              )}
               <button className="checkout-button" type="submit">
-                {activeAuthMode === 'sign-up' ? 'Create Account' : 'Sign In'}
+                {activeAuthMode === 'sign-up'
+                  ? 'Create Account'
+                  : activeAuthMode === 'forgot-password'
+                    ? 'Send Reset Link'
+                  : activeAuthMode === 'reset-password'
+                    ? 'Reset Password'
+                    : 'Sign In'}
               </button>
             </form>
 
+            {activeAuthMode === 'sign-in' && (
+              <button className="auth-forgot-button" type="button" onClick={() => openAuth('forgot-password')}>
+                Forgot password?
+              </button>
+            )}
+
             <div className="auth-switch auth-page-switch">
-              {activeAuthMode === 'sign-up' ? 'Already have an account?' : 'New customer?'}
+              {activeAuthMode === 'sign-up'
+                ? 'Already have an account?'
+                : activeAuthMode === 'reset-password' || activeAuthMode === 'forgot-password'
+                  ? 'Remembered it?'
+                  : 'New customer?'}
               <button
                 type="button"
-                onClick={() => openAuth(activeAuthMode === 'sign-up' ? 'sign-in' : 'sign-up')}
+                onClick={() => openAuth(activeAuthMode === 'sign-in' ? 'sign-up' : 'sign-in')}
               >
-                {activeAuthMode === 'sign-up' ? 'Sign in' : 'Create account'}
+                {activeAuthMode === 'sign-in' ? 'Create account' : 'Sign in'}
               </button>
             </div>
           </section>
@@ -2575,7 +2914,13 @@ function App() {
             <div className="auth-page-photo">
               <img src={authVisualImage} alt={authVisualAlt} />
             </div>
-            <span className="auth-page-stamp">{activeAuthMode === 'sign-up' ? 'New customer file' : 'Member file'}</span>
+            <span className="auth-page-stamp">
+              {activeAuthMode === 'sign-up'
+                ? 'New customer file'
+                : activeAuthMode === 'reset-password'
+                  ? 'Security file'
+                  : 'Member file'}
+            </span>
             <h2>{activeAuthMode === 'sign-up' ? 'Set up the counter once.' : 'Pick up where you left off.'}</h2>
             <ul>
               <li>Saved orders and demo receipts in one dashboard.</li>
@@ -3407,7 +3752,14 @@ function App() {
                       <span aria-hidden="true">★★★★★</span>
                       <strong>{title}</strong>
                       <p>{body}</p>
-                      <cite>{name} · Verified buyer</cite>
+                      <cite>
+                        <span>{name}</span>
+                        <span aria-hidden="true">·</span>
+                        <span className="verified-buyer-badge">
+                          <CheckCircle2 size={13} aria-hidden="true" />
+                          Verified buyer
+                        </span>
+                      </cite>
                     </blockquote>
                   ))}
                 </div>
@@ -4565,21 +4917,18 @@ function App() {
                           <ShieldCheck size={19} />
                           <h3>Security</h3>
                         </div>
-                        <form className="account-settings-form" onSubmit={(event) => {
-                          event.preventDefault()
-                          updatePasswordDraft()
-                        }}>
+                        <form className="account-settings-form" onSubmit={updatePasswordDraft}>
                           <label>
                             Current Password
-                            <input type="password" placeholder="••••••••" />
+                            <input required name="currentPassword" type="password" placeholder="••••••••" />
                           </label>
                           <label>
                             New Password
-                            <input type="password" placeholder="••••••••" />
+                            <input required name="newPassword" type="password" placeholder="••••••••" />
                           </label>
                           <label>
                             Confirm New Password
-                            <input type="password" placeholder="••••••••" />
+                            <input required name="confirmPassword" type="password" placeholder="••••••••" />
                           </label>
                           <button className="checkout-button" type="submit">Update Password</button>
                         </form>
