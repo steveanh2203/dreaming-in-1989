@@ -76,6 +76,8 @@ import goodTimesStampImage from './assets/pdp-generated/good-times-stamp-generat
 import rewindClubTeeGeneratedImage from './assets/pdp-generated/rewind-club-tee-generated.png'
 import rewindStickerPackGeneratedImage from './assets/pdp-generated/rewind-sticker-pack-generated.png'
 import varsityHoodieGeneratedImage from './assets/pdp-generated/varsity-hoodie-generated.png'
+import authCreateAccountImage from './assets/auth/auth-create-account-desk.png'
+import authSignInImage from './assets/auth/auth-sign-in-video-counter.png'
 import retroCartImage from './assets/ui/retro-cart.png'
 import RevenueDashboard from './RevenueDashboard.jsx'
 import './App.css'
@@ -116,6 +118,8 @@ function PaymentBadges() {
 
 const accountRouteBase = '/my-account'
 const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
+const signInPath = '/sign-in'
+const createAccountPath = '/create-account'
 const orderFilterTabs = ['All', 'Pending', 'Processing', 'Shipping', 'Delivered', 'Cancelled']
 const defaultOrderDateRange = { start: '2020-12-01', end: new Date().toISOString().split('T')[0] }
 
@@ -1561,9 +1565,7 @@ function App() {
   const [query, setQuery] = useState('')
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutOpen, setCheckoutOpen] = useState(false)
-  const [authOpen, setAuthOpen] = useState(false)
   const [accountOpen, setAccountOpen] = useState(false)
-  const [authMode, setAuthMode] = useState('sign-in')
   const [checkoutDone, setCheckoutDone] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('paypal')
   const [paypalDemoState, setPaypalDemoState] = useState('idle')
@@ -1725,7 +1727,6 @@ function App() {
   useEffect(() => {
     const overlayOpen =
       cartOpen ||
-      authOpen ||
       accountOpen ||
       profileEditorOpen ||
       logoutConfirmOpen ||
@@ -1758,7 +1759,6 @@ function App() {
   }, [
     accountOpen,
     addressEditorMode,
-    authOpen,
     cartOpen,
     logoutConfirmOpen,
     orderDetailOpen,
@@ -1934,6 +1934,14 @@ function App() {
   const accountRouteOpen = Boolean(routeAccountTab)
   const accountScreenOpen = accountRouteOpen && Boolean(customer)
   const accountAuthOpen = accountRouteOpen && !customer
+  const authRouteOpen = currentPath === signInPath || currentPath === createAccountPath
+  const authPageOpen = authRouteOpen || accountAuthOpen
+  const activeAuthMode = currentPath === createAccountPath ? 'sign-up' : 'sign-in'
+  const authVisualImage = activeAuthMode === 'sign-up' ? authCreateAccountImage : authSignInImage
+  const authVisualAlt =
+    activeAuthMode === 'sign-up'
+      ? 'Retro new customer desk with paper forms, stickers, and a cassette'
+      : 'Retro video store customer counter with VHS tapes and a CRT television'
   const accountSettingsTabs = ['settings', 'addresses', 'payments']
   const isAccountSettingsTab = accountSettingsTabs.includes(displayedAccountTab)
   const accountLayoutMode =
@@ -1973,11 +1981,6 @@ function App() {
     }
     navigateToAccount('support')
   }, [customerOrders, navigateToAccount])
-
-  const closeAuth = () => {
-    setAuthOpen(false)
-    if (accountAuthOpen) navigateToPath('/')
-  }
 
   const openProductDetail = (product) => {
     setSelectedProduct(product)
@@ -2212,8 +2215,9 @@ function App() {
   }
 
   const openAuth = (mode = 'sign-in') => {
-    setAuthMode(mode)
-    setAuthOpen(true)
+    setCartOpen(false)
+    setCheckoutOpen(false)
+    navigateToPath(mode === 'sign-up' ? createAccountPath : signInPath)
   }
 
   const openAccountDashboard = (tab = 'orders') => {
@@ -2249,7 +2253,6 @@ function App() {
     saveStoredCustomer(nextCustomer)
     setAccountTab('orders')
     setSelectedOrderId(nextCustomer.orders[0]?.id ?? null)
-    setAuthOpen(false)
     navigateToAccount('orders')
   }
 
@@ -2510,12 +2513,90 @@ function App() {
     return <RevenueDashboard />
   }
 
+  if (authPageOpen) {
+    return (
+      <main className={`auth-page auth-page--${activeAuthMode}`} aria-labelledby="auth-title">
+        <button className="auth-page-brand" type="button" onClick={() => navigateToPath('/')}>
+          <img src={dreaming1989LogoImage} alt="1989 Supply Co." />
+        </button>
+        <div className="auth-page-shell">
+          <section className="auth-page-panel" aria-labelledby="auth-title">
+            <p className="receipt-label">Customer counter</p>
+            <h1 id="auth-title">{activeAuthMode === 'sign-up' ? 'Create account' : 'Sign in'}</h1>
+            <p className="auth-page-lede">
+              {activeAuthMode === 'sign-up'
+                ? 'Start a customer account for saved orders, quicker checkout, and support history.'
+                : 'Access saved orders, checkout details, wishlist picks, and account history.'}
+            </p>
+
+            <form className={`auth-form auth-page-form auth-page-form--${activeAuthMode}`} onSubmit={handleAuthSubmit}>
+              {activeAuthMode === 'sign-up' && (
+                <label>
+                  Full name
+                  <input name="name" autoComplete="name" placeholder="Alex Taylor" />
+                </label>
+              )}
+              <label>
+                Email
+                <input name="email" required type="email" autoComplete="email" placeholder="alex@example.com" />
+              </label>
+              <label>
+                Password
+                <input
+                  required
+                  type="password"
+                  autoComplete={activeAuthMode === 'sign-up' ? 'new-password' : 'current-password'}
+                  placeholder="Your password"
+                />
+              </label>
+              {activeAuthMode === 'sign-up' && (
+                <label>
+                  Confirm password
+                  <input required type="password" autoComplete="new-password" placeholder="Type it once more" />
+                </label>
+              )}
+              <button className="checkout-button" type="submit">
+                {activeAuthMode === 'sign-up' ? 'Create Account' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="auth-switch auth-page-switch">
+              {activeAuthMode === 'sign-up' ? 'Already have an account?' : 'New customer?'}
+              <button
+                type="button"
+                onClick={() => openAuth(activeAuthMode === 'sign-up' ? 'sign-in' : 'sign-up')}
+              >
+                {activeAuthMode === 'sign-up' ? 'Sign in' : 'Create account'}
+              </button>
+            </div>
+          </section>
+
+          <aside className="auth-page-aside" aria-label="Account benefits">
+            <div className="auth-page-photo">
+              <img src={authVisualImage} alt={authVisualAlt} />
+            </div>
+            <span className="auth-page-stamp">{activeAuthMode === 'sign-up' ? 'New customer file' : 'Member file'}</span>
+            <h2>{activeAuthMode === 'sign-up' ? 'Set up the counter once.' : 'Pick up where you left off.'}</h2>
+            <ul>
+              <li>Saved orders and demo receipts in one dashboard.</li>
+              <li>Wishlist and reorder shortcuts for repeat gifts.</li>
+              <li>Support history tied to the checkout email.</li>
+            </ul>
+            <button type="button" onClick={() => navigateToPath('/')}>
+              Back to shop
+            </button>
+          </aside>
+        </div>
+      </main>
+    )
+  }
+
   const appClassName = [
     'shop-app',
     'memory-entered',
     activeRoute === 'product' ? 'product-route-active' : '',
     checkoutOpen ? 'checkout-page-active' : '',
-    accountRouteOpen ? 'account-route-active' : '',
+    accountScreenOpen ? 'account-route-active' : '',
   ].filter(Boolean).join(' ')
 
   return (
@@ -3653,13 +3734,6 @@ function App() {
           </div>
         </section>
 
-        <div className="trust-ribbon" role="list" aria-label="Store promises">
-          <span role="listitem"><Truck size={16} /> Free shipping over $75</span>
-          <span role="listitem"><RefreshCcw size={16} /> 30-day easy returns</span>
-          <span role="listitem"><ShieldCheck size={16} /> Secure checkout</span>
-          <span role="listitem"><Package size={16} /> Made to order in the USA</span>
-        </div>
-
         <section className="store-section department-section" aria-label="Shop by department">
           <div className="section-heading">
             <div>
@@ -4364,55 +4438,6 @@ function App() {
           </div>
         </div>
       </aside>
-
-      {(authOpen || accountAuthOpen) && (
-        <div className="modal-backdrop" role="presentation" onClick={closeAuth}>
-          <section
-            className="auth-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="auth-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button className="modal-close" type="button" aria-label="Close sign in" onClick={closeAuth}>
-              <X size={22} />
-            </button>
-            <p className="receipt-label">Customer counter</p>
-            <h2 id="auth-title">{authMode === 'sign-up' ? 'Create account' : 'Sign in'}</h2>
-            <p className="checkout-note">
-              Access your saved orders, checkout details, and account history.
-            </p>
-            <form className="auth-form" onSubmit={handleAuthSubmit}>
-              {authMode === 'sign-up' && (
-                <label>
-                  Full name
-                  <input name="name" placeholder="Alex Taylor" />
-                </label>
-              )}
-              <label>
-                Email
-                <input name="email" required type="email" placeholder="alex@example.com" />
-              </label>
-              <label>
-                Password
-                <input required type="password" placeholder="Your password" />
-              </label>
-              <button className="checkout-button" type="submit">
-                {authMode === 'sign-up' ? 'Create Account' : 'Sign In'}
-              </button>
-            </form>
-            <div className="auth-switch">
-              {authMode === 'sign-up' ? 'Already have an account?' : 'New customer?'}
-              <button
-                type="button"
-                onClick={() => setAuthMode(authMode === 'sign-up' ? 'sign-in' : 'sign-up')}
-              >
-                {authMode === 'sign-up' ? 'Sign in' : 'Create account'}
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
 
       {accountScreenOpen && customer && (
         <div className="modal-backdrop account-screen-backdrop" role="presentation">
