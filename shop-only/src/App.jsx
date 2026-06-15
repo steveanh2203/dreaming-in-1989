@@ -426,13 +426,13 @@ const defaultPdpExperience = {
     'A small piece of the old mall weekend: warm lights, taped receipts, display racks, and the feeling that one good find could carry the whole week.',
   storyBullets: ['Made after order', 'Retro artwork with modern print quality', 'Easy gift-ready shelf piece', 'Designed for everyday use'],
   careRows: [
-    ['Production', 'Made to order in the USA-facing fulfillment flow'],
+    ['Production', 'Made to order for US delivery'],
     ['Best For', 'Gifts, rooms, desks, weekend outfits, and memory corners'],
   ],
   proofCards: [
     { Icon: PackageCheck, label: 'Made fresh', value: 'Printed after checkout', detail: 'No dusty warehouse blanks.' },
     { Icon: ShieldCheck, label: 'Checked file', value: 'Artwork reviewed', detail: 'Sharp print handoff.' },
-    { Icon: Truck, label: 'Tracked ship', value: '2-4 day production', detail: 'Tracking after fulfillment.' },
+    { Icon: Truck, label: 'Tracked ship', value: '2-4 day production', detail: 'Tracking after shipment.' },
   ],
   lookbook: [
     [mallWeekendImage, 'Weekend at the mall'],
@@ -467,7 +467,7 @@ const categoryPdpExperiences = {
     faqs: [
       [Truck, 'Shipping', 'When will apparel ship?', 'Each piece is printed after checkout, usually produced in 2-4 business days before carrier transit.'],
       [Package, 'Sizing', 'How does it fit?', 'Classic true-to-size fit. Size up for a looser weekend look.'],
-      [RefreshCcw, 'Returns', 'Can I return the wrong size?', 'Made-to-order sizing mistakes are not automatic supplier claims, so check the option before checkout.'],
+      [RefreshCcw, 'Returns', 'Can I return the wrong size?', 'Made-to-order sizing mistakes are not automatic claims, so check the option before checkout.'],
       [Lock, 'Care', 'How should I wash it?', 'Wash cold inside out and tumble dry low to protect the print.'],
     ],
   },
@@ -922,13 +922,13 @@ const policyCards = [
     id: 'shipping',
     title: 'Shipping',
     path: 'shipping',
-    label: 'Printful fulfillment',
-    copy: 'Orders are produced through Printful after checkout, then handed to a carrier for delivery. Production time and shipping time are separate.',
-    points: ['Production usually takes 2-5 business days', 'US domestic transit is commonly estimated after fulfillment', 'Tracking is sent after the carrier label is created'],
+    label: 'Made-to-order shipping',
+    copy: 'Orders are produced after checkout, then handed to a carrier for delivery. Production time and shipping time are separate.',
+    points: ['Production usually takes 2-5 business days', 'US domestic transit is estimated after shipment', 'Tracking is sent after the carrier label is created'],
     sections: [
-      ['Production', 'Printful production is the time needed to prepare an order for shipping after the order is received. The store should show this separately from carrier transit.'],
-      ['Delivery', 'US delivery estimates should be shown as fulfillment time plus shipping transit. Tracking should be sent to the customer once Printful marks the order shipped.'],
-      ['Address changes', 'Address edits should be handled before the order is submitted or before fulfillment starts. After production begins, changes may not be possible.'],
+      ['Production', 'Production is the time needed to prepare an order for shipping after the order is received. The store should show this separately from carrier transit.'],
+      ['Delivery', 'US delivery estimates should be shown as production time plus shipping transit. Tracking should be sent to the customer once the order ships.'],
+      ['Address changes', 'Address edits should be handled before the order is submitted or before production starts. After production begins, changes may not be possible.'],
     ],
   },
   {
@@ -937,11 +937,11 @@ const policyCards = [
     path: 'refund',
     label: 'Returns and claims',
     copy: 'Because items are made after purchase, refunds focus on damaged, misprinted, defective, incorrect, or lost orders.',
-    points: ['Claims should be submitted within Printful claim windows', 'Photo proof is required for damaged or misprinted goods', 'Wrong size or changed mind is not an automatic refund'],
+    points: ['Claims should be submitted within the stated claim window', 'Photo proof is required for damaged or misprinted goods', 'Wrong size or changed mind is not an automatic refund'],
     sections: [
-      ['Covered cases', 'The store should handle damaged, misprinted, defective, incorrect, and confirmed lost orders through Printful claim handling.'],
+      ['Covered cases', 'The store should handle damaged, misprinted, defective, incorrect, and confirmed lost orders through order review.'],
       ['Not covered', 'Wrong size selection, wrong color selection, changed mind, or customer address mistakes should not be automatic refunds once an item is produced.'],
-      ['Claim flow', 'The customer sends an order number, photos, and a short description. The store reviews the issue and requests a reprint or refund from Printful when eligible.'],
+      ['Claim flow', 'The customer sends an order number, photos, and a short description. The store reviews the issue and offers a reprint or refund when eligible.'],
     ],
   },
   {
@@ -949,12 +949,12 @@ const policyCards = [
     title: 'Contact',
     path: 'contact',
     label: 'Support desk',
-    copy: 'One support inbox handles order questions, address updates, tracking questions, supplier claims, and refund requests.',
+    copy: 'One support inbox handles order questions, address updates, tracking questions, claim reviews, and refund requests.',
     points: ['Email: support@1989supply.co', 'Include order number and checkout email', 'Attach photos for damaged or misprinted items'],
     sections: [
       ['Support email', 'Use support@1989supply.co as the customer support inbox for order questions, address updates, tracking help, and claim follow-up.'],
       ['What to include', 'For order issues, customers should include order number, email used at checkout, photos if relevant, and the shipping address if asking about delivery.'],
-      ['Response target', 'A realistic small-shop target is 1-2 business days for first response, with Printful supplier claims taking longer when production review is needed.'],
+      ['Response target', 'A realistic small-shop target is 1-2 business days for first response, with some claim reviews taking longer when production review is needed.'],
     ],
   },
   {
@@ -962,12 +962,12 @@ const policyCards = [
     title: 'Terms & Privacy',
     path: 'terms-privacy',
     label: 'Store terms',
-    copy: 'Store terms explain made-to-order production, payment processing, fulfillment partner data use, and customer privacy handling.',
-    points: ['Orders are produced by a fulfillment partner', 'Customer data is used for checkout, support, and shipping', 'Payment and fulfillment providers may process order data'],
+    copy: 'Store terms explain made-to-order production, payment processing, order data use, and customer privacy handling.',
+    points: ['Orders are produced after checkout', 'Customer data is used for checkout, support, and shipping', 'Payment and shipping services may process order data'],
     sections: [
-      ['Made-to-order production', 'Items are made after purchase through Printful. Production status, address changes, cancellations, and delivery timing depend on fulfillment progress.'],
-      ['Customer data', 'Customer name, email, address, order items, and support messages are used to process payment, fulfill orders, send tracking, and handle support.'],
-      ['Supplier terms', 'Printful receives the order details needed to produce and ship items. The store policy should link to the relevant payment and fulfillment partner terms.'],
+      ['Made-to-order production', 'Items are made after purchase. Production status, address changes, cancellations, and delivery timing depend on order progress.'],
+      ['Customer data', 'Customer name, email, address, order items, and support messages are used to process payment, prepare orders, send tracking, and handle support.'],
+      ['Service terms', 'Order details may be used by payment, production, and shipping services to complete checkout and delivery.'],
     ],
   },
 ]
@@ -982,15 +982,15 @@ const supportMenuItems = [
 const policyPageDetails = {
   shipping: {
     timeline: [
-      ['Order received', 'Checkout is captured and the order is prepared for Printful fulfillment.'],
-      ['Production', 'Printful prints, packs, and prepares the item. Most items are commonly produced in 2-5 business days, but peak periods can take longer.'],
-      ['Carrier handoff', 'After fulfillment, the carrier receives the package and tracking becomes available.'],
-      ['Delivery', 'The customer follows carrier tracking. Delivery issues are reviewed with the carrier and Printful when eligible.'],
+      ['Order received', 'Checkout is captured and the order is prepared for production.'],
+      ['Production', 'The item is printed, packed, and prepared for shipment. Most items are commonly produced in 2-5 business days, but peak periods can take longer.'],
+      ['Carrier handoff', 'After production, the carrier receives the package and tracking becomes available.'],
+      ['Delivery', 'The customer follows carrier tracking. Delivery issues are reviewed with the carrier when eligible.'],
     ],
     table: [
       ['Production time', 'Separate from shipping time', 'Shown before checkout and in order emails.'],
       ['Tracking', 'Sent after shipping label / carrier handoff', 'Customer must allow tracking to update after carrier scan.'],
-      ['Wrong address', 'Customer responsibility after fulfillment starts', 'Contact support immediately before production begins.'],
+      ['Wrong address', 'Customer responsibility after production starts', 'Contact support immediately before production begins.'],
       ['Returned package', 'Reviewed case by case', 'Reshipment may require a new shipping fee if the address was wrong.'],
     ],
     notice: 'Orders are made after purchase. Production time is not the same as carrier transit time, so delivery estimates must include both.',
@@ -1001,16 +1001,16 @@ const policyPageDetails = {
     notCovered: ['Wrong size selected by customer', 'Changed mind after production', 'Wrong address entered by customer', 'Color expectations from screen differences', 'Normal carrier delay while tracking is active'],
     process: [
       ['Customer submits claim', 'Order number, checkout email, photos, and a short description are required.'],
-      ['Store reviews evidence', 'The store checks whether the issue matches Printful-eligible claim cases.'],
-      ['Supplier claim', 'If eligible, the store asks Printful for reprint or refund handling.'],
+      ['Store reviews evidence', 'The store checks whether the issue matches covered claim cases.'],
+      ['Resolution review', 'If eligible, the store arranges reprint or refund handling.'],
       ['Resolution', 'Customer receives replacement, refund, or a clear reason when the claim is not covered.'],
     ],
   },
   contact: {
     channels: [
       ['Order support', 'support@1989supply.co', 'Use for order status, address updates, tracking, refund claims, and damaged item reports.'],
-      ['Response time', '1-2 business days', 'Supplier claims and carrier reviews can take longer than first response.'],
-      ['Urgent address change', 'Before fulfillment starts', 'Send the order number and corrected address immediately.'],
+      ['Response time', '1-2 business days', 'Claim and carrier reviews can take longer than first response.'],
+      ['Urgent address change', 'Before production starts', 'Send the order number and corrected address immediately.'],
     ],
     checklist: ['Order number', 'Checkout email', 'Full name', 'Shipping address', 'Photos for damaged/misprinted items', 'Short explanation of the issue'],
     formLabels: ['Name', 'Email', 'Order number', 'Issue type', 'Message'],
@@ -1018,16 +1018,16 @@ const policyPageDetails = {
   'terms-privacy': {
     dataRows: [
       ['Contact data', 'Name, email, shipping address', 'Checkout, shipping, tracking, support'],
-      ['Order data', 'Purchased items, size/color choices, order value', 'Production, fulfillment, customer service'],
+      ['Order data', 'Purchased items, size/color choices, order value', 'Production, shipping, customer service'],
       ['Payment data', 'Payment status and transaction reference', 'Payment confirmation and fraud prevention'],
-      ['Support data', 'Messages, photos, claim notes', 'Refund review, supplier claim, customer service'],
+      ['Support data', 'Messages, photos, claim notes', 'Refund review, claim handling, customer service'],
     ],
     providers: [
-      ['Printful', 'Receives order item, artwork/SKU, recipient name, address, and shipping details for production and delivery.'],
+      ['Production and shipping services', 'Use the order items, recipient name, address, and shipping details needed to prepare and deliver orders.'],
       ['Payment processor', 'Processes payment confirmation, transaction references, and fraud checks.'],
       ['Shipping carriers', 'Receive recipient address and package details to deliver orders and provide tracking.'],
     ],
-    rights: ['Request order support records', 'Ask for correction of contact details', 'Request deletion where legally and operationally possible', 'Ask how order data was used for fulfillment'],
+    rights: ['Request order support records', 'Ask for correction of contact details', 'Request deletion where legally and operationally possible', 'Ask how order data was used for production and shipping'],
   },
 }
 
@@ -1056,8 +1056,8 @@ const accountSupportActions = [
 ]
 
 const accountSupportFaqs = [
-  ['Where is my tracking?', 'Tracking is sent after fulfillment starts and the carrier receives the label.'],
-  ['Can I change my address?', 'Send a support request before production begins. After fulfillment starts, changes may not be possible.'],
+  ['Where is my tracking?', 'Tracking is sent after production is complete and the carrier receives the label.'],
+  ['Can I change my address?', 'Send a support request before production begins. After production starts, changes may not be possible.'],
   ['What issues are covered?', 'Damaged, misprinted, defective, wrong item, or confirmed lost orders can be reviewed.'],
   ['What should I include?', 'Use your checkout email, order number, short issue details, and photos for damaged or misprinted items.'],
 ]
@@ -1161,6 +1161,37 @@ const formatPrice = (value) => `$${value.toFixed(2)}`
 const collapsedCartItemCount = 2
 const FREE_SHIPPING_THRESHOLD = 75
 
+const sizeGuideRowsByCategory = {
+  Apparel: [
+    ['S', 'Chest 34-36"', 'Length 27"', 'Fits trim'],
+    ['M', 'Chest 38-40"', 'Length 28"', 'Most picked'],
+    ['L', 'Chest 42-44"', 'Length 29"', 'Relaxed'],
+    ['XL', 'Chest 46-48"', 'Length 30"', 'Roomy +$2'],
+  ],
+  Drinkware: [
+    ['11 oz', 'Classic mug', '3.7" tall', 'Desk friendly'],
+    ['15 oz', 'Large mug', '4.5" tall', 'Long refills'],
+  ],
+  'Wall Art': [
+    ['18x24', 'Poster size', 'Easy frame fit', 'Small rooms'],
+    ['24x36', 'Statement size', 'Large wall fit', 'Studio pick'],
+  ],
+}
+
+const trackStoreEvent = (eventName, payload = {}) => {
+  if (typeof window === 'undefined') return
+
+  const detail = {
+    event: eventName,
+    ...payload,
+  }
+
+  window.dispatchEvent(new CustomEvent('dreaming1989:store-event', { detail }))
+  if (Array.isArray(window.dataLayer)) window.dataLayer.push(detail)
+  if (typeof window.fbq === 'function') window.fbq('trackCustom', eventName, payload)
+  if (window.ttq?.track) window.ttq.track(eventName, payload)
+}
+
 // Deterministic demo social-proof so cards/PDP can show ratings without a backend.
 const hashString = (value) => {
   let hash = 0
@@ -1232,8 +1263,8 @@ const createReceiptPdfBlob = (order, customer) => {
     `Customer: ${customerName}`,
     `Email: ${customerEmail}`,
     `Payment: ${order?.payment ?? 'PayPal'}`,
-    `Fulfillment: ${order?.fulfillment ?? 'Printful draft pending'}`,
-    `Tracking: ${order?.tracking ?? 'Tracking appears after fulfillment'}`,
+    `Production: ${order?.fulfillment ?? 'Production pending'}`,
+    `Tracking: ${order?.tracking ?? 'Tracking appears after shipment'}`,
     `Shipping address: ${shippingAddress}`,
     '',
     'ITEMS',
@@ -1263,7 +1294,7 @@ const createReceiptPdfBlob = (order, customer) => {
     ...((order?.timeline ?? []).map((step) => `${step.done ? '[x]' : '[ ]'} ${step.label}: ${step.detail}`)),
     '',
     'Support: support@1989supply.co',
-    'No real payment or Printful order is created in demo mode.',
+    'No real payment or live order is created in demo mode.',
   ].flatMap((line) => wrapPdfLine(line))
 
   const pageWidth = 612
@@ -1343,11 +1374,11 @@ const demoCustomerOrders = [
     subtotal: 58.97,
     discount: 0,
     shipping: 5.92,
-    fulfillment: 'Delivered through Printful',
+    fulfillment: 'Produced and delivered',
     tracking: 'USPS DI1989 10425 DEMO',
     timeline: [
       { label: 'Order received', detail: 'May 18, 2025', done: true },
-      { label: 'Printful review', detail: 'May 19, 2025', done: true },
+      { label: 'Order review', detail: 'May 19, 2025', done: true },
       { label: 'In production', detail: 'May 20, 2025', done: true },
       { label: 'Shipped', detail: 'May 21, 2025', done: true },
       { label: 'Delivered', detail: 'May 23, 2025', done: true },
@@ -1365,11 +1396,11 @@ const demoCustomerOrders = [
     subtotal: 42,
     discount: 0,
     shipping: 0,
-    fulfillment: 'Delivered through Printful',
+    fulfillment: 'Produced and delivered',
     tracking: 'USPS 1989 0517 DEMO',
     timeline: [
       { label: 'Order received', detail: 'Checkout completed.', done: true },
-      { label: 'In production', detail: 'Printful produced the made-to-order items.', done: true },
+      { label: 'In production', detail: 'Made-to-order items were produced and packed.', done: true },
       { label: 'Shipped', detail: 'Carrier received the package.', done: true },
       { label: 'Delivered', detail: 'Package marked delivered.', done: true },
     ],
@@ -1386,11 +1417,11 @@ const demoCustomerOrders = [
     subtotal: 86,
     discount: 4.05,
     shipping: 7.95,
-    fulfillment: 'Delivered through Printful',
+    fulfillment: 'Produced and delivered',
     tracking: 'USPS DI1989 10291 DEMO',
     timeline: [
       { label: 'Order received', detail: 'Apr 22, 2025', done: true },
-      { label: 'Printful review', detail: 'Apr 23, 2025', done: true },
+      { label: 'Order review', detail: 'Apr 23, 2025', done: true },
       { label: 'In production', detail: 'Apr 24, 2025', done: true },
       { label: 'Shipped', detail: 'Apr 26, 2025', done: true },
       { label: 'Delivered', detail: 'Apr 29, 2025', done: true },
@@ -1408,11 +1439,11 @@ const demoCustomerOrders = [
     subtotal: 38,
     discount: 0,
     shipping: 7,
-    fulfillment: 'Delivered through Printful',
+    fulfillment: 'Produced and delivered',
     tracking: 'USPS DI1989 10176 DEMO',
     timeline: [
       { label: 'Order received', detail: 'Apr 10, 2025', done: true },
-      { label: 'Printful review', detail: 'Apr 11, 2025', done: true },
+      { label: 'Order review', detail: 'Apr 11, 2025', done: true },
       { label: 'In production', detail: 'Apr 12, 2025', done: true },
       { label: 'Shipped', detail: 'Apr 14, 2025', done: true },
       { label: 'Delivered', detail: 'Apr 17, 2025', done: true },
@@ -1543,7 +1574,7 @@ const getOrderProgressTimeline = (order) => {
     ['delivered', 'delivered'],
     ['shipped', 'shipped'],
     ['production', 'in production'],
-    ['review', 'printful review'],
+    ['review', 'order review'],
     ['received', 'order received'],
   ]
   const currentLabel = statusLabelMap.find(([statusKey]) => normalizedStatus.includes(statusKey))?.[1]
@@ -1700,6 +1731,7 @@ function App() {
   const [selectedOptions, setSelectedOptions] = useState({})
   const [selectedPdpAddOnIds, setSelectedPdpAddOnIds] = useState([])
   const [pdpStickyCartVisible, setPdpStickyCartVisible] = useState(false)
+  const [signupNotice, setSignupNotice] = useState('')
   const [customer, setCustomer] = useState(() => getStoredCustomer())
   const [cart, setCart] = useState([
     { id: 'rewind-sticker-pack', name: 'Rewind Sticker Pack', price: 16, image: productImages.stickerPack, quantity: 1 },
@@ -1917,6 +1949,15 @@ function App() {
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const selectedProductProof = getProductProof(selectedProduct)
   const selectedProductExperience = getProductDetailExperience(selectedProduct)
+  const sizeGuideRows = sizeGuideRowsByCategory[selectedProduct?.category] ?? []
+  const selectedProductHasSizeGuide = selectedOptionGroups.some((group) => group.name === 'Size') && sizeGuideRows.length > 0
+  const reviewPhotoPairs = selectedProductExperience.reviews
+    .map((review, index) => ({
+      review,
+      image: selectedProductExperience.lookbook[index]?.[0],
+      caption: selectedProductExperience.lookbook[index]?.[1],
+    }))
+    .filter((item) => item.image)
   const selectedProductGallery = selectedProduct
     ? [
         { label: 'Front', image: selectedProduct.image },
@@ -2108,6 +2149,12 @@ function App() {
     setPdpStickyCartVisible(false)
     setSelectedProductQuantity(1)
     setActiveProductImageIndex(getInitialProductImageIndex(product))
+    trackStoreEvent('view_product', {
+      product_id: product.id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+    })
     window.history.pushState(null, '', getProductPath(product))
     window.dispatchEvent(new Event('hashchange'))
   }
@@ -2287,6 +2334,12 @@ function App() {
       }
       return [...currentCart, product]
     })
+    trackStoreEvent('add_to_cart', {
+      product_id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: product.quantity,
+    })
     if (!options.suppressFeedback) showCartFeedback(product, event?.currentTarget)
   }
 
@@ -2331,6 +2384,23 @@ function App() {
 
   const applyPromo = () => {
     setPromoState(promoCode.trim().toUpperCase() === 'REWIND10' ? 'success' : 'invalid')
+  }
+
+  const submitEmailSignup = (event) => {
+    event.preventDefault()
+    const form = event.currentTarget
+    const formData = new FormData(form)
+    const email = String(formData.get('email') ?? '').trim()
+
+    if (!email) {
+      setSignupNotice('Add your email to unlock the code.')
+      return
+    }
+
+    setSignupNotice('Code unlocked: REWIND10 for 10% off.')
+    setPromoCode('REWIND10')
+    trackStoreEvent('email_signup', { email_domain: email.split('@')[1] ?? 'unknown' })
+    form.reset()
   }
 
   const openAuth = (mode = 'sign-in') => {
@@ -2695,6 +2765,10 @@ function App() {
 
   const openCheckout = () => {
     if (!cart.length) return
+    trackStoreEvent('begin_checkout', {
+      value: total,
+      item_count: itemCount,
+    })
     setCartOpen(false)
     setCheckoutDone(false)
     setPaymentMethod('paypal')
@@ -2736,14 +2810,14 @@ function App() {
         optionSummary: item.optionSummary,
       })),
       payment: paymentMethod === 'paypal' ? 'PayPal demo approved' : 'Demo payment',
-      fulfillment: 'Printful draft pending',
-      tracking: 'Tracking appears after fulfillment',
+      fulfillment: 'Production pending',
+      tracking: 'Tracking appears after shipment',
       shippingAddress,
       timeline: [
         { label: 'Order received', detail: 'Demo checkout saved to the customer dashboard.', done: true },
         { label: 'Payment demo', detail: 'PayPal demo approval completed. No real payment was captured.', done: true },
-        { label: 'Printful draft', detail: 'Next real step is creating a draft order after human approval.', done: false },
-        { label: 'Production', detail: 'Production begins only after the Printful order is confirmed.', done: false },
+        { label: 'Production review', detail: 'Next real step is sending the order into production after human approval.', done: false },
+        { label: 'Production', detail: 'Production begins only after the order is confirmed.', done: false },
         { label: 'Tracking', detail: 'Carrier tracking appears here after shipment.', done: false },
       ],
     }
@@ -2756,6 +2830,11 @@ function App() {
     }
     setCustomer(nextCustomer)
     saveStoredCustomer(nextCustomer)
+    trackStoreEvent('purchase_demo', {
+      order_id: completedOrder.id,
+      value: total,
+      item_count: itemCount,
+    })
     setSelectedOrderId(completedOrder.id)
     setAccountTab('orders')
     setCheckoutDone(true)
@@ -2940,6 +3019,7 @@ function App() {
     'shop-app',
     'memory-entered',
     activeRoute === 'product' ? 'product-route-active' : '',
+    activeRoute === 'product' && pdpStickyCartVisible ? 'pdp-sticky-cart-visible' : '',
     checkoutOpen ? 'checkout-page-active' : '',
     accountScreenOpen ? 'account-route-active' : '',
   ].filter(Boolean).join(' ')
@@ -3139,7 +3219,7 @@ function App() {
                   <span className="order-receipt-stamp" aria-hidden="true">PAID</span>
                   <CheckCircle2 size={44} />
                   <h2 id="checkout-title">Order received</h2>
-                  <p>Your order request is saved to the customer dashboard. No real payment or Printful order was created.</p>
+                  <p>Your order request is saved to the customer dashboard. No real payment or live order was created.</p>
                   <div className="receipt-dash" aria-hidden="true" />
                   <p className="order-receipt-thanks">★ Thank you! Come again. ★</p>
                   <div className="receipt-barcode" aria-hidden="true" />
@@ -3301,7 +3381,7 @@ function App() {
                   <p className="receipt-label">{activePolicyRoute.label}</p>
                   <h1>{activePolicyRoute.title}</h1>
                 </div>
-                <span>Printful policy</span>
+                <span>Store policy</span>
               </div>
               <p>{activePolicyRoute.copy}</p>
               <div className="policy-route-summary">
@@ -3420,7 +3500,7 @@ function App() {
                     ))}
                   </section>
                   <section className="provider-list">
-                    <h2>Providers involved</h2>
+                    <h2>Services involved</h2>
                     {activePolicyDetails.providers.map(([name, copy]) => (
                       <article key={name}>
                         <h3>{name}</h3>
@@ -3497,11 +3577,6 @@ function App() {
                   <figcaption>
                     <span><b>SKU</b> {selectedProduct.sku}</span>
                   </figcaption>
-                  <div className="catalog-pdp-feature-row" aria-label="Product highlights">
-                    <span><Package size={17} /> Made to order</span>
-                    <span><CheckCircle2 size={17} /> Premium print</span>
-                    <span><ShieldCheck size={17} /> Secure checkout</span>
-                  </div>
                 </figure>
 
                 <article className="catalog-pdp-buy-panel product-catalog-order-form" aria-label="Purchase options">
@@ -3546,7 +3621,7 @@ function App() {
                         ? 'Sold out'
                         : selectedProduct.stockState === 'low-stock'
                           ? 'Only a few left'
-                        : 'In stock'}
+                      : 'In stock'}
                     </span>
                   </div>
 
@@ -3560,7 +3635,14 @@ function App() {
                               className={selectedOptions[group.name] === option.label ? 'active' : ''}
                               key={option.label}
                               type="button"
-                              onClick={() => setSelectedOptions((current) => ({ ...current, [group.name]: option.label }))}
+                              onClick={() => {
+                                setSelectedOptions((current) => ({ ...current, [group.name]: option.label }))
+                                trackStoreEvent('select_product_option', {
+                                  product_id: selectedProduct.id,
+                                  option_group: group.name,
+                                  option: option.label,
+                                })
+                              }}
                             >
                               {option.label}
                               {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
@@ -3570,6 +3652,26 @@ function App() {
                       </fieldset>
                     ))}
                   </div>
+
+                  {selectedProductHasSizeGuide && (
+                    <details className="catalog-pdp-size-guide">
+                      <summary>
+                        <Package size={15} />
+                        Size guide / fit check
+                      </summary>
+                      <div>
+                        {sizeGuideRows.map(([size, measure, length, note]) => (
+                          <span key={size}>
+                            <strong>{size}</strong>
+                            <small>{measure}</small>
+                            <small>{length}</small>
+                            <em>{note}</em>
+                          </span>
+                        ))}
+                      </div>
+                      <p>Made-to-order sizing mistakes are not automatic refunds. Check the fit before checkout.</p>
+                    </details>
+                  )}
 
                   <div className="catalog-pdp-quantity">
                     <span>Quantity</span>
@@ -3747,6 +3849,16 @@ function App() {
                     ))}
                     <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductProof.reviewCount} reviews</button>
                   </article>
+                  {reviewPhotoPairs.slice(0, 2).map(({ review, image, caption }) => (
+                    <figure className="catalog-pdp-review-photo" key={`${review[2]}-${caption}`}>
+                      <img src={image} alt={`${selectedProduct.name} styled by ${review[2]}`} loading="lazy" />
+                      <figcaption>
+                        <span aria-hidden="true">★★★★★</span>
+                        <strong>{review[2]}</strong>
+                        <small>{caption}</small>
+                      </figcaption>
+                    </figure>
+                  ))}
                   {selectedProductExperience.reviews.map(([title, body, name]) => (
                     <blockquote key={title}>
                       <span aria-hidden="true">★★★★★</span>
@@ -3972,7 +4084,7 @@ function App() {
               <div className="tracking-route-head">
                 <p className="receipt-label">Order lookup</p>
                 <h1>Track Your Order</h1>
-                <p>Use your order number and checkout email to see the latest fulfillment status.</p>
+                <p>Use your order number and checkout email to see the latest production and shipping status.</p>
               </div>
               <form className="tracking-lookup-form" onSubmit={submitOrderTracking}>
                 <label>
@@ -4444,8 +4556,8 @@ function App() {
                   <dd>Optional</dd>
                 </div>
                 <div>
-                  <dt>Fulfillment</dt>
-                  <dd>Printful</dd>
+                  <dt>Production</dt>
+                  <dd>Made to order</dd>
                 </div>
               </dl>
             </div>
@@ -4549,7 +4661,7 @@ function App() {
           <div className="footer-brand">
             <p className="receipt-label">Open late since 1989-ish</p>
           <h2>1989 Supply Co.</h2>
-            <p>Retro-inspired goods made to order and fulfilled through Printful.</p>
+            <p>Retro-inspired goods made to order after checkout.</p>
             <div className="footer-service-row" aria-label="Store service notes">
               <span><Truck size={16} /> US shipping plan</span>
               <span><ShieldCheck size={16} /> Secure checkout</span>
@@ -4600,19 +4712,20 @@ function App() {
             ))}
           </nav>
 
-          <form className="signup-form" onSubmit={(event) => event.preventDefault()}>
+          <form className="signup-form" onSubmit={submitEmailSignup}>
             <label htmlFor="email-signup">Drop alerts</label>
-            <p>Get restock notes, gift runs, and small-batch shelf drops.</p>
+            <p>Get restock notes, gift runs, and 10% off your first order.</p>
             <div>
-              <input id="email-signup" type="email" placeholder="you@example.com" />
+              <input id="email-signup" name="email" type="email" placeholder="you@example.com" />
               <button type="submit">Sign Up</button>
             </div>
+            {signupNotice && <small>{signupNotice}</small>}
           </form>
         </div>
 
         <div className="footer-receipt-strip">
           <span>Use REWIND10 for 10% off</span>
-          <span>Made to order through Printful.</span>
+          <span>Made to order after checkout.</span>
           <span>Production and shipping times are shown at checkout.</span>
           <span>Support: support@1989supply.co</span>
         </div>
@@ -5610,8 +5723,8 @@ function App() {
                 <strong>{detailOrder.payment ?? 'PayPal'}</strong>
               </div>
               <div>
-                <small>Fulfillment</small>
-                <strong>Printful</strong>
+                <small>Production</small>
+                <strong>{detailOrder.fulfillment ?? 'Made to order'}</strong>
               </div>
             </div>
 
@@ -5674,7 +5787,7 @@ function App() {
                   <Truck size={17} />
                   <div>
                     <strong>Shipping Method</strong>
-                    <p>Standard Shipping (Printful)<br />Tracking updates appear after shipment.</p>
+                    <p>Standard Shipping<br />Tracking updates appear after shipment.</p>
                   </div>
                 </div>
                 <div className="order-detail-info-block">
@@ -5690,7 +5803,7 @@ function App() {
                 <div className="order-detail-info-block">
                   <PackageCheck size={17} />
                   <div>
-                    <strong>Printful Status</strong>
+                    <strong>Production Status</strong>
                     <p>{detailOrder.fulfillment}</p>
                   </div>
                 </div>
