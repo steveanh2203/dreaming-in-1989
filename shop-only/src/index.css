@@ -9,14 +9,20 @@
 @import '@fontsource/libre-franklin/700.css';
 @import '@fontsource/libre-franklin/800.css';
 @import '@fontsource/bungee/400.css';
+@import '@fontsource/archivo-black/400.css';
+@import '@fontsource/jost/400.css';
+@import '@fontsource/jost/500.css';
+@import '@fontsource/jost/700.css';
 
 :root {
   --font-ui: 'Libre Franklin', 'Franklin Gothic Medium', Arial, sans-serif;
-  --font-display: 'Ultra', 'Cooper Black', Georgia, serif;
-  --font-editorial: 'Libre Baskerville', Georgia, serif;
+  /* Display & editorial moved from serif (Ultra / Libre Baskerville) to nostalgic sans:
+     Bungee = 80s mall-signage headline, Jost = Futura-style geometric body. */
+  --font-display: 'Bungee', 'Arial Black', sans-serif;
+  --font-editorial: 'Jost', 'Futura', 'Century Gothic', sans-serif;
   --font-retro: 'Courier Prime', 'Courier New', monospace;
   --font-stamp: 'Special Elite', 'Courier New', monospace;
-  --font-retro-display: 'Ultra', 'Cooper Black', Georgia, serif;
+  --font-retro-display: 'Bungee', 'Arial Black', sans-serif;
   --font-retro-typewriter: 'Courier Prime', 'Courier New', monospace;
   --font-retro-grotesk: 'Libre Franklin', 'Franklin Gothic Medium', Arial, sans-serif;
   --font-retro-signage: 'Bungee', 'Arial Black', sans-serif;

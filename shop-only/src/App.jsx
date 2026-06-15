@@ -114,28 +114,6 @@ function PaymentBadges() {
   )
 }
 
-function SecureCheckoutAssurance() {
-  return (
-    <div className="secure-checkout-assurance" aria-label="Checkout protection">
-      <span>
-        <RefreshCcw size={23} />
-        <strong>30-day returns</strong>
-        <small>Easy &amp; Hassle-free</small>
-      </span>
-      <span>
-        <Lock size={23} />
-        <strong>Secure checkout</strong>
-        <small>SSL encrypted</small>
-      </span>
-      <span>
-        <ShieldCheck size={23} />
-        <strong>100% satisfaction</strong>
-        <small>Love it or Your Money Back</small>
-      </span>
-    </div>
-  )
-}
-
 const accountRouteBase = '/my-account'
 const accountRouteTabs = new Set(['dashboard', 'orders', 'addresses', 'payments', 'wishlist', 'settings', 'support'])
 const orderFilterTabs = ['All', 'Pending', 'Processing', 'Shipping', 'Delivered', 'Cancelled']
@@ -377,6 +355,280 @@ const products = [
     stockState: 'in-stock',
   },
 ]
+
+const defaultPdpExperience = {
+  tone: 'archive',
+  orderLabel: '1989 Supply Co. Mail Order',
+  storyTitle: 'Back In The Day',
+  storyBody:
+    'A small piece of the old mall weekend: warm lights, taped receipts, display racks, and the feeling that one good find could carry the whole week.',
+  storyBullets: ['Made after order', 'Retro artwork with modern print quality', 'Easy gift-ready shelf piece', 'Designed for everyday use'],
+  careRows: [
+    ['Production', 'Made to order in the USA-facing fulfillment flow'],
+    ['Best For', 'Gifts, rooms, desks, weekend outfits, and memory corners'],
+  ],
+  proofCards: [
+    { Icon: PackageCheck, label: 'Made fresh', value: 'Printed after checkout', detail: 'No dusty warehouse blanks.' },
+    { Icon: ShieldCheck, label: 'Checked file', value: 'Artwork reviewed', detail: 'Sharp print handoff.' },
+    { Icon: Truck, label: 'Tracked ship', value: '2-4 day production', detail: 'Tracking after fulfillment.' },
+  ],
+  lookbook: [
+    [mallWeekendImage, 'Weekend at the mall'],
+    [videoStoreImage, 'Friday night video run'],
+    [arcadeDepartmentImage, 'Neon arcade corner'],
+    [audioDepartmentImage, 'Tape deck and headphones'],
+  ],
+  reviews: [
+    ['Perfect throwback vibe', 'The print is clean, nostalgic, and feels like a real shelf find from an old mall store.', 'Jason R.'],
+    ['Better than expected', 'The piece feels giftable right away and the visual style is exactly the retro mood I wanted.', 'Melissa T.'],
+    ['Instant conversation starter', 'Friends noticed it immediately. Shipping was smooth and the packaging felt considered.', 'Tyler W.'],
+  ],
+  faqs: [
+    [Truck, 'Shipping', 'When will my order arrive?', 'Made to order in 2-4 business days, then shipped with tracking.'],
+    [RefreshCcw, 'Returns', 'What is your return policy?', 'Return and claim rules depend on whether the item is damaged, defective, incorrect, or misprinted.'],
+    [Package, 'Sizing', 'How do I choose options?', 'Pick the size, finish, frame, or pack option shown above before adding to cart.'],
+    [Lock, 'Care', 'How do I keep it looking good?', 'Follow the product care note above and avoid harsh heat on printed surfaces.'],
+  ],
+  bundleEyebrow: 'Complete The Memory Kit',
+  bundleHeadline: 'Complete the Retro Set.',
+  bundleBadge: 'Bundle & save 12%',
+}
+
+const categoryPdpExperiences = {
+  Apparel: {
+    tone: 'apparel',
+    storyBullets: ['Soft everyday blank', 'Vintage mall graphic energy', 'Unisex fit', 'Easy outfit anchor'],
+    careRows: [
+      ['Material', 'Soft cotton blend selected for daily wear'],
+      ['Care', 'Machine wash cold, tumble dry low'],
+    ],
+    faqs: [
+      [Truck, 'Shipping', 'When will apparel ship?', 'Each piece is printed after checkout, usually produced in 2-4 business days before carrier transit.'],
+      [Package, 'Sizing', 'How does it fit?', 'Classic true-to-size fit. Size up for a looser weekend look.'],
+      [RefreshCcw, 'Returns', 'Can I return the wrong size?', 'Made-to-order sizing mistakes are not automatic supplier claims, so check the option before checkout.'],
+      [Lock, 'Care', 'How should I wash it?', 'Wash cold inside out and tumble dry low to protect the print.'],
+    ],
+  },
+  Bags: {
+    tone: 'carry',
+    storyBullets: ['Heavy daily canvas feel', 'Room for small errands', 'Flat retro print area', 'Giftable under-$25 pick'],
+    careRows: [
+      ['Material', 'Canvas tote body with printed retro artwork'],
+      ['Best For', 'Books, records, groceries, and weekend market runs'],
+    ],
+  },
+  Drinkware: {
+    tone: 'diner',
+    storyBullets: ['Glossy counter-ready ceramic', 'Desk and breakfast-table friendly', 'Small gift price point', 'Print wraps cleanly on the mug'],
+    careRows: [
+      ['Use', 'Coffee, tea, cocoa, and desk refills'],
+      ['Care', 'Hand wash recommended for longest print life'],
+    ],
+  },
+  'Wall Art': {
+    tone: 'wall',
+    storyBullets: ['Instant room mood', 'Retro color story', 'Easy studio upgrade', 'Pairs well with shelf goods'],
+    careRows: [
+      ['Finish', 'Printed wall decor with archive-style color'],
+      ['Best For', 'Bedrooms, studios, offices, and listening corners'],
+    ],
+  },
+  Stationery: {
+    tone: 'paper',
+    storyBullets: ['Desk-friendly nostalgia', 'Small giftable add-on', 'Useful daily object', 'Pairs well with mugs and wall art'],
+    careRows: [
+      ['Use', 'Notes, planning, decorating, and desk rituals'],
+      ['Gift Fit', 'Easy under-$30 checkout add-on'],
+    ],
+  },
+  'Home Goods': {
+    tone: 'home',
+    storyBullets: ['Useful tabletop piece', 'Retro kitchen-counter mood', 'Bundle-ready home add-on', 'Small footprint'],
+    careRows: [
+      ['Use', 'Coffee table, desk, kitchen, and shelf styling'],
+      ['Care', 'Wipe clean and avoid prolonged soaking'],
+    ],
+  },
+}
+
+const productDetailExperiences = {
+  'rewind-club-tee': {
+    storyTitle: 'The Tee From The Video Store Run',
+    storyBody:
+      'This is the shirt you throw on before walking past the arcade, grabbing a soda, and pretending the Friday night rental was your whole personality.',
+    storyBullets: ['Light tee for daily wear', 'Chest artwork with rewind-club attitude', 'Pairs with tote and stickers', 'Best first item for the collection'],
+    lookbook: [
+      [rewindTeeLifestyleImage, 'Ringer tee on the weekend'],
+      [videoStoreImage, 'Rental counter mood'],
+      [mallWeekendImage, 'Mall hallway light'],
+      [arcadeDepartmentImage, 'After-arcade stop'],
+    ],
+    reviews: [
+      ['Feels like a real old tee', 'Soft and easy to wear. The artwork has that video-store memory without looking costume-y.', 'Drew P.'],
+      ['Great first order', 'I bought it with the sticker pack and it instantly made the whole order feel complete.', 'Nina C.'],
+      ['Print came out clean', 'The graphic is crisp and the shirt works with jeans, shorts, everything.', 'Marco L.'],
+    ],
+  },
+  'mall-weekend-hoodie': {
+    storyTitle: 'The Food Court Hoodie',
+    storyBody:
+      'Built for those late-afternoon mall walks when the arcade is loud, the parking lot is glowing, and the hoodie becomes your whole weekend uniform.',
+    storyBullets: ['Cozy pullover feel', 'Front, back, lifestyle, and print-detail views', 'Best seller anchor item', 'Strong bundle with tote and stickers'],
+    lookbook: [
+      [mallWeekendHoodieLifestyleImage, 'Hoodie in the wild'],
+      [mallWeekendHoodiePrintDetailImage, 'Print close-up'],
+      [mallWeekendImage, 'Mall weekend reference'],
+      [videoStoreImage, 'After-dark rental stop'],
+    ],
+    reviews: [
+      ['The hero piece', 'This is the item that made the order feel premium. Cozy, nostalgic, and the print detail looks great.', 'Alyssa M.'],
+      ['Bought the bundle after seeing it', 'The tote and stickers made sense once I saw the hoodie styled like a whole weekend kit.', 'Ben H.'],
+      ['Better in person', 'The front and back views sold me. It feels like something from a real campus shop.', 'Tara S.'],
+    ],
+  },
+  '1999-varsity-hoodie': {
+    storyTitle: 'After-School Varsity Energy',
+    storyBody:
+      'A red fleece pullover with late-90s hallway confidence: part pep-rally, part mall photo booth, part last-period escape plan.',
+    storyBullets: ['Bold red fleece presence', 'Varsity-style nostalgia', 'Great gift for apparel buyers', 'Pairs with dad hat'],
+    lookbook: [
+      [varsityHoodieGeneratedImage, 'Varsity front view'],
+      [mallWeekendImage, 'School-night mall stop'],
+      [arcadeDepartmentImage, 'Arcade after class'],
+      [partyNightLineupImage, 'Outfit lineup'],
+    ],
+  },
+  'mall-run-dad-hat': {
+    storyTitle: 'The Errand Hat',
+    storyBody:
+      'Washed cotton, low-key, and ready for a Saturday loop through the mall, diner, record bin, and parking-lot sunset.',
+    storyBullets: ['Easy adjustable cap', 'Small apparel add-on', 'Looks good with tees and hoodies', 'Low-risk gift price'],
+    lookbook: [
+      [mallRunDadHatGeneratedImage, 'Washed cap detail'],
+      [mallWeekendImage, 'Mall run uniform'],
+      [under25LineupImage, 'Small gift counter'],
+      [audioDepartmentImage, 'Tape-shop stop'],
+    ],
+  },
+  'mall-weekend-tote': {
+    storyTitle: 'The Carry-All Mall Bag',
+    storyBody:
+      'A canvas tote for the small treasures: notebooks, coffee, poster tubes, snacks, and whatever you picked up because the display looked too good.',
+    storyBullets: ['Heavy canvas feel', 'Front or front-and-back print options', 'Best bundle companion', 'Useful beyond one outfit'],
+    lookbook: [
+      [mallWeekendToteGeneratedImage, 'Tote front view'],
+      [deskGiftsLineupImage, 'Gift counter setup'],
+      [mallWeekendImage, 'Shopping bag moment'],
+      [shelfDecorLineupImage, 'Shelf styling'],
+    ],
+  },
+  'diner-counter-mug': {
+    storyTitle: 'Bottomless Coffee Counter',
+    storyBody:
+      'A glossy mug for early work blocks, late edits, and that diner-counter feeling when the refill keeps showing up before you ask.',
+    storyBullets: ['Under-$20 gift pick', 'Glossy white finish', 'Desk-friendly daily use', 'Pairs with calendar or coasters'],
+    lookbook: [
+      [dinerMugLifestyleImage, 'Countertop lifestyle'],
+      [dinerMugImage, 'Transparent mug mockup'],
+      [kitchenDepartmentImage, 'Kitchen shelf'],
+      [deskGiftsLineupImage, 'Desk gift setup'],
+    ],
+  },
+  'arcade-night-poster': {
+    storyTitle: 'Neon On The Bedroom Wall',
+    storyBody:
+      'The poster for anyone who remembers cabinet glow, carpet patterns, and saving one last quarter for the game that always won.',
+    storyBullets: ['Room-transforming wall piece', 'Low-stock urgency', 'Strong visual anchor', 'Pairs with canvas and stickers'],
+    lookbook: [
+      [arcadePosterImage, 'Poster art'],
+      [arcadeDepartmentImage, 'Arcade corner'],
+      [heroMemoryLaneImage, 'Bedroom wall mood'],
+      [shelfDecorLineupImage, 'Room decor lineup'],
+    ],
+  },
+  'food-court-poster': {
+    storyTitle: 'Food Court Time Machine',
+    storyBody:
+      'A wall print that smells like fries in your imagination: bright signage, sticky trays, and the perfect table near the fountain.',
+    storyBullets: ['Gift-pick wall art', 'Food-court color palette', 'Bedroom or kitchen nook fit', 'Pairs with diner mug'],
+    lookbook: [
+      [foodCourtPosterGeneratedImage, 'Food court poster'],
+      [heroSupermarketImage, 'Aisle nostalgia'],
+      [kitchenDepartmentImage, 'Kitchen memory'],
+      [partyNightLineupImage, 'Night-in setup'],
+    ],
+  },
+  'rewind-sticker-pack': {
+    storyTitle: 'The Locker-Door Add-On',
+    storyBody:
+      'Tiny hits of nostalgia for laptop lids, bottles, notebooks, and every surface that needs a little rewind-button attitude.',
+    storyBullets: ['Easy impulse add-on', 'Die-cut sticker energy', 'Great with every bundle', 'Giftable under-$20 item'],
+    lookbook: [
+      [rewindStickerPackGeneratedImage, 'Sticker pack sheet'],
+      [under25LineupImage, 'Under-$25 counter'],
+      [videoStoreImage, 'Video-store labels'],
+      [arcadeDepartmentImage, 'Cabinet sticker mood'],
+    ],
+  },
+  'retro-desk-calendar': {
+    storyTitle: 'A Desk That Remembers',
+    storyBody:
+      'A monthly desk calendar for planning real days while the artwork keeps one foot in taped-up bedrooms and weekend TV blocks.',
+    storyBullets: ['Useful monthly format', 'Original retro-style art', 'Desk gift sweet spot', 'Pairs with mug and notebook'],
+    lookbook: [
+      [vhsCalendarImage, 'Calendar product view'],
+      [deskGiftsLineupImage, 'Desk gift lineup'],
+      [heroContentSheetImage, 'Content wall mood'],
+      [videoStoreImage, 'Planning the rental list'],
+    ],
+  },
+  'video-rental-notebook': {
+    storyTitle: 'The Late-Fee List Book',
+    storyBody:
+      'A lined notebook for ideas, lists, sketches, and the kind of reminders that once lived on receipts and VHS rental slips.',
+    storyBullets: ['Lined pages for daily notes', 'Small stationery gift', 'Works with sticker pack', 'Strong desk bundle item'],
+    lookbook: [
+      [videoNightSignImage, 'Notebook cover mood'],
+      [videoStoreImage, 'Rental desk reference'],
+      [deskGiftsLineupImage, 'Desk gift lineup'],
+      [heroProductSheetImage, 'Product sheet flatlay'],
+    ],
+  },
+  'diner-coaster-set': {
+    storyTitle: 'Tabletop Diner Detail',
+    storyBody:
+      'Four coasters that make a coffee table feel like a booth: small, useful, and quietly full of retro counter charm.',
+    storyBullets: ['Set of four standard option', 'Useful tabletop add-on', 'Pairs with diner mug', 'Great home-goods bundle piece'],
+    lookbook: [
+      [dinerTrayImage, 'Coaster set view'],
+      [kitchenDepartmentImage, 'Diner kitchen shelf'],
+      [dinerMugLifestyleImage, 'Mug and tabletop'],
+      [deskGiftsLineupImage, 'Desk gift setup'],
+    ],
+  },
+  'memory-lane-canvas': {
+    storyTitle: 'The Big Memory Wall',
+    storyBody:
+      'A stretched canvas for rooms that need one strong retro signal: quiet nostalgia, sunset colors, and a permanent corner of 1989.',
+    storyBullets: ['Premium wall-art gift', 'Large visual anchor', 'Bedroom and studio friendly', 'Pairs with poster and stickers'],
+    lookbook: [
+      [albumWallPrintImage, 'Canvas art'],
+      [heroMemoryLaneImage, 'Memory lane wall'],
+      [shelfDecorLineupImage, 'Room decor shelf'],
+      [wallArtDepartmentImage, 'Wall art department'],
+    ],
+  },
+}
+
+const getProductDetailExperience = (product) => {
+  if (!product) return defaultPdpExperience
+
+  return {
+    ...defaultPdpExperience,
+    ...(categoryPdpExperiences[product.category] ?? {}),
+    ...(productDetailExperiences[product.id] ?? {}),
+  }
+}
 
 const bundles = [
   {
@@ -1358,12 +1610,15 @@ function App() {
   const [activeProductImageIndex, setActiveProductImageIndex] = useState(0)
   const [selectedImageInfo, setSelectedImageInfo] = useState(null)
   const [selectedOptions, setSelectedOptions] = useState({})
+  const [selectedPdpAddOnIds, setSelectedPdpAddOnIds] = useState([])
+  const [pdpStickyCartVisible, setPdpStickyCartVisible] = useState(false)
   const [customer, setCustomer] = useState(() => getStoredCustomer())
   const [cart, setCart] = useState([
     { id: 'rewind-sticker-pack', name: 'Rewind Sticker Pack', price: 16, image: productImages.stickerPack, quantity: 1 },
   ])
   const cartButtonRef = useRef(null)
   const floatingCartButtonRef = useRef(null)
+  const pdpPrimaryActionsRef = useRef(null)
   const recentCarouselRef = useRef(null)
   const supportButtonRef = useRef(null)
   const flyTimerRef = useRef(null)
@@ -1411,6 +1666,8 @@ function App() {
         const nextProduct = products.find((product) => product.id === productId) ?? null
         setSelectedProduct(nextProduct)
         setSelectedOptions(getDefaultOptions(nextProduct))
+        setSelectedPdpAddOnIds([])
+        setPdpStickyCartVisible(false)
         setSelectedProductQuantity(1)
         setActiveProductImageIndex(getInitialProductImageIndex(nextProduct))
         setActiveRoute('product')
@@ -1573,6 +1830,7 @@ function App() {
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const selectedProductProof = getProductProof(selectedProduct)
+  const selectedProductExperience = getProductDetailExperience(selectedProduct)
   const selectedProductGallery = selectedProduct
     ? [
         { label: 'Front', image: selectedProduct.image },
@@ -1602,8 +1860,40 @@ function App() {
         .map((productId) => products.find((product) => product.id === productId))
         .filter(Boolean)
     : []
+  const inlineAddOns = bundleProducts.filter((product) => product.id !== selectedProduct?.id).slice(0, 2)
+  const selectedInlineAddOns = inlineAddOns.filter((product) => selectedPdpAddOnIds.includes(product.id))
+  const inlineAddOnsRetail = selectedInlineAddOns.reduce((sum, product) => sum + product.price, 0)
+  const inlineAddOnsDeal = Math.round(inlineAddOnsRetail * 0.9 * 100) / 100
+  const selectedPdpOrderTotal = selectedVariantPrice * selectedProductQuantity + inlineAddOnsDeal
   const bundlePrice = bundleProducts.reduce((sum, product) => sum + product.price, 0)
   const bundleDealPrice = Math.round(bundlePrice * 0.88 * 100) / 100
+
+  useEffect(() => {
+    if (activeRoute !== 'product' || !selectedProduct) return undefined
+
+    const actions = pdpPrimaryActionsRef.current
+    if (!actions) return undefined
+
+    let frameId = 0
+    const updateStickyCart = () => {
+      window.cancelAnimationFrame(frameId)
+      frameId = window.requestAnimationFrame(() => {
+        const rect = actions.getBoundingClientRect()
+        setPdpStickyCartVisible(rect.bottom < 96)
+      })
+    }
+
+    updateStickyCart()
+    window.addEventListener('scroll', updateStickyCart, { passive: true })
+    window.addEventListener('resize', updateStickyCart)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+      window.removeEventListener('scroll', updateStickyCart)
+      window.removeEventListener('resize', updateStickyCart)
+    }
+  }, [activeRoute, selectedProduct])
+
   const featuredDropImage = featuredDrop.image
   const routeAccountTab = getAccountTabFromPath(currentPath)
   const displayedAccountTab = routeAccountTab ?? accountTab
@@ -1616,23 +1906,15 @@ function App() {
   const orderDateRangeEnd = Math.max(orderDateStartTime ?? 0, orderDateEndTime ?? Number.MAX_SAFE_INTEGER)
   const filteredCustomerOrders = customerOrders.filter((order) => {
     const normalizedStatus = String(order.status).toLowerCase()
-    const orderDateTime = getOrderDateOnlyTime(order.date)
-    const matchesDate =
-      orderDateTime === null || (orderDateTime >= orderDateRangeStart && orderDateTime <= orderDateRangeEnd)
+    const orderMatchesStatus = orderFilter === 'All' || normalizedStatus === orderFilter.toLowerCase()
+    const orderTime = getOrderDateOnlyTime(order.date)
+    const orderMatchesDate =
+      orderTime === null || (orderTime >= orderDateRangeStart && orderTime <= orderDateRangeEnd)
 
-    if (orderFilter === 'All') return matchesDate
-    if (orderFilter === 'Pending') return matchesDate && normalizedStatus.includes('received')
-    if (orderFilter === 'Processing') {
-      return matchesDate && (normalizedStatus.includes('production') || normalizedStatus.includes('processing'))
-    }
-    if (orderFilter === 'Shipping') {
-      return matchesDate && (normalizedStatus.includes('shipped') || normalizedStatus.includes('shipping'))
-    }
-    if (orderFilter === 'Delivered') return matchesDate && normalizedStatus.includes('delivered')
-    if (orderFilter === 'Cancelled') return matchesDate && normalizedStatus.includes('cancelled')
-
-    return matchesDate
+    return orderMatchesStatus && orderMatchesDate
   })
+
+
   const ordersForCurrentView = displayedAccountTab === 'orders' ? filteredCustomerOrders : customerOrders
   const hasOrderToggle = ordersForCurrentView.length > 3
   const visibleCustomerOrders = ordersExpanded ? ordersForCurrentView : ordersForCurrentView.slice(0, 3)
@@ -1700,6 +1982,8 @@ function App() {
   const openProductDetail = (product) => {
     setSelectedProduct(product)
     setSelectedOptions(getDefaultOptions(product))
+    setSelectedPdpAddOnIds([])
+    setPdpStickyCartVisible(false)
     setSelectedProductQuantity(1)
     setActiveProductImageIndex(getInitialProductImageIndex(product))
     window.history.pushState(null, '', getProductPath(product))
@@ -1862,7 +2146,7 @@ function App() {
     noticeTimerRef.current = window.setTimeout(() => setCartNotice(null), 2600)
   }
 
-  const addToCart = (item, event) => {
+  const addToCart = (item, event, options = {}) => {
     if (!item) return
     const product = {
       id: item.cartId ?? item.id,
@@ -1881,7 +2165,7 @@ function App() {
       }
       return [...currentCart, product]
     })
-    showCartFeedback(product, event?.currentTarget)
+    if (!options.suppressFeedback) showCartFeedback(product, event?.currentTarget)
   }
 
   const addSelectedProductToCart = (event) => {
@@ -1894,6 +2178,16 @@ function App() {
       optionSummary: selectedVariantSummary,
       quantity: selectedProductQuantity,
     }, event)
+
+    selectedInlineAddOns.forEach((product) => {
+      addToCart({
+        ...product,
+        cartId: `${product.id}:pdp-add-on`,
+        price: Math.round(product.price * 0.9 * 100) / 100,
+        optionSummary: `Complete the Scene add-on for ${selectedProduct.name}`,
+        quantity: 1,
+      }, null, { suppressFeedback: true })
+    })
   }
 
   const buySelectedProductNow = (event) => {
@@ -2728,7 +3022,11 @@ function App() {
           </section>
         ) : activeRoute === 'product' ? (
           selectedProduct ? (
-            <section className="store-section product-route-page product-route-page--reset">
+            <section
+              className={`store-section product-route-page product-route-page--reset pdp-tone-${selectedProductExperience.tone}${
+                pdpStickyCartVisible ? ' pdp-sticky-cart-visible' : ''
+              }`}
+            >
               <nav className="product-route-breadcrumb" aria-label="Product breadcrumb">
                 <button type="button" onClick={() => openHomeSection('products')}>
                   Shop
@@ -2761,10 +3059,17 @@ function App() {
                 <figure className="catalog-pdp-main-frame">
                   <span className="catalog-pdp-tape catalog-pdp-tape--top" aria-hidden="true" />
                   <span className="catalog-pdp-bestseller-stamp" aria-hidden="true">{selectedProduct.tag}</span>
-                  <img src={activeProductImage} alt={selectedProduct.name} />
+                  <button
+                    type="button"
+                    className="catalog-pdp-zoom-trigger"
+                    onClick={() => openImageInfo({ ...selectedProduct, image: activeProductImage }, 'Product image', 'product')}
+                    aria-label={`Zoom in on ${selectedProduct.name}`}
+                  >
+                    <img src={activeProductImage} alt={selectedProduct.name} />
+                    <span className="catalog-pdp-zoom-hint" aria-hidden="true"><Search size={13} /> Zoom</span>
+                  </button>
                   <figcaption>
                     <span><b>SKU</b> {selectedProduct.sku}</span>
-                    <strong>{selectedProduct.tag}</strong>
                   </figcaption>
                   <div className="catalog-pdp-feature-row" aria-label="Product highlights">
                     <span><Package size={17} /> Made to order</span>
@@ -2775,8 +3080,8 @@ function App() {
 
                 <article className="catalog-pdp-buy-panel product-catalog-order-form" aria-label="Purchase options">
                   <div className="catalog-pdp-order-head">
-                    <span>1989 Supply Co. Mail Order</span>
-                    <strong>No. 0221999</strong>
+                    <span>{selectedProductExperience.orderLabel}</span>
+                    <strong>{selectedProduct.sku}</strong>
                   </div>
                   <h1>{selectedProduct.name}</h1>
                   <div className="catalog-pdp-rating">
@@ -2786,6 +3091,16 @@ function App() {
                     </button>
                   </div>
                   <p className="catalog-pdp-short">{selectedProduct.shortDetail}</p>
+
+                  <div className="catalog-pdp-proof-strip" aria-label="Why shoppers choose this item">
+                    {selectedProductExperience.proofCards.map(({ Icon, label, value }) => (
+                      <span key={label}>
+                        <Icon size={17} />
+                        <strong>{label}</strong>
+                        <small>{value}</small>
+                      </span>
+                    ))}
+                  </div>
 
                   <div className="catalog-pdp-price-row">
                     <div>
@@ -2805,7 +3120,7 @@ function App() {
                         ? 'Sold out'
                         : selectedProduct.stockState === 'low-stock'
                           ? 'Only a few left'
-                          : 'In stock'}
+                        : 'In stock'}
                     </span>
                   </div>
 
@@ -2852,7 +3167,46 @@ function App() {
                     <strong className="catalog-pdp-low-stock">Only 7 left in stock!</strong>
                   </div>
 
-                  <div className="catalog-pdp-actions">
+                  {inlineAddOns.length > 0 && (
+                    <section className="catalog-pdp-inline-upsell" aria-label="Complete the scene add-ons">
+                      <div className="catalog-pdp-inline-upsell-head">
+                        <span>Complete the Scene</span>
+                        <strong>Save 10% on add-ons</strong>
+                      </div>
+                      <div className="catalog-pdp-inline-upsell-list">
+                        {inlineAddOns.map((product) => {
+                          const selected = selectedPdpAddOnIds.includes(product.id)
+                          return (
+                            <button
+                              className={selected ? 'active' : ''}
+                              key={`inline-add-on-${product.id}`}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() =>
+                                setSelectedPdpAddOnIds((currentIds) =>
+                                  currentIds.includes(product.id)
+                                    ? currentIds.filter((productId) => productId !== product.id)
+                                    : [...currentIds, product.id],
+                                )
+                              }
+                            >
+                              <img src={product.image} alt="" aria-hidden="true" />
+                              <span>
+                                <strong>{product.name}</strong>
+                                <small>{formatPrice(Math.round(product.price * 0.9 * 100) / 100)} add-on</small>
+                              </span>
+                              <b aria-hidden="true">{selected ? 'Added' : 'Add'}</b>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <p>
+                        Scene total with selected add-ons: <strong>{formatPrice(selectedPdpOrderTotal)}</strong>
+                      </p>
+                    </section>
+                  )}
+
+                  <div className="catalog-pdp-actions" ref={pdpPrimaryActionsRef}>
                     <button className="catalog-pdp-add-cart" type="button" onClick={addSelectedProductToCart}>
                       <ShoppingCart size={16} />
                       Add to Cart
@@ -2861,52 +3215,34 @@ function App() {
                       Buy Now
                     </button>
                   </div>
-                  <div className="catalog-pdp-panel-bottom" aria-label="Secure payment and purchase protection">
-                    <p className="secure-checkout-title">Secure checkout</p>
+                  <div className="catalog-pdp-pay-row" aria-label="Accepted payments">
                     <PaymentBadges />
-                    <SecureCheckoutAssurance />
                   </div>
                 </article>
               </div>
 
-              <section className="catalog-pdp-value-band" aria-label="Purchase reassurance">
-                <span><PackageCheck size={22} /><strong>Made to order</strong><small>Printed just for you in the USA.</small></span>
-                <span><Truck size={22} /><strong>Ships in 2-4 days</strong><small>Carefully packed and tracked.</small></span>
-                <span><Lock size={22} /><strong>Secure checkout</strong><small>Your payment stays protected.</small></span>
-                <span><RefreshCcw size={22} /><strong>30-day returns</strong><small>Simple returns if it is not right.</small></span>
-              </section>
-
-              <div className="pdp-mobile-buybar" aria-hidden="false">
-                <span className="pdp-mobile-buybar-price">
-                  <small>{selectedProduct.name}</small>
-                  <strong>{formatPrice(selectedVariantPrice)}</strong>
-                </span>
-                <button type="button" onClick={addSelectedProductToCart}>
-                  <ShoppingCart size={17} />
-                  {selectedProduct.stockState === 'sold-out' ? 'Sold out' : 'Add to Cart'}
-                </button>
-              </div>
-
               <section className="catalog-pdp-memory-row" aria-label="Product memory and story">
                 <article className="catalog-pdp-lifestyle-card">
-                  <img src={backInTheDayMallReferenceImage} alt="Sunset mall storefront memory" />
+                  <img
+                    src={selectedProduct.lifestyleImage ?? selectedProductExperience.lookbook[0]?.[0] ?? backInTheDayMallReferenceImage}
+                    alt={`${selectedProduct.name} memory scene`}
+                  />
                 </article>
                 <article className="catalog-pdp-backstory-card">
                   <div className="catalog-pdp-backstory-copy">
-                    <h2>Back In The Day</h2>
-                    <p>
-                      Weekends at the mall were the highlight of the week. The food court. The mixtapes. The new tee.
-                      This hoodie is a throwback to simpler times, when the biggest decision was which store to hit first.
-                    </p>
+                    <h2>{selectedProductExperience.storyTitle}</h2>
+                    <p>{selectedProductExperience.storyBody}</p>
                     <ul className="catalog-pdp-story-bullets">
-                      <li>Lightweight yet cozy midweight fleece</li>
-                      <li>Ringer details for that authentic 80s vibe</li>
-                      <li>Vintage mall graphic printed on the chest</li>
-                      <li>Unisex fit - perfect for everyday wear</li>
+                      {selectedProductExperience.storyBullets.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
                     </ul>
                     <div className="catalog-pdp-care-grid">
-                      <span><strong>Material</strong> 60% Cotton / 40% Polyester<br />Soft midweight fleece</span>
-                      <span><strong>Care</strong> Machine wash cold<br />Tumble dry low</span>
+                      {selectedProductExperience.careRows.map(([label, copy]) => (
+                        <span key={label}>
+                          <strong>{label}</strong> {copy}
+                        </span>
+                      ))}
                     </div>
                   </div>
                   <div className="catalog-pdp-story-stamp" aria-hidden="true">
@@ -2915,13 +3251,31 @@ function App() {
                 </article>
               </section>
 
+              <section className="catalog-pdp-lookbook" aria-label="1989 lookbook">
+                <div className="catalog-pdp-section-title">
+                  <div>
+                    <p className="receipt-label">Straight from the archive</p>
+                    <h2>Spotted around the 1989 mall.</h2>
+                  </div>
+                  <strong>The Lookbook</strong>
+                </div>
+                <div className="catalog-pdp-lookbook-grid">
+                  {selectedProductExperience.lookbook.map(([image, caption]) => (
+                    <figure key={caption} className="catalog-pdp-lookbook-card">
+                      <img src={image} alt={caption} loading="lazy" />
+                      <figcaption>{caption}</figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </section>
+
               <section className="catalog-pdp-bundle-save" aria-label="Bundle and save">
                 <div className="catalog-pdp-section-title">
                   <div>
-                    <p className="receipt-label">Complete The Weekend Kit</p>
-                    <h2>Grab everything you need for a perfect mall run.</h2>
+                    <p className="receipt-label">{selectedProductExperience.bundleEyebrow}</p>
+                    <h2>{selectedProductExperience.bundleHeadline}</h2>
                   </div>
-                  <strong>Bundle & save 10%</strong>
+                  <strong>{selectedProductExperience.bundleBadge}</strong>
                 </div>
                 <div className="catalog-pdp-kit">
                   <div className="catalog-pdp-kit-items">
@@ -2938,6 +3292,7 @@ function App() {
                     <p className="receipt-label">Bundle total</p>
                     <strong>{formatPrice(bundleDealPrice)}</strong>
                     <s>{formatPrice(bundlePrice)}</s>
+                    <em>Save {formatPrice(bundlePrice - bundleDealPrice)}</em>
                     <button type="button" onClick={() => bundleProducts.forEach((product) => addToCart(product, null))}>
                       Add Bundle To Cart
                     </button>
@@ -2966,11 +3321,7 @@ function App() {
                     ))}
                     <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductProof.reviewCount} reviews</button>
                   </article>
-                  {[
-                    ['Perfect throwback vibe', 'The ringer details and print are spot on. Feels like something I found in an old mall store in 1989.', 'Jason R.'],
-                    ['Super comfy', 'Soft, cozy, and gets better every wash. I wear it every weekend.', 'Melissa T.'],
-                    ['Love the design', 'So many compliments already. Shipping was fast and packaging was rad.', 'Tyler W.'],
-                  ].map(([title, body, name]) => (
+                  {selectedProductExperience.reviews.map(([title, body, name]) => (
                     <blockquote key={title}>
                       <span aria-hidden="true">★★★★★</span>
                       <strong>{title}</strong>
@@ -2988,12 +3339,7 @@ function App() {
                   </div>
                 </div>
                 <div className="catalog-pdp-faq-list">
-                  {[
-                    [Truck, 'Shipping', 'When will my order arrive?', 'Made to order in 2-4 business days, then shipped with tracking from the USA.'],
-                    [RefreshCcw, 'Returns', 'What is your return policy?', 'You have 30 days for easy returns if the piece is not right for you.'],
-                    [Package, 'Sizing', 'How does this fit?', 'Classic true-to-size fit. Size up if you want a relaxed weekend look.'],
-                    [Lock, 'Care', 'How should I wash it?', 'Machine wash cold and tumble dry low to protect the print.'],
-                  ].map(([Icon, label, question, answer]) => (
+                  {selectedProductExperience.faqs.map(([Icon, label, question, answer]) => (
                     <details key={label}>
                       <summary>
                         <Icon className="catalog-pdp-faq-icon" size={22} strokeWidth={1.7} aria-hidden="true" />
@@ -3032,21 +3378,25 @@ function App() {
                 </section>
               )}
 
-              <aside className="catalog-pdp-final-cta" aria-label="Final purchase prompt">
+              <aside
+                className={`catalog-pdp-final-cta${pdpStickyCartVisible ? ' is-visible' : ''}`}
+                aria-hidden={!pdpStickyCartVisible}
+                aria-label="Sticky purchase prompt"
+              >
                 <img src={selectedProduct.image} alt="" />
                 <div>
                   <strong>{selectedProduct.name}</strong>
-                  <span>{selectedVariantSummary || 'Ready to order'}</span>
+                  <span>{selectedVariantSummary || 'Ready to order'} / Qty {selectedProductQuantity}</span>
                 </div>
-                <b>{formatPrice(selectedVariantPrice)}</b>
+                <b>{formatPrice(selectedPdpOrderTotal)}</b>
                 <small>
                   <i className={`stock-dot stock-dot--${selectedProduct.stockState}`} />
                   {selectedProduct.stockState === 'sold-out' ? 'Sold out' : 'In stock'}
                 </small>
-                <button type="button" onClick={addSelectedProductToCart}>
+                <button type="button" disabled={!pdpStickyCartVisible} onClick={addSelectedProductToCart}>
                   <ShoppingCart size={17} /> Add To Cart
                 </button>
-                <button type="button" onClick={buySelectedProductNow}>Buy Now</button>
+                <button type="button" disabled={!pdpStickyCartVisible} onClick={buySelectedProductNow}>Buy Now</button>
               </aside>
 
             </section>

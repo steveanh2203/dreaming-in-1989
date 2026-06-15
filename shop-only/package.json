@@ -11,8 +11,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/archivo-black": "^5.2.8",
     "@fontsource/bungee": "^5.2.7",
     "@fontsource/courier-prime": "^5.2.8",
+    "@fontsource/jost": "^5.2.8",
     "@fontsource/libre-baskerville": "^5.2.10",
     "@fontsource/libre-franklin": "^5.2.8",
     "@fontsource/special-elite": "^5.2.8",
