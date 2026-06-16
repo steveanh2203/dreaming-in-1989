@@ -2877,6 +2877,29 @@ function App() {
                 : 'Access saved orders, checkout details, wishlist picks, and account history.'}
             </p>
 
+            {activeAuthMode !== 'forgot-password' && activeAuthMode !== 'reset-password' && (
+              <div className="auth-mode-tabs" aria-label="Account mode">
+                <button
+                  className={activeAuthMode === 'sign-in' ? 'active' : ''}
+                  type="button"
+                  aria-pressed={activeAuthMode === 'sign-in'}
+                  onClick={() => openAuth('sign-in')}
+                >
+                  <LogIn size={15} aria-hidden="true" />
+                  Sign in
+                </button>
+                <button
+                  className={activeAuthMode === 'sign-up' ? 'active' : ''}
+                  type="button"
+                  aria-pressed={activeAuthMode === 'sign-up'}
+                  onClick={() => openAuth('sign-up')}
+                >
+                  <User size={15} aria-hidden="true" />
+                  Sign up
+                </button>
+              </div>
+            )}
+
             <form
               className={`auth-form auth-page-form auth-page-form--${activeAuthMode}`}
               onSubmit={
@@ -2888,48 +2911,60 @@ function App() {
               }
             >
               {activeAuthMode === 'sign-up' && (
-                <label>
-                  Full name
-                  <input name="name" autoComplete="name" placeholder="Alex Taylor" />
+                <label className="auth-field">
+                  <span>Full name</span>
+                  <div className="auth-input-shell">
+                    <User size={17} aria-hidden="true" />
+                    <input name="name" autoComplete="name" placeholder="Alex Taylor" />
+                  </div>
                 </label>
               )}
               {activeAuthMode !== 'reset-password' && (
-                <label>
-                  Email
-                  <input name="email" required type="email" autoComplete="email" placeholder="alex@example.com" />
+                <label className="auth-field">
+                  <span>Email</span>
+                  <div className="auth-input-shell">
+                    <Mail size={17} aria-hidden="true" />
+                    <input name="email" required type="email" autoComplete="email" placeholder="alex@example.com" />
+                  </div>
                 </label>
               )}
               {activeAuthMode !== 'forgot-password' && (
-                <label>
-                  {activeAuthMode === 'reset-password' ? 'New password' : 'Password'}
-                  <input
-                    required
-                    name="password"
-                    type="password"
-                    value={authPasswordDraft}
-                    autoComplete={activeAuthMode === 'sign-in' ? 'current-password' : 'new-password'}
-                    aria-describedby={activeAuthMode !== 'sign-in' ? 'password-strength-note' : undefined}
-                    placeholder="Your password"
-                    onBlur={() => setAuthPasswordTouched(true)}
-                    onChange={(event) => {
-                      setAuthPasswordDraft(event.target.value)
-                      setAuthPasswordTouched(true)
-                      setAuthPasswordNotice('')
-                    }}
-                  />
+                <label className="auth-field">
+                  <span>{activeAuthMode === 'reset-password' ? 'New password' : 'Password'}</span>
+                  <div className="auth-input-shell">
+                    <Lock size={17} aria-hidden="true" />
+                    <input
+                      required
+                      name="password"
+                      type="password"
+                      value={authPasswordDraft}
+                      autoComplete={activeAuthMode === 'sign-in' ? 'current-password' : 'new-password'}
+                      aria-describedby={activeAuthMode !== 'sign-in' ? 'password-strength-note' : undefined}
+                      placeholder="Your password"
+                      onBlur={() => setAuthPasswordTouched(true)}
+                      onChange={(event) => {
+                        setAuthPasswordDraft(event.target.value)
+                        setAuthPasswordTouched(true)
+                        setAuthPasswordNotice('')
+                      }}
+                    />
+                  </div>
                 </label>
               )}
               {activeAuthMode !== 'sign-in' && activeAuthMode !== 'forgot-password' && (
-                <label>
-                  {activeAuthMode === 'reset-password' ? 'Confirm new password' : 'Confirm password'}
-                  <input
-                    required
-                    name="confirmPassword"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder="Type it once more"
-                    onChange={() => setAuthPasswordNotice('')}
-                  />
+                <label className="auth-field">
+                  <span>{activeAuthMode === 'reset-password' ? 'Confirm new password' : 'Confirm password'}</span>
+                  <div className="auth-input-shell">
+                    <Lock size={17} aria-hidden="true" />
+                    <input
+                      required
+                      name="confirmPassword"
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="Type it once more"
+                      onChange={() => setAuthPasswordNotice('')}
+                    />
+                  </div>
                 </label>
               )}
               {activeAuthMode !== 'sign-in' && activeAuthMode !== 'forgot-password' && (authPasswordTouched || authPasswordDraft) && (
@@ -3114,10 +3149,16 @@ function App() {
           <a className="home-tab" href="#top" aria-label="Home">
             <Home size={18} />
           </a>
-          <a href="#new-arrivals">New Drops</a>
+          <a href="#new-arrivals">
+            <span className="nav-label-desktop">New Drops</span>
+            <span className="nav-label-mobile">New</span>
+          </a>
           <a href="#collections">Bundles</a>
-          <a href="#products">Best Sellers</a>
-          <a href="#deals">Gift Counter</a>
+          <a href="#products">
+            <span className="nav-label-desktop">Best Sellers</span>
+            <span className="nav-label-mobile">Best</span>
+          </a>
+          <a className="mobile-gift-link" href="#deals">Gift Counter</a>
           <div
             className={`support-menu ${supportMenuOpen ? 'is-open' : ''}`}
             onBlur={(event) => {
@@ -3147,7 +3188,8 @@ function App() {
               }}
               onMouseEnter={openSupportMenu}
             >
-              Support
+              <span className="support-label-desktop">Support</span>
+              <span className="support-label-mobile">More</span>
               <ChevronDown size={14} />
             </button>
             <div
@@ -3159,6 +3201,14 @@ function App() {
                 '--support-menu-left': `${supportMenuPosition.left}px`,
               }}
             >
+              <a
+                className="mobile-more-only"
+                href="#deals"
+                role="menuitem"
+                onClick={() => setSupportMenuOpen(false)}
+              >
+                <span>Gift Counter</span>
+              </a>
               {supportMenuItems.map((policy) => (
                 <button
                   key={policy.id}
@@ -3822,7 +3872,8 @@ function App() {
                     <s>{formatPrice(bundlePrice)}</s>
                     <em>Save {formatPrice(bundlePrice - bundleDealPrice)}</em>
                     <button type="button" onClick={() => bundleProducts.forEach((product) => addToCart(product, null))}>
-                      Add Bundle To Cart
+                      <span className="bundle-button-label-full">Add Bundle To Cart</span>
+                      <span className="bundle-button-label-short">Add</span>
                     </button>
                   </div>
                 </div>
@@ -4568,11 +4619,12 @@ function App() {
               </div>
               <button className="checkout-button" type="button" onClick={(event) => addToCart(featuredDrop, event)}>
                 <ShoppingCart size={18} />
-                Add to Cart
+                <span className="checkout-label-full">Add to Cart</span>
+                <span className="checkout-label-short">Add</span>
               </button>
               <button className="wishlist-button" type="button" onClick={() => openProductDetail(featuredDrop)}>
                 <Heart size={18} />
-                Add to Wishlist
+                <span className="wishlist-label">Add to Wishlist</span>
               </button>
               <div className="drop-stamp">Good Times. Guaranteed.</div>
             </aside>

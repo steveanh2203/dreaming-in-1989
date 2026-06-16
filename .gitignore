@@ -3,6 +3,7 @@ dist/
 .vite/
 .tools/
 .codex-tools/
+shop-only/.local-tools/
 mockup-output/
 .env
 .env.*
