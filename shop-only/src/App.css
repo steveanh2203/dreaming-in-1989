@@ -257,13 +257,10 @@
   min-height: 54px;
   padding: 0 12px;
   overflow: visible;
-  background:
-    linear-gradient(180deg, rgba(255, 242, 216, 0.42), rgba(117, 70, 41, 0.12)),
-    repeating-linear-gradient(90deg, rgba(31, 18, 13, 0.08) 0 1px, transparent 1px 10px),
-    rgba(31, 18, 13, 0.1);
-  border: 1px solid rgba(82, 53, 31, 0.42);
+  background: transparent;
+  border: 0;
   border-radius: 8px 8px 3px 3px;
-  box-shadow: 0 9px 0 rgba(0, 0, 0, 0.18), 0 16px 24px rgba(0, 0, 0, 0.16);
+  box-shadow: none;
 }
 
 .primary-nav::before,
@@ -2428,6 +2425,7 @@
 .featured-drop-actions .checkout-button,
 .wishlist-button {
   width: 100%;
+  min-height: 48px;
 }
 
 .wishlist-button {
@@ -2440,6 +2438,7 @@
   background: transparent;
   border: 2px solid var(--wood);
   border-radius: 5px;
+  box-shadow: 0 4px 0 rgba(62, 36, 24, 0.5);
 }
 
 .drop-stamp {
@@ -16305,7 +16304,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     background: rgba(255, 242, 216, 0.76);
     border: 2px solid var(--wood);
     border-radius: 5px;
-    box-shadow: none;
+    box-shadow: 0 4px 0 rgba(62, 36, 24, 0.5);
   }
 
   #featured .wishlist-label {

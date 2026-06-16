@@ -80,6 +80,7 @@ import authCreateAccountImage from './assets/auth/auth-create-account-desk.png'
 import authSignInImage from './assets/auth/auth-sign-in-video-counter.png'
 import retroCartImage from './assets/ui/retro-cart.png'
 import RevenueDashboard from './RevenueDashboard.jsx'
+import { isSupabaseConfigured, supabase } from './lib/supabaseClient.js'
 import './App.css'
 
 const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
@@ -1598,7 +1599,7 @@ const recentlyViewedIds = [
   'memory-lane-canvas',
 ]
 
-const wishlistIds = [
+const defaultWishlistIds = [
   'diner-counter-mug',
   'mall-weekend-tote',
   'arcade-night-poster',
@@ -1606,6 +1607,7 @@ const wishlistIds = [
 ]
 
 const getAccountLineItemImage = (item) => {
+  if (!item) return productImages.stickerPack
   if (typeof item === 'string') return productImages.stickerPack
   if (item.image) return item.image
   const itemName = item.name.toLowerCase()
@@ -1630,6 +1632,7 @@ const getStoredCustomer = () => {
       ...parsedCustomer,
       orders: hasCurrentDemoOrders ? parsedCustomer.orders : demoCustomerOrders,
       addresses: normalizeAccountAddresses(parsedCustomer.addresses),
+      wishlistIds: Array.isArray(parsedCustomer.wishlistIds) ? parsedCustomer.wishlistIds : defaultWishlistIds,
     }
   } catch {
     return null
@@ -1648,28 +1651,262 @@ const saveStoredCustomer = (customer) => {
   }
 }
 
-const authRequest = async (path, options = {}) => {
-  const response = await fetch(path, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers ?? {}),
-    },
-    ...options,
-  })
-  const payload = await response.json().catch(() => ({}))
-
-  if (!response.ok) {
-    throw new Error(payload.error || 'Auth request failed.')
+const getStoredWishlistIds = () => {
+  try {
+    const savedWishlist = window.localStorage.getItem('dreaming-1989-wishlist')
+    if (!savedWishlist) return defaultWishlistIds
+    const parsedWishlist = JSON.parse(savedWishlist)
+    return Array.isArray(parsedWishlist) ? parsedWishlist : defaultWishlistIds
+  } catch {
+    return defaultWishlistIds
   }
-
-  return payload
 }
+
+const saveStoredWishlistIds = (wishlistIds) => {
+  try {
+    window.localStorage.setItem('dreaming-1989-wishlist', JSON.stringify(wishlistIds))
+  } catch {
+    // Wishlist persistence should not block browsing.
+  }
+}
+
+const titleizeStatus = (value, fallback = 'Pending') => {
+  const normalizedValue = String(value ?? '').replace(/[_-]+/g, ' ').trim()
+  if (!normalizedValue) return fallback
+  return normalizedValue.charAt(0).toUpperCase() + normalizedValue.slice(1)
+}
+
+const formatOrderDate = (value) => {
+  try {
+    return new Date(value || Date.now()).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  } catch {
+    return 'Today'
+  }
+}
+
+const getShippingAddressText = (shippingAddress) => {
+  if (!shippingAddress) return ''
+  if (typeof shippingAddress === 'string') return shippingAddress
+  return [shippingAddress.address, shippingAddress.city, shippingAddress.zip, shippingAddress.country]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join(', ')
+}
+
+const getDefaultOrderTimeline = (order) => [
+  { label: 'Order received', detail: 'Checkout was saved to the customer account.', done: true },
+  {
+    label: 'Payment',
+    detail: titleizeStatus(order.payment_status, 'Payment pending'),
+    done: ['paid', 'captured', 'demo approved', 'demo_approved'].includes(String(order.payment_status ?? '').toLowerCase()),
+  },
+  {
+    label: 'Production review',
+    detail: 'Order is waiting for production review before fulfillment.',
+    done: false,
+  },
+  {
+    label: 'Production',
+    detail: titleizeStatus(order.fulfillment_status, 'Production pending'),
+    done: false,
+  },
+  {
+    label: 'Tracking',
+    detail: order.tracking_url || 'Carrier tracking appears here after shipment.',
+    done: Boolean(order.tracking_number || order.tracking_url),
+  },
+]
+
+const mapSupabaseOrder = (order) => ({
+  id: order.order_number,
+  dbId: order.id,
+  date: formatOrderDate(order.created_at),
+  status: titleizeStatus(order.status, 'Order received'),
+  subtotal: Number(order.subtotal ?? 0),
+  discount: Number(order.discount ?? 0),
+  shipping: Number(order.shipping ?? 0),
+  total: Number(order.total ?? 0),
+  items: ((order.order_items?.length ? order.order_items : order.shipping_address?.items) ?? []).map((item) => ({
+    productId: item.product_id,
+    name: item.name,
+    quantity: item.quantity,
+    price: Number(item.price ?? 0),
+    optionSummary: item.option_summary,
+  })),
+  payment: `${titleizeStatus(order.payment_provider, 'PayPal')} ${titleizeStatus(order.payment_status, 'pending').toLowerCase()}`,
+  fulfillment: titleizeStatus(order.fulfillment_status, 'Production pending'),
+  tracking: order.tracking_url || order.tracking_number || 'Tracking appears after shipment',
+  shippingAddress: getShippingAddressText(order.shipping_address),
+  timeline: Array.isArray(order.timeline) && order.timeline.length ? order.timeline : getDefaultOrderTimeline(order),
+})
 
 const mergeCustomerForDisplay = (apiCustomer, currentCustomer = null) => ({
   ...apiCustomer,
-  orders: currentCustomer?.orders?.length ? currentCustomer.orders : demoCustomerOrders,
-  addresses: normalizeAccountAddresses(apiCustomer?.addresses?.length ? apiCustomer.addresses : currentCustomer?.addresses),
+  orders: Array.isArray(apiCustomer?.orders)
+    ? apiCustomer.orders
+    : currentCustomer?.orders?.length
+      ? currentCustomer.orders
+      : demoCustomerOrders,
+  addresses: normalizeAccountAddresses(
+    Array.isArray(apiCustomer?.addresses) ? apiCustomer.addresses : currentCustomer?.addresses,
+  ),
+  wishlistIds: Array.isArray(apiCustomer?.wishlistIds)
+    ? apiCustomer.wishlistIds
+    : Array.isArray(currentCustomer?.wishlistIds)
+      ? currentCustomer.wishlistIds
+      : defaultWishlistIds,
+  supportTickets: Array.isArray(apiCustomer?.supportTickets)
+    ? apiCustomer.supportTickets
+    : Array.isArray(currentCustomer?.supportTickets)
+      ? currentCustomer.supportTickets
+      : [],
+})
+
+const requireSupabaseClient = () => {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error('Supabase is not configured yet.')
+  }
+  return supabase
+}
+
+const formatJoinedMonth = (value) => {
+  try {
+    return new Date(value || Date.now()).toLocaleString('en-US', { month: 'long', year: 'numeric' })
+  } catch {
+    return new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })
+  }
+}
+
+const getUserFallbackName = (user) =>
+  String(user?.user_metadata?.name ?? user?.email?.split('@')[0] ?? 'Retro Shopper').trim() || 'Retro Shopper'
+
+const mapSupabaseAddress = (address) => ({
+  id: address.id,
+  label: address.label || (address.is_primary ? 'Primary' : 'Saved'),
+  name: address.name || '',
+  lines: [address.line1, address.line2, address.city_state, address.country, address.phone]
+    .map((value) => String(value ?? '').trim())
+})
+
+const getSupabaseCustomer = async (user, currentCustomer = null) => {
+  const client = requireSupabaseClient()
+  const [profileResult, addressesResult, wishlistResult, supportTicketsResult, ordersResult] = await Promise.all([
+    client
+      .from('profiles')
+      .select('id, email, name, avatar_url, joined_at')
+      .eq('id', user.id)
+      .maybeSingle(),
+    client
+      .from('addresses')
+      .select('id, label, name, line1, line2, city_state, country, phone, is_primary')
+      .eq('user_id', user.id)
+      .order('is_primary', { ascending: false })
+      .order('created_at', { ascending: true }),
+    client
+      .from('wishlist_items')
+      .select('product_id')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+    client
+      .from('support_tickets')
+      .select('id, email, order_number, topic, message, status, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(4),
+    client
+      .from('orders')
+      .select(`
+        id,
+        order_number,
+        customer_email,
+        customer_name,
+        status,
+        payment_provider,
+        payment_status,
+        fulfillment_status,
+        subtotal,
+        discount,
+        shipping,
+        total,
+        shipping_address,
+        tracking_carrier,
+        tracking_number,
+        tracking_url,
+        timeline,
+        created_at,
+        order_items (
+          product_id,
+          name,
+          quantity,
+          price,
+          option_summary
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+  ])
+
+  if (profileResult.error) throw profileResult.error
+  if (addressesResult.error) throw addressesResult.error
+  if (wishlistResult.error) throw wishlistResult.error
+  if (supportTicketsResult.error) throw supportTicketsResult.error
+  if (ordersResult.error) throw ordersResult.error
+
+  const profile = profileResult.data
+  return mergeCustomerForDisplay(
+    {
+      id: user.id,
+      name: profile?.name || getUserFallbackName(user),
+      email: profile?.email || user.email || '',
+      joined: formatJoinedMonth(profile?.joined_at || user.created_at),
+      avatar: profile?.avatar_url || currentCustomer?.avatar,
+      addresses: (addressesResult.data ?? []).map(mapSupabaseAddress),
+      wishlistIds: (wishlistResult.data ?? []).map((item) => item.product_id).filter(Boolean),
+      supportTickets: (supportTicketsResult.data ?? []).map(mapSupabaseSupportTicket),
+      orders: (ordersResult.data ?? []).map(mapSupabaseOrder),
+    },
+    currentCustomer,
+  )
+}
+
+const upsertSupabaseProfile = async (user, updates = {}) => {
+  const client = requireSupabaseClient()
+  const payload = {
+    id: user.id,
+    email: updates.email || user.email || '',
+    name: updates.name || getUserFallbackName(user),
+  }
+  const { error } = await client.from('profiles').upsert(payload, { onConflict: 'id' })
+  if (error) throw error
+}
+
+const addressToSupabasePayload = (address, userId) => ({
+  user_id: userId,
+  label: address.label,
+  name: address.name,
+  line1: address.lines[0] || '',
+  line2: address.lines[1] || '',
+  city_state: address.lines[2] || '',
+  country: address.lines[3] || '',
+  phone: address.lines[4] || '',
+  is_primary: address.label.toLowerCase() === 'primary',
+})
+
+const getSupportTicketDisplayId = (id) => `SUP-${String(id).replace(/-/g, '').slice(0, 6).toUpperCase()}`
+
+const mapSupabaseSupportTicket = (ticket) => ({
+  id: getSupportTicketDisplayId(ticket.id),
+  dbId: ticket.id,
+  email: ticket.email,
+  issueType: ticket.topic || 'General question',
+  orderId: ticket.order_number || '',
+  message: ticket.message || '',
+  status: ticket.status || 'open',
+  createdAt: ticket.created_at,
 })
 
 function App() {
@@ -1733,6 +1970,8 @@ function App() {
   const [pdpStickyCartVisible, setPdpStickyCartVisible] = useState(false)
   const [signupNotice, setSignupNotice] = useState('')
   const [customer, setCustomer] = useState(() => getStoredCustomer())
+  const [guestWishlistIds, setGuestWishlistIds] = useState(() => getStoredWishlistIds())
+  const customerRef = useRef(customer)
   const [cart, setCart] = useState([
     { id: 'rewind-sticker-pack', name: 'Rewind Sticker Pack', price: 16, image: productImages.stickerPack, quantity: 1 },
   ])
@@ -1744,6 +1983,7 @@ function App() {
   const flyTimerRef = useRef(null)
   const noticeTimerRef = useRef(null)
   const cartFeedbackCounterRef = useRef(0)
+  const orderNumberCounterRef = useRef(0)
   const pageScrollLockRef = useRef(null)
 
   useEffect(() => {
@@ -2024,7 +2264,7 @@ function App() {
   const featuredDropImage = featuredDrop.image
   const routeAccountTab = getAccountTabFromPath(currentPath)
   const displayedAccountTab = routeAccountTab ?? accountTab
-  const customerOrders = customer?.orders?.length ? customer.orders : demoCustomerOrders
+  const customerOrders = customer && Array.isArray(customer.orders) ? customer.orders : demoCustomerOrders
   const trackedOrder =
     customerOrders.find((order) => order.id === trackedOrderId || `#${order.id}` === trackedOrderId) ?? null
   const orderDateStartTime = getDateOnlyTime(orderDateRange.start)
@@ -2055,7 +2295,8 @@ function App() {
   const savedAddresses = normalizeAccountAddresses(customer?.addresses)
   const addressEditorOpen = addressEditorMode !== 'idle'
   const recentlyViewedProducts = products.filter((product) => recentlyViewedIds.includes(product.id))
-  const wishlistProducts = products.filter((product) => wishlistIds.includes(product.id))
+  const activeWishlistIds = customer ? (customer.wishlistIds ?? []) : guestWishlistIds
+  const wishlistProducts = products.filter((product) => activeWishlistIds.includes(product.id))
   const visibleAccountCoupons = couponsExpanded ? accountCoupons : accountCoupons.slice(0, 2)
   const hasAccountCouponToggle = accountCoupons.length > 2
   const accountRouteOpen = Boolean(routeAccountTab)
@@ -2097,23 +2338,41 @@ function App() {
   }, [accountScreenOpen])
 
   useEffect(() => {
+    customerRef.current = customer
+  }, [customer])
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return undefined
+
     let active = true
 
-    authRequest('/api/auth/me')
-      .then(({ customer: apiCustomer }) => {
-        if (!active || !apiCustomer) return
-        setCustomer((currentCustomer) => {
-          const nextCustomer = mergeCustomerForDisplay(apiCustomer, currentCustomer)
-          saveStoredCustomer(nextCustomer)
-          return nextCustomer
-        })
-      })
-      .catch(() => {
-        // Auth API may be offline during static UI work; keep the cached demo account if present.
-      })
+    const syncCustomerFromSession = async (session) => {
+      if (!session?.user) return
+      try {
+        const nextCustomer = await getSupabaseCustomer(session.user, customerRef.current)
+        if (!active) return
+        setCustomer(nextCustomer)
+        setSupportTickets(nextCustomer.supportTickets ?? [])
+        saveStoredCustomer(nextCustomer)
+      } catch {
+        // Keep cached demo account if Supabase profile sync is temporarily unavailable.
+      }
+    }
+
+    supabase.auth.getSession().then(({ data }) => syncCustomerFromSession(data.session))
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setCustomer(null)
+        setSupportTickets([])
+        saveStoredCustomer(null)
+        return
+      }
+      syncCustomerFromSession(session)
+    })
 
     return () => {
       active = false
+      authListener.subscription.unsubscribe()
     }
   }, [])
 
@@ -2197,9 +2456,10 @@ function App() {
     window.dispatchEvent(new Event('hashchange'))
   }
 
-  const submitSupportTicket = (event) => {
+  const submitSupportTicket = async (event) => {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     const message = String(formData.get('message') ?? '').trim()
     const email = String(formData.get('email') ?? '').trim()
 
@@ -2208,20 +2468,48 @@ function App() {
       return
     }
 
-    const ticketId = `SUP-${Date.now().toString().slice(-6)}`
-    const nextTicket = {
-      id: ticketId,
-      action: selectedSupportAction.title,
-      email,
-      issueType: String(formData.get('issueType') ?? selectedSupportAction.issueType),
-      orderId: String(formData.get('orderId') ?? ''),
-      message,
-      createdAt: new Date().toISOString(),
-    }
+    try {
+      const issueType = String(formData.get('issueType') ?? selectedSupportAction.issueType)
+      const orderId = String(formData.get('orderId') ?? '')
+      let nextTicket = {
+        id: `SUP-${Date.now().toString().slice(-6)}`,
+        action: selectedSupportAction.title,
+        email,
+        issueType,
+        orderId,
+        message,
+        status: 'open',
+        createdAt: new Date().toISOString(),
+      }
 
-    setSupportTickets((currentTickets) => [nextTicket, ...currentTickets].slice(0, 4))
-    setSupportTicketNotice(`Ticket ${ticketId} received. We'll reply to ${email}.`)
-    event.currentTarget.reset()
+      if (customer?.id && isSupabaseConfigured && supabase) {
+        const client = requireSupabaseClient()
+        const { data, error } = await client
+          .from('support_tickets')
+          .insert({
+            user_id: customer.id,
+            email,
+            order_number: orderId || null,
+            topic: issueType,
+            message,
+            status: 'open',
+          })
+          .select('id, email, order_number, topic, message, status, created_at')
+          .single()
+
+        if (error) throw error
+        nextTicket = {
+          ...mapSupabaseSupportTicket(data),
+          action: selectedSupportAction.title,
+        }
+      }
+
+      setSupportTickets((currentTickets) => [nextTicket, ...currentTickets].slice(0, 4))
+      setSupportTicketNotice(`Ticket ${nextTicket.id} received. We'll reply to ${email}.`)
+      form.reset()
+    } catch (error) {
+      setSupportTicketNotice(error.message || 'Could not send support request.')
+    }
   }
 
   const submitOrderTracking = (event) => {
@@ -2453,17 +2741,38 @@ function App() {
     }
 
     try {
+      const client = requireSupabaseClient()
       const fallbackName = email.split('@')[0] || 'Retro Shopper'
       const name = String(formData.get('name') ?? '').trim() || fallbackName
-      const endpoint = activeAuthMode === 'sign-up' ? '/api/auth/register' : '/api/auth/sign-in'
-      const payload = activeAuthMode === 'sign-up' ? { name, email, password } : { email, password }
-      const { customer: apiCustomer } = await authRequest(endpoint, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-      const nextCustomer = mergeCustomerForDisplay(apiCustomer, customer)
+      const authResult =
+        activeAuthMode === 'sign-up'
+          ? await client.auth.signUp({
+              email,
+              password,
+              options: {
+                data: { name },
+                emailRedirectTo: `${window.location.origin}${signInPath}`,
+              },
+            })
+          : await client.auth.signInWithPassword({ email, password })
+
+      if (authResult.error) throw authResult.error
+
+      if (!authResult.data.session && activeAuthMode === 'sign-up') {
+        setAuthPasswordNotice('Account created. Check your email to confirm the account, then sign in.')
+        return
+      }
+
+      const authUser = authResult.data.user
+      if (!authUser) throw new Error('Could not load the account after authentication.')
+
+      if (activeAuthMode === 'sign-up') {
+        await upsertSupabaseProfile(authUser, { email, name })
+      }
+      const nextCustomer = await getSupabaseCustomer(authUser, customer)
 
       setCustomer(nextCustomer)
+      setSupportTickets(nextCustomer.supportTickets ?? [])
       saveStoredCustomer(nextCustomer)
       setAuthPasswordNotice('')
       setAccountTab('orders')
@@ -2479,16 +2788,10 @@ function App() {
     const formData = new FormData(event.currentTarget)
     const password = String(formData.get('password') ?? '')
     const confirmPassword = String(formData.get('confirmPassword') ?? '')
-    const token = new URLSearchParams(window.location.search).get('token') ?? ''
     const submittedStrength = getPasswordStrength(password)
 
     setAuthPasswordDraft(password)
     setAuthPasswordTouched(true)
-
-    if (!token) {
-      setAuthPasswordNotice('Reset token is missing. Request a new reset link from your account.')
-      return
-    }
 
     if (!submittedStrength.isAcceptable) {
       setAuthPasswordNotice('Password is not strong enough yet. Add length and mix letters, numbers, and symbols.')
@@ -2501,16 +2804,16 @@ function App() {
     }
 
     try {
-      await authRequest('/api/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify({ token, newPassword: password }),
-      })
+      const client = requireSupabaseClient()
+      const { error } = await client.auth.updateUser({ password })
+      if (error) throw error
       setAuthPasswordDraft('')
       setAuthPasswordTouched(false)
       setAuthPasswordNotice('Password reset complete. Sign in with your new password.')
+      await client.auth.signOut()
       navigateToPath(signInPath)
     } catch (error) {
-      setAuthPasswordNotice(error.message || 'Could not reset password.')
+      setAuthPasswordNotice(error.message || 'Could not reset password. Request a fresh reset link and try again.')
     }
   }
 
@@ -2522,16 +2825,12 @@ function App() {
     setAuthResetPath('')
 
     try {
-      const payload = await authRequest('/api/auth/request-reset', {
-        method: 'POST',
-        body: JSON.stringify({ email }),
+      const client = requireSupabaseClient()
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}${resetPasswordPath}`,
       })
-      setAuthResetPath(payload.resetPath ?? '')
-      setAuthPasswordNotice(
-        payload.resetPath
-          ? 'Dev reset link is ready. Open it below to set a new password.'
-          : 'If that email exists, a reset link will be sent.',
-      )
+      if (error) throw error
+      setAuthPasswordNotice('If that email exists, a reset link will be sent.')
     } catch (error) {
       setAuthPasswordNotice(error.message || 'Could not request reset link.')
     }
@@ -2543,11 +2842,14 @@ function App() {
 
   const logoutCustomer = async () => {
     try {
-      await authRequest('/api/auth/logout', { method: 'POST', body: '{}' })
+      if (isSupabaseConfigured && supabase) {
+        await supabase.auth.signOut()
+      }
     } catch {
-      // Local logout should still complete if the dev auth server is unavailable.
+      // Local logout should still complete if Supabase is temporarily unavailable.
     }
     setCustomer(null)
+    setSupportTickets([])
     saveStoredCustomer(null)
     setAccountOpen(false)
     setLogoutConfirmOpen(false)
@@ -2567,6 +2869,51 @@ function App() {
     setCustomer(nextCustomer)
     saveStoredCustomer(nextCustomer)
     return nextCustomer
+  }
+
+  const saveWishlistIds = (nextWishlistIds) => {
+    if (customer) {
+      updateCustomerProfile({ wishlistIds: nextWishlistIds })
+      return
+    }
+
+    setGuestWishlistIds(nextWishlistIds)
+    saveStoredWishlistIds(nextWishlistIds)
+  }
+
+  const toggleWishlistProduct = async (product, options = {}) => {
+    const productId = product?.id
+    if (!productId) return
+
+    const nextWishlistIds = activeWishlistIds.includes(productId)
+      ? activeWishlistIds.filter((wishlistId) => wishlistId !== productId)
+      : [productId, ...activeWishlistIds]
+
+    try {
+      if (customer?.id && isSupabaseConfigured && supabase) {
+        const client = requireSupabaseClient()
+        const isSaved = activeWishlistIds.includes(productId)
+        const result = isSaved
+          ? await client.from('wishlist_items').delete().eq('user_id', customer.id).eq('product_id', productId)
+          : await client.from('wishlist_items').upsert(
+              { user_id: customer.id, product_id: productId },
+              { onConflict: 'user_id,product_id' },
+            )
+
+        if (result.error) throw result.error
+      }
+
+      saveWishlistIds(nextWishlistIds)
+      if (options.openAccount) {
+        navigateToAccount('wishlist')
+      }
+    } catch (error) {
+      setCartNotice({
+        key: Date.now(),
+        message: error.message || 'Could not update wishlist.',
+        placement: 'above',
+      })
+    }
   }
 
   const saveCustomerAddresses = (nextAddresses, notice) => {
@@ -2601,7 +2948,7 @@ function App() {
     setAddressEditorMode('idle')
   }
 
-  const submitAddressForm = (event) => {
+  const submitAddressForm = async (event) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const nextAddress = {
@@ -2617,44 +2964,143 @@ function App() {
       ].map((value) => String(value ?? '').trim()),
     }
 
-    const nextAddresses =
-      addressEditorMode === 'edit'
-        ? savedAddresses.map((address) => (address.id === nextAddress.id ? nextAddress : address))
-        : [...savedAddresses, nextAddress]
+    try {
+      let savedAddress = nextAddress
 
-    saveCustomerAddresses(nextAddresses, addressEditorMode === 'edit' ? 'Address updated.' : 'Address added.')
-    closeAddressEditor()
+      if (customer?.id && isSupabaseConfigured && supabase) {
+        const client = requireSupabaseClient()
+        const payload = addressToSupabasePayload(nextAddress, customer.id)
+
+        if (payload.is_primary) {
+          const { error } = await client
+            .from('addresses')
+            .update({ is_primary: false, label: 'Saved' })
+            .eq('user_id', customer.id)
+
+          if (error) throw error
+        }
+
+        const result =
+          addressEditorMode === 'edit'
+            ? await client
+                .from('addresses')
+                .update(payload)
+                .eq('id', nextAddress.id)
+                .eq('user_id', customer.id)
+                .select('id, label, name, line1, line2, city_state, country, phone, is_primary')
+                .single()
+            : await client
+                .from('addresses')
+                .insert(payload)
+                .select('id, label, name, line1, line2, city_state, country, phone, is_primary')
+                .single()
+
+        if (result.error) throw result.error
+        savedAddress = mapSupabaseAddress(result.data)
+      }
+
+      const nextAddresses =
+        addressEditorMode === 'edit'
+          ? savedAddresses.map((address) => (address.id === savedAddress.id ? savedAddress : address))
+          : [...savedAddresses, savedAddress]
+
+      const normalizedAddresses =
+        savedAddress.label.toLowerCase() === 'primary'
+          ? nextAddresses.map((address) =>
+              address.id === savedAddress.id
+                ? { ...address, label: 'Primary' }
+                : address.label.toLowerCase() === 'primary'
+                  ? { ...address, label: 'Saved' }
+                  : address,
+            )
+          : nextAddresses
+
+      saveCustomerAddresses(normalizedAddresses, addressEditorMode === 'edit' ? 'Address updated.' : 'Address added.')
+      closeAddressEditor()
+    } catch (error) {
+      setAddressNotice(error.message || 'Could not save address.')
+    }
   }
 
-  const deleteAddress = (addressId) => {
+  const deleteAddress = async (addressId) => {
     const address = savedAddresses.find((item) => item.id === addressId)
     if (!address) return
     if (!window.confirm(`Delete ${address.label} address?`)) return
-    const nextAddresses = savedAddresses.filter((item) => item.id !== addressId)
-    saveCustomerAddresses(nextAddresses, 'Address deleted.')
-    if (addressDraft.id === addressId) closeAddressEditor()
+
+    try {
+      if (customer?.id && isSupabaseConfigured && supabase) {
+        const client = requireSupabaseClient()
+        const { error } = await client.from('addresses').delete().eq('id', addressId).eq('user_id', customer.id)
+        if (error) throw error
+      }
+
+      const nextAddresses = savedAddresses.filter((item) => item.id !== addressId)
+      saveCustomerAddresses(nextAddresses, 'Address deleted.')
+      if (addressDraft.id === addressId) closeAddressEditor()
+    } catch (error) {
+      setAddressNotice(error.message || 'Could not delete address.')
+    }
   }
 
-  const setPrimaryAddress = (addressId) => {
-    const nextAddresses = savedAddresses.map((address) => {
-      if (address.id === addressId) return { ...address, label: 'Primary' }
-      if (address.label.toLowerCase() === 'primary') return { ...address, label: 'Saved' }
-      return address
-    })
-    saveCustomerAddresses(nextAddresses, 'Primary address updated.')
+  const setPrimaryAddress = async (addressId) => {
+    try {
+      if (customer?.id && isSupabaseConfigured && supabase) {
+        const client = requireSupabaseClient()
+        const clearResult = await client
+          .from('addresses')
+          .update({ is_primary: false, label: 'Saved' })
+          .eq('user_id', customer.id)
+
+        if (clearResult.error) throw clearResult.error
+
+        const primaryResult = await client
+          .from('addresses')
+          .update({ is_primary: true, label: 'Primary' })
+          .eq('id', addressId)
+          .eq('user_id', customer.id)
+
+        if (primaryResult.error) throw primaryResult.error
+      }
+
+      const nextAddresses = savedAddresses.map((address) => {
+        if (address.id === addressId) return { ...address, label: 'Primary' }
+        if (address.label.toLowerCase() === 'primary') return { ...address, label: 'Saved' }
+        return address
+      })
+      saveCustomerAddresses(nextAddresses, 'Primary address updated.')
+    } catch (error) {
+      setAddressNotice(error.message || 'Could not update primary address.')
+    }
   }
 
-  const submitProfileUpdate = (event) => {
+  const submitProfileUpdate = async (event) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const nextName = String(formData.get('name') ?? '').trim()
     const nextEmail = String(formData.get('email') ?? '').trim()
-    updateCustomerProfile({
+    const profileUpdates = {
       name: nextName || customer.name,
       email: nextEmail || customer.email,
-    })
-    setProfileEditorOpen(false)
-    setProfileNotice('Profile updated.')
+    }
+
+    try {
+      const client = requireSupabaseClient()
+      const { data, error } = await client.auth.updateUser({
+        email: profileUpdates.email,
+        data: { name: profileUpdates.name },
+      })
+      if (error) throw error
+      await upsertSupabaseProfile(data.user, profileUpdates)
+      updateCustomerProfile(profileUpdates)
+      setProfileEditorOpen(false)
+      setProfileNotice(
+        profileUpdates.email !== customer.email
+          ? 'Profile updated. Confirm the new email if Supabase sends a verification link.'
+          : 'Profile updated.',
+      )
+    } catch (error) {
+      setProfileNotice(error.message || 'Could not update profile.')
+    }
   }
 
   const uploadProfilePhoto = (event) => {
@@ -2670,7 +3116,8 @@ function App() {
 
   const updatePasswordDraft = async (event) => {
     event.preventDefault()
-    const formData = new FormData(event.currentTarget)
+    const form = event.currentTarget
+    const formData = new FormData(form)
     const currentPassword = String(formData.get('currentPassword') ?? '')
     const newPassword = String(formData.get('newPassword') ?? '')
     const confirmPassword = String(formData.get('confirmPassword') ?? '')
@@ -2687,14 +3134,19 @@ function App() {
     }
 
     try {
-      const { customer: apiCustomer } = await authRequest('/api/auth/change-password', {
-        method: 'POST',
-        body: JSON.stringify({ currentPassword, newPassword }),
+      const client = requireSupabaseClient()
+      const reauthResult = await client.auth.signInWithPassword({
+        email: customer.email,
+        password: currentPassword,
       })
-      const nextCustomer = mergeCustomerForDisplay(apiCustomer, customer)
+      if (reauthResult.error) throw new Error('Current password is incorrect.')
+
+      const { error } = await client.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      const nextCustomer = await getSupabaseCustomer(reauthResult.data.user, customer)
       setCustomer(nextCustomer)
       saveStoredCustomer(nextCustomer)
-      event.currentTarget.reset()
+      form.reset()
       setSecurityNotice('Password updated. Existing sessions were refreshed.')
     } catch (error) {
       setSecurityNotice(error.message || 'Could not update password.')
@@ -2703,15 +3155,12 @@ function App() {
 
   const sendResetLinkDraft = async () => {
     try {
-      const payload = await authRequest('/api/auth/request-reset', {
-        method: 'POST',
-        body: JSON.stringify({ email: customer.email }),
+      const client = requireSupabaseClient()
+      const { error } = await client.auth.resetPasswordForEmail(customer.email, {
+        redirectTo: `${window.location.origin}${resetPasswordPath}`,
       })
-      setSecurityNotice(
-        payload.resetPath
-          ? `Dev reset link ready: ${payload.resetPath}`
-          : 'If that email exists, a reset link will be sent.',
-      )
+      if (error) throw error
+      setSecurityNotice('If that email exists, a reset link will be sent.')
     } catch (error) {
       setSecurityNotice(error.message || 'Could not request reset link.')
     }
@@ -2777,7 +3226,7 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const submitCheckout = (event) => {
+  const submitCheckout = async (event) => {
     event.preventDefault()
     if (paymentMethod === 'paypal' && paypalDemoState !== 'approved') {
       setPaypalDemoState('required')
@@ -2786,17 +3235,19 @@ function App() {
     const formData = new FormData(event.currentTarget)
     const email = String(formData.get('email') ?? customer?.email ?? 'demo@1989supply.co').trim()
     const name = String(formData.get('name') ?? customer?.name ?? 'Retro Shopper').trim()
-    const shippingAddress = [
+    const shippingAddressParts = [
       formData.get('address'),
       formData.get('city'),
       formData.get('zip'),
-    ]
+    ].map((value) => String(value ?? '').trim())
+    const shippingAddress = shippingAddressParts
       .map((value) => String(value ?? '').trim())
       .filter(Boolean)
       .join(', ')
-    const nextOrderNumber = 530 + (customer?.orders?.length ?? 0)
+    orderNumberCounterRef.current += 1
+    const nextOrderNumber = `${Math.round(event.timeStamp).toString().slice(-6)}${String(orderNumberCounterRef.current).padStart(2, '0')}`
     const completedOrder = {
-      id: `1989-${String(nextOrderNumber).padStart(4, '0')}`,
+      id: `DI1989-${nextOrderNumber}`,
       date: 'Today',
       status: 'Order received',
       subtotal,
@@ -2821,26 +3272,92 @@ function App() {
         { label: 'Tracking', detail: 'Carrier tracking appears here after shipment.', done: false },
       ],
     }
-    const nextCustomer = {
-      name,
-      email,
-      joined: customer?.joined ?? 'June 2026',
-      orders: [completedOrder, ...(customer?.orders?.length ? customer.orders : demoCustomerOrders)],
-      addresses: normalizeAccountAddresses(customer?.addresses),
+
+    try {
+      let savedOrder = completedOrder
+
+      if (customer?.id && isSupabaseConfigured && supabase) {
+        const client = requireSupabaseClient()
+        const orderResult = await client
+          .from('orders')
+          .insert({
+            user_id: customer.id,
+            order_number: completedOrder.id,
+            customer_email: email,
+            customer_name: name,
+            status: 'order_received',
+            payment_provider: 'paypal',
+            payment_status: paymentMethod === 'paypal' ? 'demo_approved' : 'demo',
+            fulfillment_status: 'production_pending',
+            subtotal,
+            discount,
+            shipping,
+            total,
+            currency: 'USD',
+            shipping_address: {
+              address: shippingAddressParts[0] || '',
+              city: shippingAddressParts[1] || '',
+              zip: shippingAddressParts[2] || '',
+              country: 'United States',
+              items: cart.map((item) => ({
+                product_id: String(item.id ?? '').split(':')[0] || null,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                option_summary: item.optionSummary || null,
+              })),
+            },
+            timeline: completedOrder.timeline,
+          })
+          .select('id, order_number, status, payment_provider, payment_status, fulfillment_status, subtotal, discount, shipping, total, shipping_address, tracking_number, tracking_url, timeline, created_at')
+          .single()
+
+        if (orderResult.error) throw orderResult.error
+
+        savedOrder = mapSupabaseOrder({
+          ...orderResult.data,
+          order_items: cart.map((item) => ({
+            product_id: String(item.id ?? '').split(':')[0] || null,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            option_summary: item.optionSummary || null,
+          })),
+        })
+      }
+
+      const existingOrders = customer && Array.isArray(customer.orders) ? customer.orders : demoCustomerOrders
+      const nextCustomer = {
+        ...customer,
+        name,
+        email,
+        joined: customer?.joined ?? 'June 2026',
+        orders: [savedOrder, ...existingOrders],
+        addresses: normalizeAccountAddresses(customer?.addresses),
+        wishlistIds: customer?.wishlistIds ?? guestWishlistIds,
+      }
+      setCustomer(nextCustomer)
+      saveStoredCustomer(nextCustomer)
+      trackStoreEvent('purchase_demo', {
+        order_id: savedOrder.id,
+        value: total,
+        item_count: itemCount,
+      })
+      setSelectedOrderId(savedOrder.id)
+      setAccountTab('orders')
+      setCheckoutDone(true)
+      setCart([])
+      setPromoCode('')
+      setPromoState('idle')
+    } catch (error) {
+      cartFeedbackCounterRef.current += 1
+      setPaypalDemoState('idle')
+      setCartNotice({
+        key: cartFeedbackCounterRef.current,
+        message: error.message || 'Could not save order.',
+        placement: 'above',
+      })
     }
-    setCustomer(nextCustomer)
-    saveStoredCustomer(nextCustomer)
-    trackStoreEvent('purchase_demo', {
-      order_id: completedOrder.id,
-      value: total,
-      item_count: itemCount,
-    })
-    setSelectedOrderId(completedOrder.id)
-    setAccountTab('orders')
-    setCheckoutDone(true)
-    setCart([])
-    setPromoCode('')
-    setPromoState('idle')
   }
 
   const isRevenueDashboard = window.location.pathname === '/dashboard' || window.location.hash === '#revenue-dashboard'
@@ -4622,9 +5139,11 @@ function App() {
                 <span className="checkout-label-full">Add to Cart</span>
                 <span className="checkout-label-short">Add</span>
               </button>
-              <button className="wishlist-button" type="button" onClick={() => openProductDetail(featuredDrop)}>
+              <button className="wishlist-button" type="button" onClick={() => toggleWishlistProduct(featuredDrop, { openAccount: true })}>
                 <Heart size={18} />
-                <span className="wishlist-label">Add to Wishlist</span>
+                <span className="wishlist-label">
+                  {activeWishlistIds.includes(featuredDrop.id) ? 'Saved' : 'Add to Wishlist'}
+                </span>
               </button>
               <div className="drop-stamp">Good Times. Guaranteed.</div>
             </aside>
@@ -5328,6 +5847,9 @@ function App() {
                             <button type="button" onClick={(event) => addToCart(product, event)}>
                               Add to Cart
                             </button>
+                            <button type="button" onClick={() => toggleWishlistProduct(product)}>
+                              Remove
+                            </button>
                           </div>
                         </article>
                       ))}
@@ -5383,8 +5905,8 @@ function App() {
                     <div className="account-order-table">
                       {visibleCustomerOrders.map((order) => {
                         const firstItem = order.items?.[0]
-                        const itemLabel = typeof firstItem === 'string' ? firstItem : firstItem?.name
-                        const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : '1 item'
+                        const itemLabel = (typeof firstItem === 'string' ? firstItem : firstItem?.name) || 'Order item'
+                        const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : `${order.items?.length || 1} item`
 
                         return (
                           <button
@@ -5443,8 +5965,8 @@ function App() {
                       <div className="account-order-table">
                         {visibleCustomerOrders.map((order) => {
                           const firstItem = order.items?.[0]
-                          const itemLabel = typeof firstItem === 'string' ? firstItem : firstItem?.name
-                          const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : '1 item'
+                          const itemLabel = (typeof firstItem === 'string' ? firstItem : firstItem?.name) || 'Order item'
+                          const itemCountLabel = order.items?.length > 1 ? `+${order.items.length - 1} more item` : `${order.items?.length || 1} item`
 
                           return (
                             <button
