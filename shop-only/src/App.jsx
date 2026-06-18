@@ -45,12 +45,6 @@ import arcadeDepartmentImage from './assets/departments/arcade-department.png'
 import audioDepartmentImage from './assets/departments/audio-department.png'
 import kitchenDepartmentImage from './assets/departments/kitchen-department.png'
 import wallArtDepartmentImage from './assets/departments/wall-art-department.png'
-import snackBowlSetFeatureImage from './assets/featured/snack-bowl-set-feature.png'
-import arcadeEssentialsSetImage from './assets/sets/arcade-essentials.png'
-import audioShelfSetImage from './assets/sets/audio-shelf-set.png'
-import deskSetupPackSetImage from './assets/sets/desk-setup-pack.png'
-import kitchenDinnerKitSetImage from './assets/sets/kitchen-dinner-kit.png'
-import wallArtStarterSetImage from './assets/sets/wall-art-starter.png'
 import deskGiftsLineupImage from './assets/gift-counter/desk-gifts-lineup-v2.png'
 import partyNightLineupImage from './assets/gift-counter/party-night-lineup-v2.png'
 import shelfDecorLineupImage from './assets/gift-counter/shelf-decor-lineup-v2.png'
@@ -59,14 +53,12 @@ import albumWallPrintImage from './assets/products-cutout/album-wall-print.png'
 import arcadePosterImage from './assets/products-cutout/arcade-poster.png'
 import dinerMugImage from './assets/products-cutout/diner-mug-transparent-mockup.jpg'
 import dinerTrayImage from './assets/products-cutout/diner-tray.png'
-import rewindTeeDetailImage from './assets/products-cutout/rewind-tee-detail.png'
 import rewindTeeLifestyleImage from './assets/products-cutout/rewind-tee-lifestyle.png'
 import dinerMugLifestyleImage from './assets/products-cutout/diner-mug-lifestyle.png'
 import vhsCalendarImage from './assets/products-cutout/vhs-calendar.png'
 import videoNightSignImage from './assets/products-cutout/video-night-sign.png'
 import foodCourtPosterGeneratedImage from './assets/pdp-generated/food-court-poster-generated.png'
 import mallRunDadHatGeneratedImage from './assets/pdp-generated/mall-run-dad-hat-generated.png'
-import mallWeekendHoodieBackImage from './assets/pdp-generated/mall-weekend-hoodie-back.png'
 import mallWeekendHoodieFrontImage from './assets/pdp-generated/mall-weekend-hoodie-front.png'
 import mallWeekendHoodieLifestyleImage from './assets/pdp-generated/mall-weekend-hoodie-lifestyle.png'
 import mallWeekendHoodiePrintDetailImage from './assets/pdp-generated/mall-weekend-hoodie-print-detail.png'
@@ -80,6 +72,14 @@ import authCreateAccountImage from './assets/auth/auth-create-account-desk.png'
 import authSignInImage from './assets/auth/auth-sign-in-video-counter.png'
 import retroCartImage from './assets/ui/retro-cart.png'
 import RevenueDashboard from './RevenueDashboard.jsx'
+import {
+  bundles as generatedBundles,
+  featuredDropProduct as generatedFeaturedDropProduct,
+  newArrivalIds as generatedNewArrivalIds,
+  productDetailExperiences as generatedProductDetailExperiences,
+  products as generatedProducts,
+  shelfReadySets as generatedShelfReadySets,
+} from './data/catalog.js'
 import { isSupabaseConfigured, supabase } from './lib/supabaseClient.js'
 import './App.css'
 
@@ -254,170 +254,7 @@ const imageUseMeta = {
   },
 }
 
-const products = [
-  {
-    id: 'rewind-club-tee',
-    name: 'Rewind Club Tee',
-    shortDetail: 'Soft cotton tee printed on demand.',
-    price: 30,
-    category: 'Apparel',
-    tag: 'New',
-    image: productImages.rewindTee,
-    printDetailImage: rewindTeeDetailImage,
-    lifestyleImage: rewindTeeLifestyleImage,
-    imageUse: 'product',
-    sku: 'SKU-1989-014',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'mall-weekend-hoodie',
-    name: 'Mall Weekend Hoodie',
-    shortDetail: 'Warm pullover with a small retro chest print.',
-    price: 54,
-    category: 'Apparel',
-    tag: 'Best Seller',
-    image: productImages.rewindHoodie,
-    backImage: mallWeekendHoodieBackImage,
-    lifestyleImage: mallWeekendHoodieLifestyleImage,
-    printDetailImage: mallWeekendHoodiePrintDetailImage,
-    imageUse: 'product',
-    sku: 'SKU-1989-022',
-    stockState: 'in-stock',
-  },
-  {
-    id: '1999-varsity-hoodie',
-    name: '1999 Varsity Hoodie',
-    shortDetail: 'Red fleece pullover with a sunset mall mark.',
-    price: 59,
-    category: 'Apparel',
-    tag: 'New Drop',
-    image: productImages.varsityHoodie,
-    imageUse: 'product',
-    sku: 'SKU-1989-025',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'mall-run-dad-hat',
-    name: 'Mall Run Dad Hat',
-    shortDetail: 'Washed cotton cap for easy weekend errands.',
-    price: 24,
-    category: 'Apparel',
-    tag: 'New',
-    image: productImages.mallRunDadHat,
-    imageUse: 'product',
-    sku: 'SKU-1989-026',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'mall-weekend-tote',
-    name: 'Mall Weekend Tote',
-    shortDetail: 'Heavy canvas tote for shopping and day trips.',
-    price: 24,
-    category: 'Bags',
-    tag: 'Fresh Drop',
-    image: productImages.mallTote,
-    imageUse: 'product',
-    sku: 'SKU-1989-031',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'diner-counter-mug',
-    name: 'Diner Counter Mug',
-    shortDetail: 'Ceramic mug for coffee, tea, and desk days.',
-    price: 18,
-    category: 'Drinkware',
-    tag: 'Under $20',
-    image: productImages.dinerMug,
-    lifestyleImage: dinerMugLifestyleImage,
-    imageUse: 'product',
-    sku: 'SKU-1989-044',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'arcade-night-poster',
-    name: 'Arcade Night Poster',
-    shortDetail: '18x24 wall poster for rooms and studios.',
-    price: 32,
-    category: 'Wall Art',
-    tag: 'Low Stock',
-    image: productImages.arcadePoster,
-    imageUse: 'product',
-    sku: 'SKU-1989-051',
-    stockState: 'low-stock',
-  },
-  {
-    id: 'food-court-poster',
-    name: 'Food Court Poster',
-    shortDetail: 'Retro food court wall art for bedrooms and studios.',
-    price: 20,
-    category: 'Wall Art',
-    tag: 'Gift Pick',
-    image: productImages.foodCourtPoster,
-    imageUse: 'product',
-    sku: 'SKU-1989-052',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'rewind-sticker-pack',
-    name: 'Rewind Sticker Pack',
-    shortDetail: 'Die-cut stickers for laptops, bottles, and notebooks.',
-    price: 16,
-    category: 'Stationery',
-    tag: 'Gift Pick',
-    image: productImages.stickerPack,
-    imageUse: 'product',
-    sku: 'SKU-1989-063',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'retro-desk-calendar',
-    name: 'Retro Desk Calendar',
-    shortDetail: 'Monthly desk calendar with original 1989-style art.',
-    price: 26,
-    category: 'Stationery',
-    tag: 'Desk Pick',
-    image: productImages.deskCalendar,
-    imageUse: 'product',
-    sku: 'SKU-1989-077',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'video-rental-notebook',
-    name: 'Video Rental Notebook',
-    shortDetail: 'Lined notebook for lists, sketches, and daily notes.',
-    price: 22,
-    category: 'Stationery',
-    tag: 'New',
-    image: productImages.notebook,
-    imageUse: 'product',
-    sku: 'SKU-1989-089',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'diner-coaster-set',
-    name: 'Diner Coaster Set',
-    shortDetail: 'Four printed coasters for coffee tables and desks.',
-    price: 22,
-    category: 'Home Goods',
-    tag: 'Bundle Ready',
-    image: productImages.coasterSet,
-    imageUse: 'product',
-    sku: 'SKU-1989-102',
-    stockState: 'in-stock',
-  },
-  {
-    id: 'memory-lane-canvas',
-    name: 'Memory Lane Canvas',
-    shortDetail: 'Stretched canvas print for bedrooms and work corners.',
-    price: 48,
-    category: 'Wall Art',
-    tag: 'Gift Pick',
-    image: productImages.wallCanvas,
-    imageUse: 'product',
-    sku: 'SKU-1989-181',
-    stockState: 'in-stock',
-  },
-]
+const products = generatedProducts
 
 const defaultPdpExperience = {
   tone: 'archive',
@@ -690,41 +527,11 @@ const getProductDetailExperience = (product) => {
     ...defaultPdpExperience,
     ...(categoryPdpExperiences[product.category] ?? {}),
     ...(productDetailExperiences[product.id] ?? {}),
+    ...(generatedProductDetailExperiences[product.id] ?? {}),
   }
 }
 
-const bundles = [
-  {
-    id: 'bundle-weekend',
-    name: 'Weekend Outfit Pack',
-    shortDetail: 'Tee, tote, and stickers for an easy first order.',
-    price: 64,
-    value: 70,
-    image: videoStoreImage,
-    imageUse: 'banner',
-    items: ['Rewind Club Tee', 'Mall Weekend Tote', 'Rewind Sticker Pack'],
-  },
-  {
-    id: 'bundle-desk',
-    name: 'Desk Work Pack',
-    shortDetail: 'Notebook, calendar, and coasters for a cleaner desk.',
-    price: 58,
-    value: 70,
-    image: snackBowlSetFeatureImage,
-    imageUse: 'banner',
-    items: ['Video Rental Notebook', 'Retro Desk Calendar', 'Diner Coaster Set'],
-  },
-  {
-    id: 'bundle-room',
-    name: 'Retro Room Pack',
-    shortDetail: 'Poster, canvas, and stickers for a quick room refresh.',
-    price: 86,
-    value: 96,
-    image: mallWeekendImage,
-    imageUse: 'banner',
-    items: ['Arcade Night Poster', 'Memory Lane Canvas', 'Rewind Sticker Pack'],
-  },
-]
+const bundles = generatedBundles
 
 const heroSlides = [
   {
@@ -861,62 +668,9 @@ const giftCounterItems = [
   },
 ]
 
-const newArrivalIds = ['mall-weekend-hoodie', 'rewind-club-tee', 'diner-counter-mug', 'retro-desk-calendar']
-const featuredDropProduct = {
-  id: 'arcade-night-poster',
-  name: 'Arcade Night Poster',
-  shortDetail: 'Wall poster made after order for rooms, offices, and studios.',
-  price: 32,
-  category: 'Wall Art',
-  tag: "Today's Spotlight",
-  image: arcadePosterImage,
-  imageUse: 'product',
-  sku: 'SKU-1989-198',
-  stockState: 'in-stock',
-}
-
-const shelfReadySets = [
-  {
-    id: 'set-outfit',
-    name: 'Outfit Starter',
-    copy: 'Tee, hoodie, and tote for a simple first drop.',
-    price: 108,
-    image: audioShelfSetImage,
-    imageUse: 'banner',
-  },
-  {
-    id: 'set-room',
-    name: 'Room Wall Set',
-    copy: 'Poster, canvas, and sticker pack.',
-    price: 86,
-    image: arcadeEssentialsSetImage,
-    imageUse: 'banner',
-  },
-  {
-    id: 'set-desk',
-    name: 'Desk Setup Pack',
-    copy: 'Notebook, calendar, mug, and coasters.',
-    price: 78,
-    image: kitchenDinnerKitSetImage,
-    imageUse: 'banner',
-  },
-  {
-    id: 'set-wall-art',
-    name: 'Wall Art Starter',
-    copy: 'Two wall prints and stickers to style a room.',
-    price: 80,
-    image: wallArtStarterSetImage,
-    imageUse: 'banner',
-  },
-  {
-    id: 'set-gift',
-    name: 'Small Gift Pack',
-    copy: 'Sticker pack, notebook, and coasters.',
-    price: 50,
-    image: deskSetupPackSetImage,
-    imageUse: 'banner',
-  },
-]
+const newArrivalIds = generatedNewArrivalIds
+const featuredDropProduct = generatedFeaturedDropProduct
+const shelfReadySets = generatedShelfReadySets
 
 const policyCards = [
   {
@@ -1150,7 +904,64 @@ const productOptionGroups = {
   ],
 }
 
-const getOptionGroups = (product) => productOptionGroups[product?.category] ?? []
+const formatVariantColor = (color, product) => {
+  if (!color) return null
+  if (product?.category === 'Drinkware' && color === 'White') return 'Glossy White'
+  if (product?.category === 'Stationery' && color === 'White') return null
+  if (product?.category === 'Home Goods' && color === 'White') return null
+  return color
+}
+
+const getUniqueVariantValues = (variants, key, formatter = (value) => value) =>
+  variants
+    .map((variant) => formatter(variant[key], variant))
+    .filter(Boolean)
+    .filter((value, index, values) => values.indexOf(value) === index)
+
+const getVariantPriceDelta = (variants, key, value, basePrice, formatter = (rawValue) => rawValue) => {
+  const matchingVariant = variants.find((variant) => formatter(variant[key], variant) === value)
+  return matchingVariant ? Number((matchingVariant.retailPrice - basePrice).toFixed(2)) : 0
+}
+
+const getPrintfulOptionGroups = (product) => {
+  const variants = product?.printful?.variants ?? []
+  if (!variants.length) return null
+
+  const basePrice = product.price
+  const sizeOptions = getUniqueVariantValues(variants, 'size')
+  const colorOptions = getUniqueVariantValues(variants, 'color', (color) => formatVariantColor(color, product))
+  const groups = []
+
+  if (sizeOptions.length) {
+    groups.push({
+      name: product.category === 'Stationery' ? 'Format' : 'Size',
+      options: sizeOptions.map((size) => ({
+        label: size,
+        priceDelta: getVariantPriceDelta(variants, 'size', size, basePrice),
+      })),
+    })
+  }
+
+  if (colorOptions.length) {
+    groups.push({
+      name: product.category === 'Drinkware' ? 'Finish' : product.category === 'Stationery' ? 'Paper' : 'Color',
+      options: colorOptions.map((color) => ({
+        label: color,
+        priceDelta: getVariantPriceDelta(
+          variants,
+          'color',
+          color,
+          basePrice,
+          (rawColor) => formatVariantColor(rawColor, product),
+        ),
+      })),
+    })
+  }
+
+  return groups
+}
+
+const getOptionGroups = (product) => getPrintfulOptionGroups(product) ?? productOptionGroups[product?.category] ?? []
 
 const getDefaultOptions = (product) =>
   Object.fromEntries(getOptionGroups(product).map((group) => [group.name, group.options[0].label]))
@@ -1361,114 +1172,7 @@ const createReceiptPdfBlob = (order, customer) => {
   return new Blob([pdf], { type: 'application/pdf' })
 }
 
-const demoCustomerOrders = [
-  {
-    id: 'DI1989-10425',
-    date: 'May 18, 2025',
-    status: 'Delivered',
-    total: 64.89,
-    items: [
-      { name: 'Mall Soft Cotton Tee', quantity: 1, price: 29.99, optionSummary: 'Black / Large', image: productImages.rewindTee },
-      { name: 'Blockbuster Sticker Pack', quantity: 1, price: 8.99, optionSummary: 'Multi', image: productImages.stickerPack },
-      { name: 'Vintage 1989 Dad Hat', quantity: 1, price: 19.99, optionSummary: 'Navy', image: productImages.deskCalendar },
-    ],
-    subtotal: 58.97,
-    discount: 0,
-    shipping: 5.92,
-    fulfillment: 'Produced and delivered',
-    tracking: 'USPS DI1989 10425 DEMO',
-    timeline: [
-      { label: 'Order received', detail: 'May 18, 2025', done: true },
-      { label: 'Order review', detail: 'May 19, 2025', done: true },
-      { label: 'In production', detail: 'May 20, 2025', done: true },
-      { label: 'Shipped', detail: 'May 21, 2025', done: true },
-      { label: 'Delivered', detail: 'May 23, 2025', done: true },
-    ],
-  },
-  {
-    id: 'DI1989-10387',
-    date: 'May 02, 2025',
-    status: 'Shipped',
-    total: 37.45,
-    items: [
-      { name: 'Diner Counter Mug', quantity: 1, price: 18, optionSummary: 'Size: 11 oz / Finish: Glossy White' },
-      { name: 'Mall Weekend Tote', quantity: 1, price: 24, optionSummary: 'Color: Natural Canvas / Print Side: Front' },
-    ],
-    subtotal: 42,
-    discount: 0,
-    shipping: 0,
-    fulfillment: 'Produced and delivered',
-    tracking: 'USPS 1989 0517 DEMO',
-    timeline: [
-      { label: 'Order received', detail: 'Checkout completed.', done: true },
-      { label: 'In production', detail: 'Made-to-order items were produced and packed.', done: true },
-      { label: 'Shipped', detail: 'Carrier received the package.', done: true },
-      { label: 'Delivered', detail: 'Package marked delivered.', done: true },
-    ],
-  },
-  {
-    id: 'DI1989-10291',
-    date: 'Apr 22, 2025',
-    status: 'Delivered',
-    total: 89.9,
-    items: [
-      { name: 'Arcade Night Poster', quantity: 1, price: 32, optionSummary: '18x24 / Matte' },
-      { name: 'Mall Weekend Hoodie', quantity: 1, price: 54, optionSummary: 'Ash Gray / Large' },
-    ],
-    subtotal: 86,
-    discount: 4.05,
-    shipping: 7.95,
-    fulfillment: 'Produced and delivered',
-    tracking: 'USPS DI1989 10291 DEMO',
-    timeline: [
-      { label: 'Order received', detail: 'Apr 22, 2025', done: true },
-      { label: 'Order review', detail: 'Apr 23, 2025', done: true },
-      { label: 'In production', detail: 'Apr 24, 2025', done: true },
-      { label: 'Shipped', detail: 'Apr 26, 2025', done: true },
-      { label: 'Delivered', detail: 'Apr 29, 2025', done: true },
-    ],
-  },
-  {
-    id: 'DI1989-10176',
-    date: 'Apr 10, 2025',
-    status: 'Delivered',
-    total: 45,
-    items: [
-      { name: 'Video Rental Notebook', quantity: 1, price: 22, optionSummary: 'Lined' },
-      { name: 'Rewind Sticker Pack', quantity: 1, price: 16, optionSummary: 'Multi' },
-    ],
-    subtotal: 38,
-    discount: 0,
-    shipping: 7,
-    fulfillment: 'Produced and delivered',
-    tracking: 'USPS DI1989 10176 DEMO',
-    timeline: [
-      { label: 'Order received', detail: 'Apr 10, 2025', done: true },
-      { label: 'Order review', detail: 'Apr 11, 2025', done: true },
-      { label: 'In production', detail: 'Apr 12, 2025', done: true },
-      { label: 'Shipped', detail: 'Apr 14, 2025', done: true },
-      { label: 'Delivered', detail: 'Apr 17, 2025', done: true },
-    ],
-  },
-  {
-    id: 'DI1989-10033',
-    date: 'Mar 28, 2025',
-    status: 'Cancelled',
-    total: 19.99,
-    items: [
-      { name: 'Retro Desk Calendar', quantity: 1, price: 19.99, optionSummary: 'Desk size' },
-    ],
-    subtotal: 19.99,
-    discount: 0,
-    shipping: 0,
-    fulfillment: 'Cancelled before production',
-    tracking: 'No tracking',
-    timeline: [
-      { label: 'Order received', detail: 'Mar 28, 2025', done: true },
-      { label: 'Cancelled', detail: 'Mar 28, 2025', done: true },
-    ],
-  },
-]
+const emptyCustomerOrders = []
 
 const accountCoupons = [
   { code: 'REWIND10', offer: '10% off', detail: 'Your order', expires: 'Jun 30, 2026', tone: 'red' },
@@ -1599,12 +1303,7 @@ const recentlyViewedIds = [
   'memory-lane-canvas',
 ]
 
-const defaultWishlistIds = [
-  'diner-counter-mug',
-  'mall-weekend-tote',
-  'arcade-night-poster',
-  'memory-lane-canvas',
-]
+const defaultWishlistIds = []
 
 const getAccountLineItemImage = (item) => {
   if (!item) return productImages.stickerPack
@@ -1627,10 +1326,9 @@ const getStoredCustomer = () => {
     const savedCustomer = window.localStorage.getItem('dreaming-1989-customer')
     if (!savedCustomer) return null
     const parsedCustomer = JSON.parse(savedCustomer)
-    const hasCurrentDemoOrders = parsedCustomer?.orders?.some((order) => String(order.id).startsWith('DI1989-'))
     return {
       ...parsedCustomer,
-      orders: hasCurrentDemoOrders ? parsedCustomer.orders : demoCustomerOrders,
+      orders: Array.isArray(parsedCustomer.orders) ? parsedCustomer.orders : [],
       addresses: normalizeAccountAddresses(parsedCustomer.addresses),
       wishlistIds: Array.isArray(parsedCustomer.wishlistIds) ? parsedCustomer.wishlistIds : defaultWishlistIds,
     }
@@ -1750,7 +1448,7 @@ const mergeCustomerForDisplay = (apiCustomer, currentCustomer = null) => ({
     ? apiCustomer.orders
     : currentCustomer?.orders?.length
       ? currentCustomer.orders
-      : demoCustomerOrders,
+      : emptyCustomerOrders,
   addresses: normalizeAccountAddresses(
     Array.isArray(apiCustomer?.addresses) ? apiCustomer.addresses : currentCustomer?.addresses,
   ),
@@ -1972,11 +1670,10 @@ function App() {
   const [customer, setCustomer] = useState(() => getStoredCustomer())
   const [guestWishlistIds, setGuestWishlistIds] = useState(() => getStoredWishlistIds())
   const customerRef = useRef(customer)
-  const [cart, setCart] = useState([
-    { id: 'rewind-sticker-pack', name: 'Rewind Sticker Pack', price: 16, image: productImages.stickerPack, quantity: 1 },
-  ])
+  const [cart, setCart] = useState([])
   const cartButtonRef = useRef(null)
   const floatingCartButtonRef = useRef(null)
+  const productGalleryRef = useRef(null)
   const pdpPrimaryActionsRef = useRef(null)
   const recentCarouselRef = useRef(null)
   const supportButtonRef = useRef(null)
@@ -2199,12 +1896,14 @@ function App() {
     }))
     .filter((item) => item.image)
   const selectedProductGallery = selectedProduct
-    ? [
-        { label: 'Front', image: selectedProduct.image },
-        ...(selectedProduct.backImage ? [{ label: 'Back', image: selectedProduct.backImage }] : []),
-        ...(selectedProduct.lifestyleImage ? [{ label: 'Lifestyle', image: selectedProduct.lifestyleImage }] : []),
-        ...(selectedProduct.printDetailImage ? [{ label: 'Print Detail', image: selectedProduct.printDetailImage }] : []),
-      ]
+    ? selectedProduct.galleryImages?.length
+      ? selectedProduct.galleryImages
+      : [
+          { label: 'Front', image: selectedProduct.image },
+          ...(selectedProduct.backImage ? [{ label: 'Back', image: selectedProduct.backImage }] : []),
+          ...(selectedProduct.lifestyleImage ? [{ label: 'Lifestyle', image: selectedProduct.lifestyleImage }] : []),
+          ...(selectedProduct.printDetailImage ? [{ label: 'Print Detail', image: selectedProduct.printDetailImage }] : []),
+        ]
     : []
   const activeProductImage = selectedProductGallery[activeProductImageIndex]?.image ?? selectedProduct?.image
   const curatedRelatedProductIds = selectedProduct?.id === 'mall-weekend-hoodie'
@@ -2261,10 +1960,10 @@ function App() {
     }
   }, [activeRoute, selectedProduct])
 
-  const featuredDropImage = featuredDrop.image
+  const featuredDropImage = featuredDrop?.image
   const routeAccountTab = getAccountTabFromPath(currentPath)
   const displayedAccountTab = routeAccountTab ?? accountTab
-  const customerOrders = customer && Array.isArray(customer.orders) ? customer.orders : demoCustomerOrders
+  const customerOrders = customer && Array.isArray(customer.orders) ? customer.orders : emptyCustomerOrders
   const trackedOrder =
     customerOrders.find((order) => order.id === trackedOrderId || `#${order.id}` === trackedOrderId) ?? null
   const orderDateStartTime = getDateOnlyTime(orderDateRange.start)
@@ -2286,7 +1985,7 @@ function App() {
   const hasOrderToggle = ordersForCurrentView.length > 3
   const visibleCustomerOrders = ordersExpanded ? ordersForCurrentView : ordersForCurrentView.slice(0, 3)
   const selectedAccountOrder =
-    customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? demoCustomerOrders[0]
+    customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? null
   const detailOrder = orderDetailOpen ? selectedAccountOrder : null
   const selectedSupportAction =
     accountSupportActions.find((action) => action.id === activeSupportAction) ?? accountSupportActions[0]
@@ -2387,7 +2086,7 @@ function App() {
   const navigateToAccount = useCallback((tab = 'dashboard') => {
     const nextTab = accountRouteTabs.has(tab) ? tab : 'dashboard'
     setAccountTab(nextTab)
-    setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? demoCustomerOrders[0]?.id)
+    setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? null)
     navigateToPath(getAccountPath(nextTab))
   }, [customerOrders, navigateToPath])
 
@@ -2396,7 +2095,7 @@ function App() {
     setActiveSupportAction(nextAction)
     setSupportTicketNotice('')
     if (nextAction === 'order') {
-      setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? demoCustomerOrders[0]?.id)
+      setSelectedOrderId((currentId) => currentId ?? customerOrders[0]?.id ?? null)
     }
     navigateToAccount('support')
   }, [customerOrders, navigateToAccount])
@@ -2431,6 +2130,15 @@ function App() {
     if (!carousel) return
     carousel.scrollBy({
       left: direction * Math.max(carousel.clientWidth * 0.82, 220),
+      behavior: 'smooth',
+    })
+  }
+
+  const scrollProductGallery = (direction) => {
+    const gallery = productGalleryRef.current
+    if (!gallery) return
+    gallery.scrollBy({
+      top: direction * Math.max(gallery.clientHeight * 0.72, 220),
       behavior: 'smooth',
     })
   }
@@ -2521,7 +2229,7 @@ function App() {
 
     if (!foundOrder) {
       setTrackedOrderId('')
-      setTrackingNotice('Order not found. Try DI1989-10425 for the demo order.')
+      setTrackingNotice('Order not found. Check the order number and checkout email.')
       return
     }
 
@@ -3326,7 +3034,7 @@ function App() {
         })
       }
 
-      const existingOrders = customer && Array.isArray(customer.orders) ? customer.orders : demoCustomerOrders
+      const existingOrders = customer && Array.isArray(customer.orders) ? customer.orders : []
       const nextCustomer = {
         ...customer,
         name,
@@ -3666,14 +3374,14 @@ function App() {
           <a className="home-tab" href="#top" aria-label="Home">
             <Home size={18} />
           </a>
-          <a href="#new-arrivals">
-            <span className="nav-label-desktop">New Drops</span>
-            <span className="nav-label-mobile">New</span>
-          </a>
-          <a href="#collections">Bundles</a>
           <a href="#products">
-            <span className="nav-label-desktop">Best Sellers</span>
-            <span className="nav-label-mobile">Best</span>
+            <span className="nav-label-desktop">Products</span>
+            <span className="nav-label-mobile">Shop</span>
+          </a>
+          {bundles.length > 0 && <a href="#collections">Bundles</a>}
+          <a href="#products">
+            <span className="nav-label-desktop">Catalog</span>
+            <span className="nav-label-mobile">Catalog</span>
           </a>
           <a className="mobile-gift-link" href="#deals">Gift Counter</a>
           <div
@@ -4113,21 +3821,48 @@ function App() {
               </nav>
 
               <div className="catalog-pdp-hero">
-                <aside className="catalog-pdp-gallery" aria-label={`${selectedProduct.name} product views`}>
-                  {selectedProductGallery.map((item, index) => (
+                <div className="catalog-pdp-gallery-shell">
+                  {selectedProductGallery.length > 4 && (
                     <button
-                      className={activeProductImageIndex === index ? 'active' : ''}
-                      key={`${selectedProduct.id}-${item.label}`}
+                      className="catalog-pdp-gallery-scroll catalog-pdp-gallery-scroll--up"
                       type="button"
-                      onClick={() => setActiveProductImageIndex(index)}
+                      aria-label="Scroll product views up"
+                      onClick={() => scrollProductGallery(-1)}
                     >
-                      <img src={item.image} alt={`${selectedProduct.name} ${item.label}`} />
-                      <span>
-                        <b>{String(index + 1).padStart(2, '0')}</b> {item.label.replace('Catalog ', '')}
-                      </span>
+                      <ChevronDown size={16} />
                     </button>
-                  ))}
-                </aside>
+                  )}
+                  <aside
+                    className="catalog-pdp-gallery"
+                    ref={productGalleryRef}
+                    aria-label={`${selectedProduct.name} product views`}
+                  >
+                    {selectedProductGallery.map((item, index) => (
+                      <button
+                        className={activeProductImageIndex === index ? 'active' : ''}
+                        key={`${selectedProduct.id}-${item.label}`}
+                        type="button"
+                        onClick={() => setActiveProductImageIndex(index)}
+                      >
+                        <img src={item.image} alt={`${selectedProduct.name} ${item.label}`} />
+                        <span>
+                          <b>{String(index + 1).padStart(2, '0')}</b> {item.label.replace('Catalog ', '')}
+                        </span>
+                      </button>
+                    ))}
+                  </aside>
+                  {selectedProductGallery.length > 4 && (
+                    <button
+                      className="catalog-pdp-gallery-scroll catalog-pdp-gallery-scroll--down"
+                      type="button"
+                      aria-label="Scroll product views down"
+                      onClick={() => scrollProductGallery(1)}
+                    >
+                      <ChevronDown size={16} />
+                      More views
+                    </button>
+                  )}
+                </div>
 
                 <figure className="catalog-pdp-main-frame">
                   <span className="catalog-pdp-tape catalog-pdp-tape--top" aria-hidden="true" />
@@ -4578,11 +4313,12 @@ function App() {
               </label>
             </div>
 
-            <div className="collection-route-grid">
-              {collectionProducts.map((product) => {
-                const proof = getProductProof(product)
-                return (
-                <article className="product-card collection-product-card" key={`collection-${product.id}`}>
+            {collectionProducts.length ? (
+              <div className="collection-route-grid">
+                {collectionProducts.map((product) => {
+                  const proof = getProductProof(product)
+                  return (
+                  <article className="product-card collection-product-card" key={`collection-${product.id}`}>
                   <button
                     className="media-square product-image product-image-button product-image--cutout"
                     type="button"
@@ -4641,10 +4377,23 @@ function App() {
                       </button>
                     </span>
                   </div>
-                </article>
-                )
-              })}
-            </div>
+                  </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="empty-results empty-results--tv">
+                <div className="tv-testcard" aria-hidden="true">
+                  <div className="smpte-bars" />
+                  <span className="tv-standby">PLEASE STAND BY</span>
+                </div>
+                <h3>No live products yet</h3>
+                <p>This collection is ready for real listings.</p>
+                <button type="button" onClick={() => openCollection('All')}>
+                  Browse All
+                </button>
+              </div>
+            )}
           </section>
         ) : activeRoute === 'tracking' ? (
           <section className="store-section tracking-route-page">
@@ -4657,7 +4406,7 @@ function App() {
               <form className="tracking-lookup-form" onSubmit={submitOrderTracking}>
                 <label>
                   Order Number
-                  <input name="orderId" placeholder="DI1989-10425" required />
+                  <input name="orderId" placeholder="Order number" required />
                 </label>
                 <label>
                   Email
@@ -4719,10 +4468,10 @@ function App() {
             <p>Made-to-order apparel, prints, desk goods, and gifts.</p>
             <div className="hero-actions">
               <a className="primary-button" href="#products">
-                Shop New Arrivals <ChevronRight size={18} />
+                View Product Shelf <ChevronRight size={18} />
               </a>
-              <a className="secondary-button" href="#collections">
-                View Bundles
+              <a className="secondary-button" href="#deals">
+                View Gift Guide
               </a>
             </div>
           </div>
@@ -4797,59 +4546,61 @@ function App() {
           </div>
         </section>
 
-        <section id="new-arrivals" className="store-section">
-          <div className="section-heading">
-            <div>
-              <p className="receipt-label">Fresh on the counter</p>
-              <h2>New Arrivals</h2>
+        {newArrivals.length > 0 && (
+          <section id="new-arrivals" className="store-section">
+            <div className="section-heading">
+              <div>
+                <p className="receipt-label">Fresh on the counter</p>
+                <h2>New Arrivals</h2>
+              </div>
+              <p className="section-note">Fresh apparel, mugs, wall art, and desk goods.</p>
             </div>
-            <p className="section-note">Fresh apparel, mugs, wall art, and desk goods.</p>
-          </div>
-          <div className="feature-product-grid">
-            {newArrivals.map((product) => (
-              <article className="feature-product-card" key={product.id}>
-                <button
-                  className="media-square product-image-button feature-image-button product-image--cutout"
-                  type="button"
-                  aria-label={`View ${product.name} details`}
-                  onClick={() => openProductDetail(product)}
-                >
-                  <img src={product.image} alt={product.name} />
-                </button>
-                <div>
-                  <p className="receipt-label">{product.category}</p>
-                  <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
-                    {product.name}
+            <div className="feature-product-grid">
+              {newArrivals.map((product) => (
+                <article className="feature-product-card" key={product.id}>
+                  <button
+                    className="media-square product-image-button feature-image-button product-image--cutout"
+                    type="button"
+                    aria-label={`View ${product.name} details`}
+                    onClick={() => openProductDetail(product)}
+                  >
+                    <img src={product.image} alt={product.name} />
                   </button>
-                  <span className="proof-rating">
-                    <span className="proof-stars" aria-hidden="true">★★★★★</span>
-                    <span className="proof-count">{getProductProof(product).rating.toFixed(1)}</span>
-                  </span>
-                  <p>{product.shortDetail}</p>
-                  <div className="bundle-buy">
-                    <strong>{formatPrice(product.price)}</strong>
-                    <span className="buy-actions">
-                      <button type="button" onClick={(event) => addToCart(product, event)}>
-                        <ShoppingCart size={16} />
-                        Add
-                      </button>
+                  <div>
+                    <p className="receipt-label">{product.category}</p>
+                    <button className="product-title-button" type="button" onClick={() => openProductDetail(product)}>
+                      {product.name}
+                    </button>
+                    <span className="proof-rating">
+                      <span className="proof-stars" aria-hidden="true">★★★★★</span>
+                      <span className="proof-count">{getProductProof(product).rating.toFixed(1)}</span>
                     </span>
+                    <p>{product.shortDetail}</p>
+                    <div className="bundle-buy">
+                      <strong>{formatPrice(product.price)}</strong>
+                      <span className="buy-actions">
+                        <button type="button" onClick={(event) => addToCart(product, event)}>
+                          <ShoppingCart size={16} />
+                          Add
+                        </button>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="film-divider" role="separator" aria-label="Good times, great memories">
-          <span>Good Times · Great Memories · Always In Stock</span>
+          <span>Good Times · Great Memories · Listings Coming Soon</span>
         </div>
 
         <section id="products" className="store-section products-section">
           <div className="section-heading">
             <div>
               <p className="receipt-label">Browse the shelf</p>
-              <h2>Best Sellers</h2>
+              <h2>Product Shelf</h2>
             </div>
             <label className="product-search">
               <Search size={18} />
@@ -4944,8 +4695,8 @@ function App() {
                 <div className="smpte-bars" />
                 <span className="tv-standby">PLEASE STAND BY</span>
               </div>
-              <h3>No products found</h3>
-              <p>Clear search or browse all products.</p>
+              <h3>No live products yet</h3>
+              <p>Demo products were cleared. Add real listings to publish this shelf.</p>
               <button
                 type="button"
                 onClick={() => {
@@ -4959,16 +4710,17 @@ function App() {
           )}
         </section>
 
-        <section id="collections" className="store-section bundle-builder-section">
-          <div className="section-heading">
-            <div>
-              <p className="receipt-label">Curated kits</p>
-              <h2>Weekend Bundle Builder</h2>
+        {bundles.length > 0 && (
+          <section id="collections" className="store-section bundle-builder-section">
+            <div className="section-heading">
+              <div>
+                <p className="receipt-label">Curated kits</p>
+                <h2>Weekend Bundle Builder</h2>
+              </div>
+              <p className="section-note">Three ready-made carts for movie nights, counters, and mall-weekend shelves.</p>
             </div>
-            <p className="section-note">Three ready-made carts for movie nights, counters, and mall-weekend shelves.</p>
-          </div>
-          <div className="bundle-grid">
-            {bundles.map((bundle) => {
+            <div className="bundle-grid">
+              {bundles.map((bundle) => {
               const bundleProducts = bundle.items.map((itemName) =>
                 products.find((product) => product.name === itemName) ?? {
                   id: `${bundle.id}-${itemName}`,
@@ -5023,9 +4775,10 @@ function App() {
                   </div>
                 </article>
               )
-            })}
-          </div>
-        </section>
+              })}
+            </div>
+          </section>
+        )}
 
         <section id="deals" className="store-section gift-counter-section">
           <div className="section-heading">
@@ -5075,114 +4828,118 @@ function App() {
           </div>
         </section>
 
-        <section id="featured" className="store-section featured-drop-section">
-          <div className="section-heading">
-            <div>
-              <p className="receipt-label">Staff counter pick</p>
-              <h2>Featured Drop</h2>
-            </div>
-            <p className="section-note">Today&apos;s pick, ready to add.</p>
-          </div>
-          <article className="featured-drop-card">
-            <button
-              className="featured-drop-image product-image--cutout"
-              type="button"
-              onClick={() =>
-                openProductDetail({
-                  ...featuredDrop,
-                  image: featuredDropImage,
-                })
-              }
-            >
-              <img src={featuredDropImage} alt={featuredDrop.name} />
-            </button>
-            <div className="featured-drop-copy">
-              <p className="receipt-label">{featuredDrop.tag}</p>
-              <button className="featured-title-button" type="button" onClick={() => openProductDetail(featuredDrop)}>
-                {featuredDrop.name}
-              </button>
-              <p>{featuredDrop.shortDetail}</p>
-              <dl className="drop-spec-list">
-                <div>
-                  <dt>Type</dt>
-                  <dd>Wall poster</dd>
-                </div>
-                <div>
-                  <dt>Size</dt>
-                  <dd>18x24 in</dd>
-                </div>
-                <div>
-                  <dt>Artwork</dt>
-                  <dd>Original print</dd>
-                </div>
-                <div>
-                  <dt>Ships</dt>
-                  <dd>After production</dd>
-                </div>
-                <div>
-                  <dt>Frame</dt>
-                  <dd>Optional</dd>
-                </div>
-                <div>
-                  <dt>Production</dt>
-                  <dd>Made to order</dd>
-                </div>
-              </dl>
-            </div>
-            <aside className="featured-drop-actions" aria-label={`${featuredDrop.name} purchase actions`}>
-              <div className="featured-price">
-                <strong>{formatPrice(featuredDrop.price)}</strong>
-                <span>In stock</span>
+        {featuredDrop && (
+          <section id="featured" className="store-section featured-drop-section">
+            <div className="section-heading">
+              <div>
+                <p className="receipt-label">Staff counter pick</p>
+                <h2>Featured Drop</h2>
               </div>
-              <button className="checkout-button" type="button" onClick={(event) => addToCart(featuredDrop, event)}>
-                <ShoppingCart size={18} />
-                <span className="checkout-label-full">Add to Cart</span>
-                <span className="checkout-label-short">Add</span>
-              </button>
-              <button className="wishlist-button" type="button" onClick={() => toggleWishlistProduct(featuredDrop, { openAccount: true })}>
-                <Heart size={18} />
-                <span className="wishlist-label">
-                  {activeWishlistIds.includes(featuredDrop.id) ? 'Saved' : 'Add to Wishlist'}
-                </span>
-              </button>
-              <div className="drop-stamp">Good Times. Guaranteed.</div>
-            </aside>
-          </article>
-        </section>
-
-        <section id="gift-guide" className="store-section shelf-ready-section">
-          <div className="section-heading">
-            <div>
-              <p className="receipt-label">Ready for the shelf</p>
-              <h2>Shelf-Ready Sets</h2>
+              <p className="section-note">Today&apos;s pick, ready to add.</p>
             </div>
-            <p className="section-note">Denser kits for shoppers who want the full look in one pass.</p>
-          </div>
-          <div className="shelf-set-grid">
-            {shelfSets.map((set) => (
-              <article className="shelf-set-card" key={set.id}>
-                <button
-                  className="media-banner shelf-set-image"
-                  type="button"
-                  onClick={() => openImageInfo(set, 'Shelf-ready set image', set.imageUse)}
-                >
-                  <img src={set.image} alt={`${set.name} product set`} />
+            <article className="featured-drop-card">
+              <button
+                className="featured-drop-image product-image--cutout"
+                type="button"
+                onClick={() =>
+                  openProductDetail({
+                    ...featuredDrop,
+                    image: featuredDropImage,
+                  })
+                }
+              >
+                <img src={featuredDropImage} alt={featuredDrop.name} />
+              </button>
+              <div className="featured-drop-copy">
+                <p className="receipt-label">{featuredDrop.tag}</p>
+                <button className="featured-title-button" type="button" onClick={() => openProductDetail(featuredDrop)}>
+                  {featuredDrop.name}
                 </button>
-                <div>
-                  <p className="receipt-label">Curated kit</p>
-                  <h3>{set.name}</h3>
-                  <p>{set.copy}</p>
+                <p>{featuredDrop.shortDetail}</p>
+                <dl className="drop-spec-list">
+                  <div>
+                    <dt>Type</dt>
+                    <dd>Wall poster</dd>
+                  </div>
+                  <div>
+                    <dt>Size</dt>
+                    <dd>18x24 in</dd>
+                  </div>
+                  <div>
+                    <dt>Artwork</dt>
+                    <dd>Original print</dd>
+                  </div>
+                  <div>
+                    <dt>Ships</dt>
+                    <dd>After production</dd>
+                  </div>
+                  <div>
+                    <dt>Frame</dt>
+                    <dd>Optional</dd>
+                  </div>
+                  <div>
+                    <dt>Production</dt>
+                    <dd>Made to order</dd>
+                  </div>
+                </dl>
+              </div>
+              <aside className="featured-drop-actions" aria-label={`${featuredDrop.name} purchase actions`}>
+                <div className="featured-price">
+                  <strong>{formatPrice(featuredDrop.price)}</strong>
+                  <span>In stock</span>
                 </div>
-                <div className="shelf-set-ticket">
-                  <span>{formatPrice(set.price)}</span>
-                  <button type="button" onClick={(event) => addToCart(set, event)}>
-                    Add
+                <button className="checkout-button" type="button" onClick={(event) => addToCart(featuredDrop, event)}>
+                  <ShoppingCart size={18} />
+                  <span className="checkout-label-full">Add to Cart</span>
+                  <span className="checkout-label-short">Add</span>
+                </button>
+                <button className="wishlist-button" type="button" onClick={() => toggleWishlistProduct(featuredDrop, { openAccount: true })}>
+                  <Heart size={18} />
+                  <span className="wishlist-label">
+                    {activeWishlistIds.includes(featuredDrop.id) ? 'Saved' : 'Add to Wishlist'}
+                  </span>
+                </button>
+                <div className="drop-stamp">Good Times. Guaranteed.</div>
+              </aside>
+            </article>
+          </section>
+        )}
+
+        {shelfSets.length > 0 && (
+          <section id="gift-guide" className="store-section shelf-ready-section">
+            <div className="section-heading">
+              <div>
+                <p className="receipt-label">Ready for the shelf</p>
+                <h2>Shelf-Ready Sets</h2>
+              </div>
+              <p className="section-note">Denser kits for shoppers who want the full look in one pass.</p>
+            </div>
+            <div className="shelf-set-grid">
+              {shelfSets.map((set) => (
+                <article className="shelf-set-card" key={set.id}>
+                  <button
+                    className="media-banner shelf-set-image"
+                    type="button"
+                    onClick={() => openImageInfo(set, 'Shelf-ready set image', set.imageUse)}
+                  >
+                    <img src={set.image} alt={`${set.name} product set`} />
                   </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
+                  <div>
+                    <p className="receipt-label">Curated kit</p>
+                    <h3>{set.name}</h3>
+                    <p>{set.copy}</p>
+                  </div>
+                  <div className="shelf-set-ticket">
+                    <span>{formatPrice(set.price)}</span>
+                    <button type="button" onClick={(event) => addToCart(set, event)}>
+                      Add
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section id="policies" className="store-section policy-section">
           <div className="section-heading">
@@ -5418,7 +5175,7 @@ function App() {
           <div className="empty-cart">
             <ShoppingBag size={34} />
             <h3>Your cart is empty</h3>
-            <p>Start with a best seller or bundle.</p>
+            <p>Real products will appear here after the first listings are added.</p>
             <button type="button" onClick={() => setCartOpen(false)}>
               Browse Products
             </button>
@@ -5772,7 +5529,7 @@ function App() {
                           </label>
                           <label>
                             Order
-                            <select name="orderId" defaultValue={activeSupportAction === 'order' ? selectedAccountOrder.id : ''}>
+                            <select name="orderId" defaultValue={activeSupportAction === 'order' ? selectedAccountOrder?.id ?? '' : ''}>
                               <option value="">No order selected</option>
                               {customerOrders.map((order) => (
                                 <option key={order.id} value={order.id}>
@@ -5930,6 +5687,9 @@ function App() {
                           </button>
                         )
                       })}
+                      {!visibleCustomerOrders.length && (
+                        <p className="account-empty-address">No real orders yet.</p>
+                      )}
                     </div>
                   </section>
                 ) : (
@@ -5990,6 +5750,9 @@ function App() {
                             </button>
                           )
                         })}
+                        {!visibleCustomerOrders.length && (
+                          <p className="account-empty-address">No real orders yet.</p>
+                        )}
                       </div>
                     </section>
 

@@ -3132,6 +3132,14 @@
   align-items: start;
 }
 
+.catalog-pdp-gallery-shell {
+  position: relative;
+  display: grid;
+  align-self: start;
+  gap: 8px;
+  width: 112px;
+}
+
 .catalog-pdp-gallery {
   position: relative;
   display: grid;
@@ -3151,6 +3159,36 @@
     0 13px 22px rgba(31, 18, 13, 0.18);
   transform: rotate(-1.15deg);
   transform-origin: 50% 0;
+  max-height: min(650px, calc(100vh - 150px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 242, 216, 0.55) rgba(13, 12, 11, 0.7);
+}
+
+.catalog-pdp-gallery-scroll {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 5px 8px;
+  color: #fff7df;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: #0b342f;
+  border: 2px solid #5dd6e7;
+  border-radius: 999px;
+  box-shadow: 0 3px 0 rgba(31, 18, 13, 0.38);
+  cursor: pointer;
+}
+
+.catalog-pdp-gallery-scroll--up svg {
+  transform: rotate(180deg);
 }
 
 .catalog-pdp-gallery::before {
@@ -5202,7 +5240,7 @@
     min-height: 520px;
   }
 
-  .catalog-pdp-gallery {
+  .catalog-pdp-gallery-shell {
     align-self: start;
   }
 
@@ -5287,11 +5325,16 @@
     grid-template-columns: 1fr;
   }
 
-  .catalog-pdp-gallery {
+  .catalog-pdp-gallery-shell {
     position: relative;
     top: auto;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
     order: 2;
+  }
+
+  .catalog-pdp-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 380px;
     transform: none;
   }
 

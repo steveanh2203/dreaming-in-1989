@@ -1,0 +1,429 @@
+{
+  "schemaVersion": 2,
+  "updatedAt": "2026-06-17T15:50:59.035Z",
+  "store": {
+    "id": "18275392",
+    "name": "Dreaming in 1989",
+    "currency": "USD"
+  },
+  "products": [
+    {
+      "localProductId": "rewind-club-tee",
+      "name": "Rewind Club Tee",
+      "category": "Apparel",
+      "sku": "SKU-1989-TEE-001",
+      "storefrontPrice": 31,
+      "artworkFile": "ops/printful/artwork/rewind-club-tee/rewind-club-tee-print.png",
+      "printfulUpload": {
+        "id": 1003744105,
+        "status": "waiting",
+        "filename": "rewind-club-tee-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178616,
+        "externalId": "rewind-club-tee",
+        "syncedVariants": 5,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 71,
+        "fileType": "front"
+      },
+      "variants": [
+        {
+          "size": "S",
+          "color": "Vintage White",
+          "catalogVariantId": 14714,
+          "baseCost": 11.69,
+          "retailPrice": 31,
+          "estimatedGrossMargin": 19.31
+        },
+        {
+          "size": "M",
+          "color": "Vintage White",
+          "catalogVariantId": 14715,
+          "baseCost": 11.69,
+          "retailPrice": 31,
+          "estimatedGrossMargin": 19.31
+        },
+        {
+          "size": "L",
+          "color": "Vintage White",
+          "catalogVariantId": 14716,
+          "baseCost": 11.69,
+          "retailPrice": 31,
+          "estimatedGrossMargin": 19.31
+        },
+        {
+          "size": "XL",
+          "color": "Vintage White",
+          "catalogVariantId": 14717,
+          "baseCost": 11.69,
+          "retailPrice": 31,
+          "estimatedGrossMargin": 19.31
+        },
+        {
+          "size": "2XL",
+          "color": "Vintage White",
+          "catalogVariantId": 14718,
+          "baseCost": 13.69,
+          "retailPrice": 34,
+          "estimatedGrossMargin": 20.31
+        }
+      ]
+    },
+    {
+      "localProductId": "mall-weekend-hoodie",
+      "name": "Mall Weekend Hoodie",
+      "category": "Apparel",
+      "sku": "SKU-1989-HDY-001",
+      "storefrontPrice": 56,
+      "artworkFile": "ops/printful/artwork/mall-weekend-hoodie/mall-weekend-hoodie-print.png",
+      "printfulUpload": {
+        "id": 1003744115,
+        "status": "waiting",
+        "filename": "mall-weekend-hoodie-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178630,
+        "externalId": "mall-weekend-hoodie",
+        "syncedVariants": 5,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 146,
+        "fileType": "front"
+      },
+      "variants": [
+        {
+          "size": "S",
+          "color": "Sport Grey",
+          "catalogVariantId": 5610,
+          "baseCost": 19.95,
+          "retailPrice": 56,
+          "estimatedGrossMargin": 36.05
+        },
+        {
+          "size": "M",
+          "color": "Sport Grey",
+          "catalogVariantId": 5611,
+          "baseCost": 19.95,
+          "retailPrice": 56,
+          "estimatedGrossMargin": 36.05
+        },
+        {
+          "size": "L",
+          "color": "Sport Grey",
+          "catalogVariantId": 5612,
+          "baseCost": 19.95,
+          "retailPrice": 56,
+          "estimatedGrossMargin": 36.05
+        },
+        {
+          "size": "XL",
+          "color": "Sport Grey",
+          "catalogVariantId": 5613,
+          "baseCost": 19.95,
+          "retailPrice": 56,
+          "estimatedGrossMargin": 36.05
+        },
+        {
+          "size": "2XL",
+          "color": "Sport Grey",
+          "catalogVariantId": 5614,
+          "baseCost": 23.95,
+          "retailPrice": 60,
+          "estimatedGrossMargin": 36.05
+        }
+      ]
+    },
+    {
+      "localProductId": "mall-weekend-tote",
+      "name": "Mall Weekend Tote",
+      "category": "Bags",
+      "sku": "SKU-1989-TOTE-001",
+      "storefrontPrice": 29,
+      "artworkFile": "ops/printful/artwork/mall-weekend-tote/mall-weekend-tote-print.png",
+      "printfulUpload": {
+        "id": 1003744127,
+        "status": "waiting",
+        "filename": "mall-weekend-tote-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178638,
+        "externalId": "mall-weekend-tote",
+        "syncedVariants": 1,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 367,
+        "fileType": "front"
+      },
+      "variants": [
+        {
+          "size": "One size",
+          "color": "Oyster",
+          "catalogVariantId": 10458,
+          "baseCost": 15.25,
+          "retailPrice": 29,
+          "estimatedGrossMargin": 13.75
+        }
+      ]
+    },
+    {
+      "localProductId": "mall-weekend-mug",
+      "name": "Mall Weekend Mug",
+      "category": "Drinkware",
+      "sku": "SKU-1989-MUG-002",
+      "storefrontPrice": 19.95,
+      "artworkFile": "ops/printful/artwork/mall-weekend-mug/mall-weekend-mug-print.png",
+      "printfulUpload": {
+        "id": 1003744140,
+        "status": "waiting",
+        "filename": "mall-weekend-mug-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178643,
+        "externalId": "mall-weekend-mug",
+        "syncedVariants": 2,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 19,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "11 oz",
+          "color": "White",
+          "catalogVariantId": 1320,
+          "baseCost": 6.5,
+          "retailPrice": 19.95,
+          "estimatedGrossMargin": 13.45
+        },
+        {
+          "size": "15 oz",
+          "color": "White",
+          "catalogVariantId": 4830,
+          "baseCost": 8.95,
+          "retailPrice": 24.95,
+          "estimatedGrossMargin": 16
+        }
+      ]
+    },
+    {
+      "localProductId": "food-court-poster",
+      "name": "Food Court Poster",
+      "category": "Wall Art",
+      "sku": "SKU-1989-POSTER-001",
+      "storefrontPrice": 32,
+      "artworkFile": "ops/printful/artwork/food-court-poster/food-court-poster-print.png",
+      "printfulUpload": {
+        "id": 1003744155,
+        "status": "waiting",
+        "filename": "food-court-poster-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178657,
+        "externalId": "food-court-poster",
+        "syncedVariants": 2,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 1,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "12x18 in",
+          "color": null,
+          "catalogVariantId": 3876,
+          "baseCost": 10.5,
+          "retailPrice": 24.5,
+          "estimatedGrossMargin": 14
+        },
+        {
+          "size": "18x24 in",
+          "color": null,
+          "catalogVariantId": 1,
+          "baseCost": 11.75,
+          "retailPrice": 32,
+          "estimatedGrossMargin": 20.25
+        }
+      ]
+    },
+    {
+      "localProductId": "memory-lane-canvas",
+      "name": "Memory Lane Canvas",
+      "category": "Wall Art",
+      "sku": "SKU-1989-CANVAS-001",
+      "storefrontPrice": 52,
+      "artworkFile": "ops/printful/artwork/memory-lane-canvas/memory-lane-canvas-print.png",
+      "printfulUpload": {
+        "id": 1003744181,
+        "status": "waiting",
+        "filename": "memory-lane-canvas-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178674,
+        "externalId": "memory-lane-canvas",
+        "syncedVariants": 2,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 3,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "12x18 in",
+          "color": null,
+          "catalogVariantId": 19299,
+          "baseCost": 26.95,
+          "retailPrice": 52,
+          "estimatedGrossMargin": 25.05
+        },
+        {
+          "size": "16x24 in",
+          "color": null,
+          "catalogVariantId": 19303,
+          "baseCost": 33.5,
+          "retailPrice": 68,
+          "estimatedGrossMargin": 34.5
+        }
+      ]
+    },
+    {
+      "localProductId": "rewind-sticker-strip",
+      "name": "Rewind Sticker Strip",
+      "category": "Stationery",
+      "sku": "SKU-1989-STICKER-001",
+      "storefrontPrice": 16.5,
+      "artworkFile": "ops/printful/artwork/rewind-sticker-strip/rewind-sticker-strip-print.png",
+      "printfulUpload": {
+        "id": 1003744187,
+        "status": "waiting",
+        "filename": "rewind-sticker-strip-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178686,
+        "externalId": "rewind-sticker-strip",
+        "syncedVariants": 1,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 358,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "15x3.75 in",
+          "color": "White",
+          "catalogVariantId": 16362,
+          "baseCost": 6.25,
+          "retailPrice": 16.5,
+          "estimatedGrossMargin": 10.25
+        }
+      ]
+    },
+    {
+      "localProductId": "video-rental-notebook",
+      "name": "Video Rental Notebook",
+      "category": "Stationery",
+      "sku": "SKU-1989-NOTEBOOK-001",
+      "storefrontPrice": 28,
+      "artworkFile": "ops/printful/artwork/video-rental-notebook/video-rental-notebook-print.png",
+      "printfulUpload": {
+        "id": 1003744205,
+        "status": "waiting",
+        "filename": "video-rental-notebook-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178699,
+        "externalId": "video-rental-notebook",
+        "syncedVariants": 1,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 474,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "5.5x8.5 in",
+          "color": "Dotted",
+          "catalogVariantId": 12141,
+          "baseCost": 13.25,
+          "retailPrice": 28,
+          "estimatedGrossMargin": 14.75
+        }
+      ]
+    },
+    {
+      "localProductId": "arcade-token-coaster",
+      "name": "Arcade Token Coaster",
+      "category": "Home Goods",
+      "sku": "SKU-1989-COASTER-001",
+      "storefrontPrice": 13.5,
+      "artworkFile": "ops/printful/artwork/arcade-token-coaster/arcade-token-coaster-print.png",
+      "printfulUpload": {
+        "id": 1003744224,
+        "status": "waiting",
+        "filename": "arcade-token-coaster-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178713,
+        "externalId": "arcade-token-coaster",
+        "syncedVariants": 1,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 611,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "3.74x3.74 in",
+          "color": null,
+          "catalogVariantId": 15662,
+          "baseCost": 5.5,
+          "retailPrice": 13.5,
+          "estimatedGrossMargin": 8
+        }
+      ]
+    },
+    {
+      "localProductId": "arcade-desk-mouse-pad",
+      "name": "Arcade Desk Mouse Pad",
+      "category": "Home Goods",
+      "sku": "SKU-1989-MOUSEPAD-001",
+      "storefrontPrice": 24,
+      "artworkFile": "ops/printful/artwork/arcade-desk-mouse-pad/arcade-desk-mouse-pad-print.png",
+      "printfulUpload": {
+        "id": 1003744243,
+        "status": "waiting",
+        "filename": "arcade-desk-mouse-pad-print.png"
+      },
+      "printfulSync": {
+        "syncProductId": 440178747,
+        "externalId": "arcade-desk-mouse-pad",
+        "syncedVariants": 1,
+        "createdThisRun": true
+      },
+      "printfulCandidate": {
+        "catalogProductId": 518,
+        "fileType": "default"
+      },
+      "variants": [
+        {
+          "size": "8.7x7.1 in",
+          "color": "White",
+          "catalogVariantId": 13097,
+          "baseCost": 9.5,
+          "retailPrice": 24,
+          "estimatedGrossMargin": 14.5
+        }
+      ]
+    }
+  ]
+}

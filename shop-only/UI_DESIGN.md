@@ -139,12 +139,25 @@ Use explicit image roles in product data so assets do not get mixed:
 - `product`: sellable SKU images only. Display as a stable `1:1` square frame with the full item visible.
 - `banner`: bundles, gift guides, featured drops, departments, and shelf sets. Display as `16:9` landscape artwork with cover crop.
 - `hero`: first-viewport campaign/storefront scenes only. Display full-bleed with cover crop.
+- `printful-view`: official Printful mockup views for the same SKU/variant, such as front, back, left, right, flat, model, detail, or sleeve/side views.
+- `lifestyle`: generated or staged product scenes that show the item in use while preserving the real product artwork.
+- `detail`: close-up images for print quality, texture, label, material, or finish.
 
 Rules:
 
 - Product cards, new arrivals, product detail, cart thumbnails, and product image modals must use `product`.
 - Bundle cards, gift counter cards, department covers, featured drop art, and shelf-ready set images must use `banner`.
 - Do not use banner/scene images inside the product grid unless they are cropped into a deliberate `1:1` product image.
+- Product listing and PDP primary mockup images must not keep a raw white rectangle background unless the surrounding UI intentionally uses a white frame. Remove the white background into transparency or replace it with a context-appropriate transparent/product-safe export so the image fits the paper/retro site background.
+- When creating a product from Printful, download every useful available product view for that Printful product/variant. Do not stop at one front image when Printful provides more angles.
+- Printful/product views should appear before generated lifestyle images in the product gallery because they show the actual purchasable product.
+- In addition to Printful views, generate up to 4 lifestyle images per product when the product needs more merchandising depth. These should show the product in believable use cases such as desk setup, diner counter, shelf display, gift scene, apparel worn, wall art in room, or bundle context.
+- Generated lifestyle images must not distort the product artwork, logo, text, print placement, proportions, or material. If the AI output changes the actual design, reject or regenerate it.
+- Generated lifestyle images must be composed for the target container before use. Avoid off-center products, awkward crops, clipped handles/sleeves/frames, warped product geometry, and subjects that fight the PDP layout.
+- For lookbook/polaroid sections, test the image inside the real card frame. The product or scene must fit the crop and keep the main subject clear at desktop and mobile sizes.
+- The PDP thumbnail rail must support more images than can fit on screen. If thumbnails overflow vertically, include a clear scroll-down control; after scrolling, provide a way to move back up or keep native scroll usable.
+- Thumbnail labels should stay clear and sequential, for example `01 Front`, `02 Back`, `03 Left`, `04 Lifestyle`, `05 Detail`.
+- Never let product images silently disappear below the fold with no visual cue that more images exist.
 
 ## Responsive Rules
 

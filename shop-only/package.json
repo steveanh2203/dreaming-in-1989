@@ -7,6 +7,9 @@
     "dev": "vite",
     "dev:api": "node server/auth-server.js",
     "dev:all": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -WindowStyle Hidden -FilePath node -ArgumentList 'server/auth-server.js'; npm run dev\"",
+    "dev:doppler": "doppler run -- npm run dev",
+    "dev:api:doppler": "doppler run -- npm run dev:api",
+    "env:pull": "doppler secrets download --format env --no-file > .env.local",
     "build": "vite build",
     "lint": "eslint .",
     "qa": "playwright test qa.spec.js --config=browser-check --reporter=line",
@@ -36,6 +39,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "sharp": "^0.35.1",
     "vite": "^8.0.12"
   }
 }
