@@ -1,0 +1,57 @@
+{
+  "requestedAt": "2026-06-18T12:20:39.133Z",
+  "request": {
+    "format": "jpg",
+    "mockup_width_px": 1200,
+    "products": [
+      {
+        "source": "catalog",
+        "catalog_product_id": 71,
+        "catalog_variant_ids": [
+          4017
+        ],
+        "mockup_style_ids": [
+          849,
+          931,
+          744
+        ],
+        "orientation": "vertical",
+        "placements": [
+          {
+            "placement": "front",
+            "technique": "dtg",
+            "print_area_type": "simple",
+            "layers": [
+              {
+                "type": "file",
+                "url": "https://skkvyenuffrzsbaqcnkh.supabase.co/storage/v1/object/public/printful-artwork/after-school-arcade-tee/print-v1.png",
+                "position": {
+                  "width": 12,
+                  "height": 14.4,
+                  "top": 0.8,
+                  "left": 0
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "data": [
+      {
+        "id": 934220530,
+        "status": "pending",
+        "catalog_variant_mockups": [],
+        "failure_reasons": [],
+        "_links": {
+          "self": {
+            "href": "https://api.printful.com/v2/mockup-tasks?id=934220530"
+          }
+        }
+      }
+    ],
+    "extra": []
+  }
+}

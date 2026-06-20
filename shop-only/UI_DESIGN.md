@@ -152,8 +152,15 @@ Rules:
 - When creating a product from Printful, download every useful available product view for that Printful product/variant. Do not stop at one front image when Printful provides more angles.
 - Printful/product views should appear before generated lifestyle images in the product gallery because they show the actual purchasable product.
 - In addition to Printful views, generate up to 4 lifestyle images per product when the product needs more merchandising depth. These should show the product in believable use cases such as desk setup, diner counter, shelf display, gift scene, apparel worn, wall art in room, or bundle context.
+- Product concepts do not require the storefront logo unless explicitly requested. Prioritize original, product-appropriate 1980s-1990s American artwork.
+- Remove the green chroma-key and validate a transparent PNG before applying the artwork to Printful. Never print the green background on the product.
+- After downloading the available Printful mockup views, remove the background surrounding the product and center the isolated product inside a `1:1` frame.
+- Lifestyle images must use the background-removed concept PNG as the primary artwork reference and the Printful mockup as a secondary physical-product reference. They must use a `1:1` ratio and depict believable American 1980s-1990s environments.
+- Apparel lifestyle images should use period-appropriate American models in natural daily-life scenes; front-facing poses are optional.
 - Generated lifestyle images must not distort the product artwork, logo, text, print placement, proportions, or material. If the AI output changes the actual design, reject or regenerate it.
 - Generated lifestyle images must be composed for the target container before use. Avoid off-center products, awkward crops, clipped handles/sleeves/frames, warped product geometry, and subjects that fight the PDP layout.
+- The PDP hero lifestyle/story frame must use a product-related lifestyle image that fits the left-side frame tightly. The right-side title, description, bullets, production, best-for, and artwork/context copy must be rewritten for the exact product, not reused as generic filler.
+- A complete standard product package targets 10 storefront images: 4 Printful/product views, 1 detail view, 1 PDP hero lifestyle/story image, and 4 square lifestyle/lookbook images. Additional useful Printful views may be included. The transparent concept artwork is a production asset and does not count toward the 10 storefront images.
 - For lookbook/polaroid sections, test the image inside the real card frame. The product or scene must fit the crop and keep the main subject clear at desktop and mobile sizes.
 - The PDP thumbnail rail must support more images than can fit on screen. If thumbnails overflow vertically, include a clear scroll-down control; after scrolling, provide a way to move back up or keep native scroll usable.
 - Thumbnail labels should stay clear and sequential, for example `01 Front`, `02 Back`, `03 Left`, `04 Lifestyle`, `05 Detail`.

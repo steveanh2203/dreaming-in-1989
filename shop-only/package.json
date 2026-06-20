@@ -10,7 +10,8 @@
     "dev:doppler": "doppler run -- npm run dev",
     "dev:api:doppler": "doppler run -- npm run dev:api",
     "env:pull": "doppler secrets download --format env --no-file > .env.local",
-    "build": "vite build",
+    "cost:check": "node scripts/check-cost-guardrails.mjs",
+    "build": "npm run cost:check && vite build",
     "lint": "eslint .",
     "qa": "playwright test qa.spec.js --config=browser-check --reporter=line",
     "preview": "vite preview"

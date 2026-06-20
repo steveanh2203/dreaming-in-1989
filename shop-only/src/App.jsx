@@ -236,24 +236,6 @@ const productImages = {
 
 const getInitialProductImageIndex = () => 0
 
-const imageUseMeta = {
-  product: {
-    ratio: '1:1 product frame',
-    treatment: 'Object contained',
-    note: 'Use for sellable SKU images. Keep the full item visible inside a square frame.',
-  },
-  banner: {
-    ratio: '16:9 landscape banner',
-    treatment: 'Cover crop',
-    note: 'Use for bundles, gift guides, featured promos, and section cover images.',
-  },
-  hero: {
-    ratio: 'Full-bleed hero',
-    treatment: 'Cover crop',
-    note: 'Use only for first-viewport storefront scenes and wide campaign backgrounds.',
-  },
-}
-
 const products = generatedProducts
 
 const defaultPdpExperience = {
@@ -6196,7 +6178,7 @@ function App() {
             className="image-info-modal"
             role="dialog"
             aria-modal="true"
-            aria-labelledby="image-info-title"
+            aria-label={`${selectedImageInfo.name} image preview`}
             onClick={(event) => event.stopPropagation()}
           >
             <button
@@ -6209,49 +6191,6 @@ function App() {
             </button>
             <div className={`image-info-preview image-info-preview--${selectedImageInfo.imageUse}`}>
               <img src={selectedImageInfo.image} alt={selectedImageInfo.name} />
-            </div>
-            <div className="image-info-copy">
-              <Image size={28} />
-              <p className="receipt-label">{selectedImageInfo.context}</p>
-              <h2 id="image-info-title">{selectedImageInfo.name}</h2>
-              <div className="image-info-grid">
-                <span>
-                  <small>Category</small>
-                  <strong>{selectedImageInfo.category ?? 'Bundle'}</strong>
-                </span>
-                <span>
-                  <small>Display ratio</small>
-                  <strong>{imageUseMeta[selectedImageInfo.imageUse]?.ratio ?? imageUseMeta.product.ratio}</strong>
-                </span>
-                <span>
-                  <small>Background</small>
-                  <strong>{imageUseMeta[selectedImageInfo.imageUse]?.treatment ?? imageUseMeta.product.treatment}</strong>
-                </span>
-                <span>
-                  <small>SKU</small>
-                  <strong>{selectedImageInfo.sku ?? selectedImageInfo.id}</strong>
-                </span>
-              </div>
-              <p>
-                {imageUseMeta[selectedImageInfo.imageUse]?.note ?? imageUseMeta.product.note}
-              </p>
-              <div className="detail-actions">
-                <button className="secondary-button" type="button" onClick={() => setSelectedImageInfo(null)}>
-                  Close
-                </button>
-                {selectedImageInfo.category && (
-                  <button
-                    className="checkout-button"
-                    type="button"
-                    onClick={() => {
-                      setSelectedImageInfo(null)
-                      openProductDetail(selectedImageInfo)
-                    }}
-                  >
-                    View Product
-                  </button>
-                )}
-              </div>
             </div>
           </section>
         </div>

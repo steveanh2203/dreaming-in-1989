@@ -1,0 +1,84 @@
+{
+  "code": 200,
+  "result": {
+    "sync_product": {
+      "id": 440663109,
+      "external_id": "late-night-rewind-club-mug",
+      "name": "Late Night Rewind Club Mug",
+      "variants": 1,
+      "synced": 1,
+      "thumbnail_url": "https://files.cdn.printful.com/",
+      "is_ignored": false
+    },
+    "sync_variants": [
+      {
+        "id": 5360676989,
+        "external_id": "late-night-rewind-club-mug-11oz-glossy-white",
+        "sync_product_id": 440663109,
+        "name": "Late Night Rewind Club Mug / White / 11 oz",
+        "synced": true,
+        "variant_id": 1320,
+        "main_category_id": 195,
+        "warehouse_product_id": null,
+        "warehouse_product_variant_id": null,
+        "retail_price": "18.00",
+        "sku": "SKU-1989-LNRC-MUG-11OZ",
+        "currency": "USD",
+        "product": {
+          "variant_id": 1320,
+          "product_id": 19,
+          "image": "https://files.cdn.printful.com/products/19/1320_1663762583.jpg",
+          "name": "White Glossy Mug 11 oz"
+        },
+        "files": [
+          {
+            "id": 1004530083,
+            "type": "default",
+            "hash": "bca8806fc762451d84ddc15335da5393",
+            "url": null,
+            "filename": "late-night-rewind-club-11oz-logo-free-transparent-v4.png",
+            "mime_type": "image/png",
+            "size": 3412991,
+            "width": 2700,
+            "height": 1050,
+            "dpi": 25,
+            "status": "ok",
+            "created": 1781864992,
+            "thumbnail_url": "https://files.cdn.printful.com/files/bca/bca8806fc762451d84ddc15335da5393_thumb.png",
+            "preview_url": "https://files.cdn.printful.com/files/bca/bca8806fc762451d84ddc15335da5393_preview.png",
+            "visible": true,
+            "is_temporary": false,
+            "message": "",
+            "stitch_count_tier": null
+          },
+          {
+            "id": 1004534046,
+            "type": "preview",
+            "hash": "af79069a4a8bffa591f5c87902e9825d",
+            "url": null,
+            "filename": "white-glossy-mug-white-11-oz-handle-on-right-6a351ef2a9937.png",
+            "mime_type": "image/png",
+            "size": 385144,
+            "width": 1000,
+            "height": 1000,
+            "dpi": null,
+            "status": "ok",
+            "created": 1781866228,
+            "thumbnail_url": "https://files.cdn.printful.com/files/af7/af79069a4a8bffa591f5c87902e9825d_thumb.png",
+            "preview_url": "https://files.cdn.printful.com/files/af7/af79069a4a8bffa591f5c87902e9825d_preview.png",
+            "visible": false,
+            "is_temporary": false,
+            "message": "",
+            "stitch_count_tier": null
+          }
+        ],
+        "options": [],
+        "is_ignored": false,
+        "size": "11 oz",
+        "color": "White",
+        "availability_status": "active"
+      }
+    ]
+  },
+  "extra": []
+}

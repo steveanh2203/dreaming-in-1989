@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-06-18T12:23:18.446Z",
+  "request": {
+    "sync_product": {
+      "name": "After School Arcade Tee",
+      "external_id": "after-school-arcade-tee",
+      "thumbnail": "https://skkvyenuffrzsbaqcnkh.supabase.co/storage/v1/object/public/printful-artwork/after-school-arcade-tee/print-v1.png"
+    },
+    "variants": [
+      {
+        "size": "XS",
+        "catalogVariantId": 9527,
+        "retailPrice": 29
+      },
+      {
+        "size": "S",
+        "catalogVariantId": 4016,
+        "retailPrice": 29
+      },
+      {
+        "size": "M",
+        "catalogVariantId": 4017,
+        "retailPrice": 29
+      },
+      {
+        "size": "L",
+        "catalogVariantId": 4018,
+        "retailPrice": 29
+      },
+      {
+        "size": "XL",
+        "catalogVariantId": 4019,
+        "retailPrice": 29
+      },
+      {
+        "size": "2XL",
+        "catalogVariantId": 4020,
+        "retailPrice": 32
+      },
+      {
+        "size": "3XL",
+        "catalogVariantId": 5295,
+        "retailPrice": 34
+      },
+      {
+        "size": "4XL",
+        "catalogVariantId": 5310,
+        "retailPrice": 36
+      },
+      {
+        "size": "5XL",
+        "catalogVariantId": 12871,
+        "retailPrice": 39
+      }
+    ]
+  },
+  "response": {
+    "code": 200,
+    "result": {
+      "id": 440387745,
+      "external_id": "after-school-arcade-tee",
+      "name": "After School Arcade Tee",
+      "variants": 9,
+      "synced": 9,
+      "thumbnail_url": "https://skkvyenuffrzsbaqcnkh.supabase.co/storage/v1/object/public/printful-artwork/after-school-arcade-tee/print-v1.png",
+      "is_ignored": false
+    },
+    "extra": []
+  }
+}

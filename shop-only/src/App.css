@@ -4589,7 +4589,7 @@
 .catalog-pdp-lookbook-card img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border: 1px solid rgba(117, 70, 41, 0.2);
 }
@@ -7869,10 +7869,9 @@
 
 .image-info-modal {
   position: relative;
-  width: min(920px, calc(100vw - 48px));
-  max-height: min(760px, calc(100vh - 48px));
+  width: min(760px, calc(100vw - 48px), calc(100vh - 48px));
+  aspect-ratio: 1 / 1;
   display: grid;
-  grid-template-columns: minmax(300px, 0.9fr) 1fr;
   overflow: hidden;
   color: var(--ink);
   background: var(--paper);
@@ -7882,9 +7881,9 @@
 }
 
 .image-info-preview {
-  min-height: 460px;
+  width: 100%;
+  height: 100%;
   background: var(--paper-soft);
-  border-right: 2px solid var(--wood);
 }
 
 .image-info-preview img {
@@ -7917,56 +7916,6 @@
 .image-info-preview--scene img {
   object-fit: cover;
   padding: 0;
-}
-
-.image-info-copy {
-  padding: var(--space-6);
-  overflow-y: auto;
-}
-
-.image-info-copy > svg {
-  color: var(--red);
-}
-
-.image-info-copy h2 {
-  margin: var(--space-2) 52px var(--space-4) 0;
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-size: 42px;
-  font-weight: 400;
-  line-height: 1;
-}
-
-.image-info-copy > p:not(.receipt-label) {
-  margin: var(--space-4) 0 0;
-  color: var(--muted);
-  font-family: var(--font-editorial);
-  line-height: 1.5;
-}
-
-.image-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-.image-info-grid span {
-  display: grid;
-  gap: var(--space-1);
-  padding: var(--space-3);
-  background: var(--paper-soft);
-  border: 1px solid rgba(117, 70, 41, 0.52);
-  border-radius: 5px;
-}
-
-.image-info-grid small {
-  color: var(--muted);
-  font-family: var(--font-retro);
-  text-transform: uppercase;
-}
-
-.image-info-grid strong {
-  line-height: 1.2;
 }
 
 .detail-meta,

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-06-20T01:57:13.159Z",
+  "printfulFile": {
+    "id": 1004647342,
+    "type": "default",
+    "hash": "4de9303ce0198b56baa15a564483db6b",
+    "url": null,
+    "filename": "video-rental-run-tote-print.png",
+    "mime_type": "image/png",
+    "size": 11200669,
+    "width": 3000,
+    "height": 3000,
+    "dpi": 300,
+    "status": "ok",
+    "created": 1781887528,
+    "thumbnail_url": "https://files.cdn.printful.com/files/4de/4de9303ce0198b56baa15a564483db6b_thumb.png",
+    "preview_url": "https://files.cdn.printful.com/files/4de/4de9303ce0198b56baa15a564483db6b_preview.png",
+    "visible": true,
+    "is_temporary": false,
+    "message": ""
+  }
+}

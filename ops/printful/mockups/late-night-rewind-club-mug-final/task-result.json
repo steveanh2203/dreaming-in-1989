@@ -1,0 +1,41 @@
+{
+  "id": 934622170,
+  "status": "completed",
+  "catalog_variant_mockups": [
+    {
+      "catalog_variant_id": 1320,
+      "mockups": [
+        {
+          "placement": "default",
+          "display_name": "Print file",
+          "technique": "sublimation",
+          "style_id": 10421,
+          "mockup_url": "https://printful-upload.s3-accelerate.amazonaws.com/tmp/2eda7b67f0ea4c6ca3cda0d32954c48a/white-glossy-mug-white-11-oz-handle-on-right-6a351a2bbe9f5.png",
+          "view": "Handle on Right"
+        },
+        {
+          "placement": "default",
+          "display_name": "Print file",
+          "technique": "sublimation",
+          "style_id": 10422,
+          "mockup_url": "https://printful-upload.s3-accelerate.amazonaws.com/tmp/9fcb60d4895be8e8a1be7693dedbf7e6/white-glossy-mug-white-11-oz-handle-on-left-6a351a2bbeafa.png",
+          "view": "Handle on Left"
+        },
+        {
+          "placement": "default",
+          "display_name": "Print file",
+          "technique": "sublimation",
+          "style_id": 10423,
+          "mockup_url": "https://printful-upload.s3-accelerate.amazonaws.com/tmp/071e009c6b37c0c0105dd4562fe585c5/white-glossy-mug-white-11-oz-front-view-6a351a2bbeb56.png",
+          "view": "Front view"
+        }
+      ]
+    }
+  ],
+  "failure_reasons": [],
+  "_links": {
+    "self": {
+      "href": "https://api.printful.com/v2/mockup-tasks?id=934622170"
+    }
+  }
+}
