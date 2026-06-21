@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+browser-check/
+chrome-product-detail-review-*/
+docs/
+mockups/
+product-design-audit-*/
+test-results/
+design-qa.md
+qa-*.png
+UI_DESIGN.md

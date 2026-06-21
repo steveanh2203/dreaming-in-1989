@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   CheckCircle2,
   ChevronDown,
@@ -72,6 +72,7 @@ import authCreateAccountImage from './assets/auth/auth-create-account-desk.png'
 import authSignInImage from './assets/auth/auth-sign-in-video-counter.png'
 import retroCartImage from './assets/ui/retro-cart.png'
 import RevenueDashboard from './RevenueDashboard.jsx'
+import PurchaseReviewForm from './PurchaseReviewForm.jsx'
 import {
   bundles as generatedBundles,
   featuredDropProduct as generatedFeaturedDropProduct,
@@ -81,6 +82,13 @@ import {
   shelfReadySets as generatedShelfReadySets,
 } from './data/catalog.js'
 import { isSupabaseConfigured, supabase } from './lib/supabaseClient.js'
+import {
+  getReviewPurchaseKey,
+  getReviewStars,
+  getReviewableOrderItems,
+  isOrderReviewEligible,
+  mapProductReview,
+} from './lib/productReviews.js'
 import './App.css'
 
 const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
@@ -1311,6 +1319,7 @@ const getStoredCustomer = () => {
     return {
       ...parsedCustomer,
       orders: Array.isArray(parsedCustomer.orders) ? parsedCustomer.orders : [],
+      reviews: Array.isArray(parsedCustomer.reviews) ? parsedCustomer.reviews : [],
       addresses: normalizeAccountAddresses(parsedCustomer.addresses),
       wishlistIds: Array.isArray(parsedCustomer.wishlistIds) ? parsedCustomer.wishlistIds : defaultWishlistIds,
     }
@@ -1418,6 +1427,7 @@ const mapSupabaseOrder = (order) => ({
     optionSummary: item.option_summary,
   })),
   payment: `${titleizeStatus(order.payment_provider, 'PayPal')} ${titleizeStatus(order.payment_status, 'pending').toLowerCase()}`,
+  paymentStatus: titleizeStatus(order.payment_status, 'Pending'),
   fulfillment: titleizeStatus(order.fulfillment_status, 'Production pending'),
   tracking: order.tracking_url || order.tracking_number || 'Tracking appears after shipment',
   shippingAddress: getShippingAddressText(order.shipping_address),
@@ -1443,6 +1453,11 @@ const mergeCustomerForDisplay = (apiCustomer, currentCustomer = null) => ({
     ? apiCustomer.supportTickets
     : Array.isArray(currentCustomer?.supportTickets)
       ? currentCustomer.supportTickets
+      : [],
+  reviews: Array.isArray(apiCustomer?.reviews)
+    ? apiCustomer.reviews
+    : Array.isArray(currentCustomer?.reviews)
+      ? currentCustomer.reviews
       : [],
 })
 
@@ -1474,7 +1489,7 @@ const mapSupabaseAddress = (address) => ({
 
 const getSupabaseCustomer = async (user, currentCustomer = null) => {
   const client = requireSupabaseClient()
-  const [profileResult, addressesResult, wishlistResult, supportTicketsResult, ordersResult] = await Promise.all([
+  const [profileResult, addressesResult, wishlistResult, supportTicketsResult, ordersResult, reviewsResult] = await Promise.all([
     client
       .from('profiles')
       .select('id, email, name, avatar_url, joined_at')
@@ -1528,6 +1543,11 @@ const getSupabaseCustomer = async (user, currentCustomer = null) => {
       `)
       .eq('user_id', user.id)
       .order('created_at', { ascending: false }),
+    client
+      .from('product_reviews')
+      .select('id, user_id, order_id, product_id, reviewer_name, rating, title, body, status, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
   ])
 
   if (profileResult.error) throw profileResult.error
@@ -1535,6 +1555,7 @@ const getSupabaseCustomer = async (user, currentCustomer = null) => {
   if (wishlistResult.error) throw wishlistResult.error
   if (supportTicketsResult.error) throw supportTicketsResult.error
   if (ordersResult.error) throw ordersResult.error
+  if (reviewsResult.error) throw reviewsResult.error
 
   const profile = profileResult.data
   return mergeCustomerForDisplay(
@@ -1548,6 +1569,7 @@ const getSupabaseCustomer = async (user, currentCustomer = null) => {
       wishlistIds: (wishlistResult.data ?? []).map((item) => item.product_id).filter(Boolean),
       supportTickets: (supportTicketsResult.data ?? []).map(mapSupabaseSupportTicket),
       orders: (ordersResult.data ?? []).map(mapSupabaseOrder),
+      reviews: (reviewsResult.data ?? []).map(mapProductReview),
     },
     currentCustomer,
   )
@@ -1638,6 +1660,11 @@ function App() {
   const [couponsExpanded, setCouponsExpanded] = useState(false)
   const [orderDetailOpen, setOrderDetailOpen] = useState(false)
   const [orderDetailNotice, setOrderDetailNotice] = useState('')
+  const [reviewEditor, setReviewEditor] = useState(null)
+  const [reviewSubmitting, setReviewSubmitting] = useState(false)
+  const [reviewNotice, setReviewNotice] = useState('')
+  const [productReviews, setProductReviews] = useState([])
+  const [productReviewsLoading, setProductReviewsLoading] = useState(false)
   const [activeSupportAction, setActiveSupportAction] = useState('help')
   const [supportTicketNotice, setSupportTicketNotice] = useState('')
   const [supportTickets, setSupportTickets] = useState([])
@@ -1656,6 +1683,7 @@ function App() {
   const cartButtonRef = useRef(null)
   const floatingCartButtonRef = useRef(null)
   const productGalleryRef = useRef(null)
+  const productHeroRef = useRef(null)
   const pdpPrimaryActionsRef = useRef(null)
   const recentCarouselRef = useRef(null)
   const supportButtonRef = useRef(null)
@@ -1710,7 +1738,6 @@ function App() {
         setSelectedProductQuantity(1)
         setActiveProductImageIndex(getInitialProductImageIndex(nextProduct))
         setActiveRoute('product')
-        window.scrollTo({ top: 0, behavior: 'smooth' })
         return
       }
       if (route === 'track-order') {
@@ -1728,12 +1755,66 @@ function App() {
     return () => window.removeEventListener('hashchange', syncRoute)
   }, [])
 
+  const selectedProductId = selectedProduct?.id
+
+  useLayoutEffect(() => {
+    if (activeRoute !== 'product' || !selectedProductId) return
+
+    let active = true
+    const alignProductHero = () => {
+      if (active) productHeroRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
+    }
+    const frameId = window.requestAnimationFrame(alignProductHero)
+    const settleTimers = [80, 320, 900].map((delay) => window.setTimeout(alignProductHero, delay))
+
+    alignProductHero()
+    document.fonts?.ready.then(alignProductHero)
+    window.addEventListener('load', alignProductHero, { once: true })
+
+    return () => {
+      active = false
+      window.cancelAnimationFrame(frameId)
+      settleTimers.forEach((timerId) => window.clearTimeout(timerId))
+      window.removeEventListener('load', alignProductHero)
+    }
+  }, [activeRoute, selectedProductId])
+
   useEffect(() => {
     return () => {
       if (flyTimerRef.current) window.clearTimeout(flyTimerRef.current)
       if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    const productId = selectedProduct?.id
+    if (activeRoute !== 'product' || !productId || !isSupabaseConfigured || !supabase) {
+      return undefined
+    }
+
+    let active = true
+    const loadingTimer = window.setTimeout(() => {
+      if (active) setProductReviewsLoading(true)
+    }, 0)
+
+    supabase
+      .from('product_reviews')
+      .select('id, user_id, order_id, product_id, reviewer_name, rating, title, body, status, created_at')
+      .eq('product_id', productId)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(24)
+      .then(({ data, error }) => {
+        if (!active) return
+        setProductReviews(error ? [] : (data ?? []).map(mapProductReview))
+        setProductReviewsLoading(false)
+      })
+
+    return () => {
+      active = false
+      window.clearTimeout(loadingTimer)
+    }
+  }, [activeRoute, selectedProduct?.id])
 
   const updateSupportMenuPosition = useCallback(() => {
     const triggerRect = supportButtonRef.current?.getBoundingClientRect()
@@ -1867,16 +1948,15 @@ function App() {
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const selectedProductProof = getProductProof(selectedProduct)
+  const visibleProductReviews = productReviews.filter((review) => review.productId === selectedProduct?.id)
+  const liveReviewRatingTotal = visibleProductReviews.reduce((sum, review) => sum + review.rating, 0)
+  const selectedProductReviewCount = selectedProductProof.reviewCount + visibleProductReviews.length
+  const selectedProductReviewRating = selectedProductReviewCount
+    ? ((selectedProductProof.rating * selectedProductProof.reviewCount) + liveReviewRatingTotal) / selectedProductReviewCount
+    : selectedProductProof.rating
   const selectedProductExperience = getProductDetailExperience(selectedProduct)
   const sizeGuideRows = sizeGuideRowsByCategory[selectedProduct?.category] ?? []
   const selectedProductHasSizeGuide = selectedOptionGroups.some((group) => group.name === 'Size') && sizeGuideRows.length > 0
-  const reviewPhotoPairs = selectedProductExperience.reviews
-    .map((review, index) => ({
-      review,
-      image: selectedProductExperience.lookbook[index]?.[0],
-      caption: selectedProductExperience.lookbook[index]?.[1],
-    }))
-    .filter((item) => item.image)
   const selectedProductGallery = selectedProduct
     ? selectedProduct.galleryImages?.length
       ? selectedProduct.galleryImages
@@ -1946,6 +2026,11 @@ function App() {
   const routeAccountTab = getAccountTabFromPath(currentPath)
   const displayedAccountTab = routeAccountTab ?? accountTab
   const customerOrders = customer && Array.isArray(customer.orders) ? customer.orders : emptyCustomerOrders
+  const customerReviews = customer && Array.isArray(customer.reviews) ? customer.reviews : emptyCustomerOrders
+  const customerReviewKeys = useMemo(
+    () => new Set(customerReviews.map((review) => getReviewPurchaseKey(review.orderId, review.productId))),
+    [customerReviews],
+  )
   const trackedOrder =
     customerOrders.find((order) => order.id === trackedOrderId || `#${order.id}` === trackedOrderId) ?? null
   const orderDateStartTime = getDateOnlyTime(orderDateRange.start)
@@ -1969,6 +2054,8 @@ function App() {
   const selectedAccountOrder =
     customerOrders.find((order) => order.id === selectedOrderId) ?? customerOrders[0] ?? null
   const detailOrder = orderDetailOpen ? selectedAccountOrder : null
+  const detailOrderReviewEligible = isOrderReviewEligible(detailOrder)
+  const detailOrderReviewItems = getReviewableOrderItems(detailOrder, products)
   const selectedSupportAction =
     accountSupportActions.find((action) => action.id === activeSupportAction) ?? accountSupportActions[0]
   const detailOrderProgressTimeline = getOrderProgressTimeline(detailOrder)
@@ -2398,7 +2485,82 @@ function App() {
   const openOrderDetail = (order) => {
     setSelectedOrderId(order.id)
     setOrderDetailNotice('')
+    setReviewEditor(null)
+    setReviewNotice('')
     setOrderDetailOpen(true)
+  }
+
+  const openPurchaseReview = (order, item) => {
+    setReviewNotice('')
+    setReviewEditor({
+      orderId: order.id,
+      orderDbId: order.dbId,
+      productId: item.productId,
+      productName: item.productName,
+    })
+  }
+
+  const submitPurchaseReview = async ({ rating, title, body }) => {
+    if (!reviewEditor || !customer?.id) return
+
+    setReviewSubmitting(true)
+    setReviewNotice('')
+
+    try {
+      const client = requireSupabaseClient()
+      const { data: authData, error: authError } = await client.auth.getUser()
+      if (authError) throw authError
+      if (!authData.user || authData.user.id !== customer.id) {
+        throw new Error('Sign in again before posting your review.')
+      }
+
+      const { data, error } = await client
+        .from('product_reviews')
+        .insert({
+          user_id: authData.user.id,
+          order_id: reviewEditor.orderDbId,
+          product_id: reviewEditor.productId,
+          reviewer_name: String(customer.name || 'Retro Shopper').trim().slice(0, 80),
+          rating,
+          title,
+          body,
+          status: 'published',
+        })
+        .select('id, user_id, order_id, product_id, reviewer_name, rating, title, body, status, created_at')
+        .single()
+
+      if (error) throw error
+
+      const nextReview = mapProductReview(data)
+      setCustomer((currentCustomer) => {
+        const nextCustomer = {
+          ...currentCustomer,
+          reviews: [nextReview, ...(currentCustomer?.reviews ?? [])],
+        }
+        saveStoredCustomer(nextCustomer)
+        return nextCustomer
+      })
+      if (selectedProduct?.id === nextReview.productId) {
+        setProductReviews((currentReviews) => [nextReview, ...currentReviews])
+      }
+      trackStoreEvent('product_review_submitted', {
+        product_id: nextReview.productId,
+        order_id: reviewEditor.orderId,
+        rating: nextReview.rating,
+      })
+      setReviewEditor(null)
+      setReviewNotice('Thank you — your verified review is now live.')
+    } catch (error) {
+      if (error.code === '23505') {
+        setReviewNotice('You already reviewed this product from this order.')
+      } else if (error.code === '42501') {
+        setReviewNotice('Reviews unlock after payment is confirmed or the order is delivered.')
+      } else {
+        setReviewNotice(error.message || 'Could not post your review. Please try again.')
+      }
+    } finally {
+      setReviewSubmitting(false)
+    }
   }
 
   const updateOrderDateRange = (field, value) => {
@@ -3802,7 +3964,7 @@ function App() {
                 <span>{selectedProduct.name}</span>
               </nav>
 
-              <div className="catalog-pdp-hero">
+              <div className="catalog-pdp-hero" ref={productHeroRef}>
                 <div className="catalog-pdp-gallery-shell">
                   {selectedProductGallery.length > 4 && (
                     <button
@@ -3870,9 +4032,9 @@ function App() {
                   </div>
                   <h1>{selectedProduct.name}</h1>
                   <div className="catalog-pdp-rating">
-                    <span aria-label={`${selectedProductProof.rating} out of 5 stars`}>★★★★★</span>
+                    <span aria-label={`${selectedProductReviewRating.toFixed(1)} out of 5 stars`}>★★★★★</span>
                     <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-                      {selectedProductProof.rating.toFixed(1)} rating / {selectedProductProof.reviewCount} reviews
+                      {selectedProductReviewRating.toFixed(1)} rating / {selectedProductReviewCount} reviews
                     </button>
                   </div>
                   <p className="catalog-pdp-short">{selectedProduct.shortDetail}</p>
@@ -4122,9 +4284,9 @@ function App() {
                 </div>
                 <div className="catalog-pdp-reviews-grid">
                   <article className="catalog-pdp-reviews-summary">
-                    <strong>{selectedProductProof.rating.toFixed(1)}</strong>
+                    <strong>{selectedProductReviewRating.toFixed(1)}</strong>
                     <span aria-hidden="true">★★★★★</span>
-                    <small>Based on {selectedProductProof.reviewCount} reviews</small>
+                    <small>Based on {selectedProductReviewCount} reviews</small>
                     {[72, 18, 7, 2, 1].map((value, index) => (
                       <p key={`rating-bar-${5 - index}`}>
                         <b>{5 - index} Stars</b>
@@ -4132,17 +4294,23 @@ function App() {
                         <small>{value}%</small>
                       </p>
                     ))}
-                    <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductProof.reviewCount} reviews</button>
+                    <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductReviewCount} reviews</button>
                   </article>
-                  {reviewPhotoPairs.slice(0, 2).map(({ review, image, caption }) => (
-                    <figure className="catalog-pdp-review-photo" key={`${review[2]}-${caption}`}>
-                      <img src={image} alt={`${selectedProduct.name} styled by ${review[2]}`} loading="lazy" />
-                      <figcaption>
-                        <span aria-hidden="true">★★★★★</span>
-                        <strong>{review[2]}</strong>
-                        <small>{caption}</small>
-                      </figcaption>
-                    </figure>
+                  {visibleProductReviews.map((review) => (
+                    <blockquote className="catalog-pdp-live-review" key={review.id}>
+                      <span aria-label={`${review.rating} out of 5 stars`}>{getReviewStars(review.rating)}</span>
+                      <strong>{review.title}</strong>
+                      <p>{review.body}</p>
+                      <cite>
+                        <span>{review.reviewerName}</span>
+                        <span aria-hidden="true">·</span>
+                        <span className="verified-buyer-badge">
+                          <CheckCircle2 size={13} aria-hidden="true" />
+                          Verified buyer
+                        </span>
+                        <time dateTime={review.createdAt}>{formatOrderDate(review.createdAt)}</time>
+                      </cite>
+                    </blockquote>
                   ))}
                   {selectedProductExperience.reviews.map(([title, body, name]) => (
                     <blockquote key={title}>
@@ -4159,6 +4327,7 @@ function App() {
                       </cite>
                     </blockquote>
                   ))}
+                  {productReviewsLoading && <p className="catalog-pdp-review-loading">Loading recent verified reviews…</p>}
                 </div>
               </section>
 
@@ -6146,6 +6315,66 @@ function App() {
                   </div>
                 ))}
               </div>
+            </section>
+
+            <section className="order-detail-reviews" aria-label="Review your purchase">
+              <div className="order-detail-review-heading">
+                <div>
+                  <p className="receipt-label">Verified buyer feedback</p>
+                  <h3>Review your purchase</h3>
+                </div>
+                <span>{detailOrderReviewEligible ? 'Ready for review' : 'Available after payment'}</span>
+              </div>
+
+              {detailOrderReviewEligible && detailOrder.dbId && detailOrderReviewItems.length > 0 ? (
+                <div className="order-detail-review-items">
+                  {detailOrderReviewItems.map((item) => {
+                    const reviewKey = getReviewPurchaseKey(detailOrder.dbId, item.productId)
+                    const alreadyReviewed = customerReviewKeys.has(reviewKey)
+
+                    return (
+                      <article key={reviewKey}>
+                        <img src={item.image} alt="" />
+                        <div>
+                          <strong>{item.productName}</strong>
+                          <small>{item.optionSummary || 'Verified item from this order'}</small>
+                        </div>
+                        {alreadyReviewed ? (
+                          <span><CheckCircle2 size={16} /> Reviewed</span>
+                        ) : (
+                          <button type="button" onClick={() => openPurchaseReview(detailOrder, item)}>
+                            Write a review
+                          </button>
+                        )}
+                      </article>
+                    )
+                  })}
+                </div>
+              ) : (
+                <p className="order-detail-review-locked">
+                  {detailOrderReviewEligible
+                    ? 'No catalog products from this order are available to review.'
+                    : 'Once payment is confirmed, each purchased product can receive one verified review.'}
+                </p>
+              )}
+
+              {reviewEditor?.orderId === detailOrder.id && (
+                <PurchaseReviewForm
+                  key={`${reviewEditor.orderId}-${reviewEditor.productId}`}
+                  notice={reviewNotice}
+                  productName={reviewEditor.productName}
+                  submitting={reviewSubmitting}
+                  onCancel={() => {
+                    setReviewEditor(null)
+                    setReviewNotice('')
+                  }}
+                  onSubmit={submitPurchaseReview}
+                />
+              )}
+
+              {reviewNotice && !reviewEditor && (
+                <p className="purchase-review-notice" role="status">{reviewNotice}</p>
+              )}
             </section>
 
             {orderDetailNotice && <p className="order-detail-notice">{orderDetailNotice}</p>}
