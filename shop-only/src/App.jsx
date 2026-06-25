@@ -44,6 +44,10 @@ import videoStoreImage from './assets/video-store-night.png'
 import arcadeDepartmentImage from './assets/departments/arcade-department.png'
 import audioDepartmentImage from './assets/departments/audio-department.png'
 import kitchenDepartmentImage from './assets/departments/kitchen-department.png'
+import mugCategoryImage from './assets/departments/mug-category.png'
+import phoneCaseCategoryImage from './assets/departments/phone-case-category.png'
+import stickerCategoryImage from './assets/departments/sticker-category.png'
+import tShirtCategoryImage from './assets/departments/t-shirt-category.png'
 import wallArtDepartmentImage from './assets/departments/wall-art-department.png'
 import deskGiftsLineupImage from './assets/gift-counter/desk-gifts-lineup-v2.png'
 import partyNightLineupImage from './assets/gift-counter/party-night-lineup-v2.png'
@@ -89,9 +93,15 @@ import {
   isOrderReviewEligible,
   mapProductReview,
 } from './lib/productReviews.js'
+import {
+  createDemoProductReviews,
+  getAverageReviewRating,
+  getReviewDistribution,
+  mergeProductReviews,
+} from './lib/demoProductReviews.js'
 import './App.css'
 
-const categories = ['All', 'Apparel', 'Bags', 'Drinkware', 'Wall Art', 'Stationery', 'Home Goods']
+const categories = ['All', 'Phone Case', 'Mug', 'T Shirt', 'Sticker']
 const collectionSortOptions = ['Featured', 'Price: Low to High', 'Price: High to Low', 'Newest']
 const collectionAvailabilityOptions = ['All', 'In Stock', 'Low Stock']
 
@@ -285,6 +295,44 @@ const defaultPdpExperience = {
 }
 
 const categoryPdpExperiences = {
+  'T Shirt': {
+    tone: 'apparel',
+    storyBullets: ['Soft everyday blank', 'Vintage mall graphic energy', 'Unisex fit', 'Easy outfit anchor'],
+    careRows: [
+      ['Material', 'Soft cotton blend selected for daily wear'],
+      ['Care', 'Machine wash cold, tumble dry low'],
+    ],
+    faqs: [
+      [Truck, 'Shipping', 'When will apparel ship?', 'Each piece is printed after checkout, usually produced in 2-4 business days before carrier transit.'],
+      [Package, 'Sizing', 'How does it fit?', 'Classic true-to-size fit. Size up for a looser weekend look.'],
+      [RefreshCcw, 'Returns', 'Can I return the wrong size?', 'Made-to-order sizing mistakes are not automatic claims, so check the option before checkout.'],
+      [Lock, 'Care', 'How should I wash it?', 'Wash cold inside out and tumble dry low to protect the print.'],
+    ],
+  },
+  Mug: {
+    tone: 'diner',
+    storyBullets: ['Glossy counter-ready ceramic', 'Desk and breakfast-table friendly', 'Small gift price point', 'Print wraps cleanly on the mug'],
+    careRows: [
+      ['Use', 'Coffee, tea, cocoa, and desk refills'],
+      ['Care', 'Hand wash recommended for longest print life'],
+    ],
+  },
+  Sticker: {
+    tone: 'paper',
+    storyBullets: ['Desk-friendly nostalgia', 'Small giftable add-on', 'Useful daily object', 'Pairs well with mugs and shirts'],
+    careRows: [
+      ['Use', 'Laptop lids, bottles, notebooks, and memory corners'],
+      ['Gift Fit', 'Easy under-$30 checkout add-on'],
+    ],
+  },
+  'Phone Case': {
+    tone: 'archive',
+    storyBullets: ['Everyday protective accessory', 'Retro artwork with daily carry energy', 'Easy gift-ready add-on', 'Designed for phone-case drops'],
+    careRows: [
+      ['Use', 'Daily phone carry and retro shelf styling'],
+      ['Best For', 'Gifts, phone upgrades, and matching merch sets'],
+    ],
+  },
   Apparel: {
     tone: 'apparel',
     storyBullets: ['Soft everyday blank', 'Vintage mall graphic energy', 'Unisex fit', 'Easy outfit anchor'],
@@ -617,41 +665,41 @@ const heroSlides = [
 ]
 
 const departmentCards = [
-  { name: 'Apparel', copy: 'Tees and hoodies printed after each order.', image: audioDepartmentImage, imageUse: 'banner' },
-  { name: 'Drinkware', copy: 'Mugs for coffee, tea, and desk days.', image: kitchenDepartmentImage, imageUse: 'banner' },
-  { name: 'Wall Art', copy: 'Posters and canvas prints for rooms and studios.', image: wallArtDepartmentImage, imageUse: 'banner' },
-  { name: 'Stationery', copy: 'Stickers, notebooks, and desk calendars.', image: arcadeDepartmentImage, imageUse: 'banner' },
+  { name: 'Phone Case', copy: 'Retro cases for daily carry and late-night pocket checks.', image: phoneCaseCategoryImage, imageUse: 'banner' },
+  { name: 'Mug', copy: 'Glossy mugs for coffee, tea, and desk days.', image: mugCategoryImage, imageUse: 'banner' },
+  { name: 'T Shirt', copy: 'White retro graphic tees printed after each order.', image: tShirtCategoryImage, imageUse: 'banner' },
+  { name: 'Sticker', copy: 'Die-cut sticker packs for laptops, bottles, and notebooks.', image: stickerCategoryImage, imageUse: 'banner' },
 ]
 
 const giftCounterItems = [
   {
     title: 'Under $25',
-    copy: 'Stickers, notebooks, coasters, and small desk goods.',
-    category: 'Stationery',
+    copy: 'Sticker packs and small retro add-ons.',
+    category: 'Sticker',
     budget: '$16-$22',
     image: under25LineupImage,
     imageUse: 'banner',
   },
   {
     title: 'Desk Gifts',
-    copy: 'Calendars, notebooks, mugs, and clean desk add-ons.',
-    category: 'Stationery',
+    copy: 'Mugs and clean desk add-ons.',
+    category: 'Mug',
     budget: '$18-$26',
     image: deskGiftsLineupImage,
     imageUse: 'banner',
   },
   {
-    title: 'Room Decor',
-    copy: 'Posters and canvas prints for quick wall upgrades.',
-    category: 'Wall Art',
-    budget: '$32-$48',
+    title: 'Daily Carry',
+    copy: 'Phone cases with pocket-ready retro artwork.',
+    category: 'Phone Case',
+    budget: '$24-$32',
     image: shelfDecorLineupImage,
     imageUse: 'banner',
   },
   {
     title: 'Outfit',
-    copy: 'Tees, hoodies, and tote bags for daily wear.',
-    category: 'Apparel',
+    copy: 'Graphic tees for daily wear.',
+    category: 'T Shirt',
     budget: '$24-$54',
     image: partyNightLineupImage,
     imageUse: 'banner',
@@ -808,6 +856,63 @@ const accountSupportFaqs = [
 ]
 
 const productOptionGroups = {
+  'T Shirt': [
+    {
+      name: 'Size',
+      options: [
+        { label: 'S', priceDelta: 0 },
+        { label: 'M', priceDelta: 0 },
+        { label: 'L', priceDelta: 0 },
+        { label: 'XL', priceDelta: 2 },
+      ],
+    },
+    {
+      name: 'Color',
+      options: [
+        { label: 'White', priceDelta: 0 },
+      ],
+    },
+  ],
+  Mug: [
+    {
+      name: 'Size',
+      options: [
+        { label: '11 oz', priceDelta: 0 },
+        { label: '15 oz', priceDelta: 4 },
+      ],
+    },
+    {
+      name: 'Finish',
+      options: [
+        { label: 'Glossy White', priceDelta: 0 },
+      ],
+    },
+  ],
+  Sticker: [
+    {
+      name: 'Pack',
+      options: [
+        { label: 'Standard', priceDelta: 0 },
+        { label: 'Gift Pack', priceDelta: 6 },
+      ],
+    },
+  ],
+  'Phone Case': [
+    {
+      name: 'Model',
+      options: [
+        { label: 'Standard', priceDelta: 0 },
+        { label: 'Plus', priceDelta: 2 },
+      ],
+    },
+    {
+      name: 'Finish',
+      options: [
+        { label: 'Matte', priceDelta: 0 },
+        { label: 'Glossy', priceDelta: 2 },
+      ],
+    },
+  ],
   Apparel: [
     {
       name: 'Size',
@@ -896,8 +1001,8 @@ const productOptionGroups = {
 
 const formatVariantColor = (color, product) => {
   if (!color) return null
-  if (product?.category === 'Drinkware' && color === 'White') return 'Glossy White'
-  if (product?.category === 'Stationery' && color === 'White') return null
+  if ((product?.category === 'Drinkware' || product?.category === 'Mug') && color === 'White') return 'Glossy White'
+  if ((product?.category === 'Stationery' || product?.category === 'Sticker') && color === 'White') return null
   if (product?.category === 'Home Goods' && color === 'White') return null
   return color
 }
@@ -924,7 +1029,7 @@ const getPrintfulOptionGroups = (product) => {
 
   if (sizeOptions.length) {
     groups.push({
-      name: product.category === 'Stationery' ? 'Format' : 'Size',
+      name: product.category === 'Stationery' || product.category === 'Sticker' ? 'Format' : 'Size',
       options: sizeOptions.map((size) => ({
         label: size,
         priceDelta: getVariantPriceDelta(variants, 'size', size, basePrice),
@@ -934,7 +1039,12 @@ const getPrintfulOptionGroups = (product) => {
 
   if (colorOptions.length) {
     groups.push({
-      name: product.category === 'Drinkware' ? 'Finish' : product.category === 'Stationery' ? 'Paper' : 'Color',
+      name:
+        product.category === 'Drinkware' || product.category === 'Mug'
+          ? 'Finish'
+          : product.category === 'Stationery' || product.category === 'Sticker'
+            ? 'Paper'
+            : 'Color',
       options: colorOptions.map((color) => ({
         label: color,
         priceDelta: getVariantPriceDelta(
@@ -964,6 +1074,16 @@ const collapsedCartItemCount = 2
 const FREE_SHIPPING_THRESHOLD = 75
 
 const sizeGuideRowsByCategory = {
+  'T Shirt': [
+    ['S', 'Chest 34-36"', 'Length 27"', 'Fits trim'],
+    ['M', 'Chest 38-40"', 'Length 28"', 'Most picked'],
+    ['L', 'Chest 42-44"', 'Length 29"', 'Relaxed'],
+    ['XL', 'Chest 46-48"', 'Length 30"', 'Roomy +$2'],
+  ],
+  Mug: [
+    ['11 oz', 'Classic mug', '3.7" tall', 'Desk friendly'],
+    ['15 oz', 'Large mug', '4.5" tall', 'Long refills'],
+  ],
   Apparel: [
     ['S', 'Chest 34-36"', 'Length 27"', 'Fits trim'],
     ['M', 'Chest 38-40"', 'Length 28"', 'Most picked'],
@@ -1006,8 +1126,9 @@ const hashString = (value) => {
 const getProductProof = (product) => {
   if (!product) return { rating: 4.8, reviewCount: 120, soldCount: 200 }
   const seed = hashString(String(product.id ?? product.name ?? 'product'))
-  const rating = Math.round((4.5 + (seed % 5) / 10) * 10) / 10 // 4.5 - 4.9
-  const reviewCount = 38 + (seed % 240)
+  const demoReviews = createDemoProductReviews(product)
+  const rating = getAverageReviewRating(demoReviews)
+  const reviewCount = demoReviews.length
   const soldCount = 120 + ((seed >> 3) % 880)
   return { rating, reviewCount, soldCount }
 }
@@ -1611,6 +1732,29 @@ const mapSupabaseSupportTicket = (ticket) => ({
   createdAt: ticket.created_at,
 })
 
+function ProductReviewCard({ review }) {
+  return (
+    <blockquote className={review.verified ? 'catalog-pdp-live-review' : 'catalog-pdp-sample-review'}>
+      <span aria-label={`${review.rating} out of 5 stars`}>{getReviewStars(review.rating)}</span>
+      <strong>{review.title}</strong>
+      <p>{review.body}</p>
+      <cite>
+        <span>{review.reviewerName}</span>
+        <span aria-hidden="true">·</span>
+        {review.verified ? (
+          <span className="verified-buyer-badge">
+            <CheckCircle2 size={13} aria-hidden="true" />
+            Verified buyer
+          </span>
+        ) : (
+          <span className="sample-review-badge">Sample review</span>
+        )}
+        {review.createdAt && <time dateTime={review.createdAt}>{formatOrderDate(review.createdAt)}</time>}
+      </cite>
+    </blockquote>
+  )
+}
+
 function App() {
   const [currentPath, setCurrentPath] = useState(() => window.location.pathname || '/')
   const [activeCategory, setActiveCategory] = useState('All')
@@ -1665,6 +1809,7 @@ function App() {
   const [reviewNotice, setReviewNotice] = useState('')
   const [productReviews, setProductReviews] = useState([])
   const [productReviewsLoading, setProductReviewsLoading] = useState(false)
+  const [productReviewsExpanded, setProductReviewsExpanded] = useState(false)
   const [activeSupportAction, setActiveSupportAction] = useState('help')
   const [supportTicketNotice, setSupportTicketNotice] = useState('')
   const [supportTickets, setSupportTickets] = useState([])
@@ -1737,6 +1882,7 @@ function App() {
         setPdpStickyCartVisible(false)
         setSelectedProductQuantity(1)
         setActiveProductImageIndex(getInitialProductImageIndex(nextProduct))
+        setProductReviewsExpanded(false)
         setActiveRoute('product')
         return
       }
@@ -1948,12 +2094,18 @@ function App() {
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
   const selectedProductProof = getProductProof(selectedProduct)
-  const visibleProductReviews = productReviews.filter((review) => review.productId === selectedProduct?.id)
-  const liveReviewRatingTotal = visibleProductReviews.reduce((sum, review) => sum + review.rating, 0)
-  const selectedProductReviewCount = selectedProductProof.reviewCount + visibleProductReviews.length
+  const visibleProductReviews = productReviews
+    .filter((review) => review.productId === selectedProduct?.id)
+    .map((review) => ({ ...review, verified: true, source: 'live' }))
+  const demoProductReviews = useMemo(() => createDemoProductReviews(selectedProduct), [selectedProduct])
+  const combinedProductReviews = mergeProductReviews(visibleProductReviews, demoProductReviews)
+  const selectedProductReviewCount = combinedProductReviews.length
   const selectedProductReviewRating = selectedProductReviewCount
-    ? ((selectedProductProof.rating * selectedProductProof.reviewCount) + liveReviewRatingTotal) / selectedProductReviewCount
+    ? getAverageReviewRating(combinedProductReviews)
     : selectedProductProof.rating
+  const selectedProductReviewDistribution = getReviewDistribution(combinedProductReviews)
+  const initialProductReviews = combinedProductReviews.slice(0, 3)
+  const additionalProductReviews = productReviewsExpanded ? combinedProductReviews.slice(3) : []
   const selectedProductExperience = getProductDetailExperience(selectedProduct)
   const sizeGuideRows = sizeGuideRowsByCategory[selectedProduct?.category] ?? []
   const selectedProductHasSizeGuide = selectedOptionGroups.some((group) => group.name === 'Size') && sizeGuideRows.length > 0
@@ -2176,6 +2328,7 @@ function App() {
     setPdpStickyCartVisible(false)
     setSelectedProductQuantity(1)
     setActiveProductImageIndex(getInitialProductImageIndex(product))
+    setProductReviewsExpanded(false)
     trackStoreEvent('view_product', {
       product_id: product.id,
       name: product.name,
@@ -3973,7 +4126,7 @@ function App() {
                       aria-label="Scroll product views up"
                       onClick={() => scrollProductGallery(-1)}
                     >
-                      <ChevronDown size={16} />
+                      <ChevronDown size={24} />
                     </button>
                   )}
                   <aside
@@ -4002,8 +4155,7 @@ function App() {
                       aria-label="Scroll product views down"
                       onClick={() => scrollProductGallery(1)}
                     >
-                      <ChevronDown size={16} />
-                      More views
+                      <ChevronDown size={24} />
                     </button>
                   )}
                 </div>
@@ -4254,7 +4406,7 @@ function App() {
                 <div className="catalog-pdp-kit">
                   <div className="catalog-pdp-kit-items">
                     {bundleProducts.slice(0, 3).map((product, index) => (
-                      <article key={`kit-${product.id}`}>
+                      <article key={`kit-${product.id}-${index}`}>
                         <img src={product.image} alt={product.name} />
                         <strong>{product.name}</strong>
                         <span>{formatPrice(product.price)}</span>
@@ -4278,7 +4430,7 @@ function App() {
               <section className="catalog-pdp-reviews-section" id="pdp-reviews" aria-label="Customer reviews">
                 <div className="catalog-pdp-section-title">
                   <div>
-                    <p className="receipt-label">What real customers are saying</p>
+                    <p className="receipt-label">What shoppers are saying</p>
                     <h2>Proof before the checkout counter.</h2>
                   </div>
                 </div>
@@ -4287,46 +4439,27 @@ function App() {
                     <strong>{selectedProductReviewRating.toFixed(1)}</strong>
                     <span aria-hidden="true">★★★★★</span>
                     <small>Based on {selectedProductReviewCount} reviews</small>
-                    {[72, 18, 7, 2, 1].map((value, index) => (
-                      <p key={`rating-bar-${5 - index}`}>
-                        <b>{5 - index} Stars</b>
-                        <i><em style={{ width: `${value}%` }} /></i>
-                        <small>{value}%</small>
+                    {selectedProductReviewDistribution.map(({ rating, percentage }) => (
+                      <p key={`rating-bar-${rating}`}>
+                        <b>{rating} Stars</b>
+                        <i><em style={{ width: `${percentage}%` }} /></i>
+                        <small>{percentage}%</small>
                       </p>
                     ))}
-                    <button type="button" onClick={() => document.getElementById('pdp-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>View all {selectedProductReviewCount} reviews</button>
+                    <button type="button" onClick={() => setProductReviewsExpanded((expanded) => !expanded)}>
+                      {productReviewsExpanded ? 'Show fewer reviews' : `View all ${selectedProductReviewCount} reviews`}
+                    </button>
                   </article>
-                  {visibleProductReviews.map((review) => (
-                    <blockquote className="catalog-pdp-live-review" key={review.id}>
-                      <span aria-label={`${review.rating} out of 5 stars`}>{getReviewStars(review.rating)}</span>
-                      <strong>{review.title}</strong>
-                      <p>{review.body}</p>
-                      <cite>
-                        <span>{review.reviewerName}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="verified-buyer-badge">
-                          <CheckCircle2 size={13} aria-hidden="true" />
-                          Verified buyer
-                        </span>
-                        <time dateTime={review.createdAt}>{formatOrderDate(review.createdAt)}</time>
-                      </cite>
-                    </blockquote>
+                  {initialProductReviews.map((review) => (
+                    <ProductReviewCard review={review} key={review.id} />
                   ))}
-                  {selectedProductExperience.reviews.map(([title, body, name]) => (
-                    <blockquote key={title}>
-                      <span aria-hidden="true">★★★★★</span>
-                      <strong>{title}</strong>
-                      <p>{body}</p>
-                      <cite>
-                        <span>{name}</span>
-                        <span aria-hidden="true">·</span>
-                        <span className="verified-buyer-badge">
-                          <CheckCircle2 size={13} aria-hidden="true" />
-                          Verified buyer
-                        </span>
-                      </cite>
-                    </blockquote>
-                  ))}
+                  {additionalProductReviews.length > 0 && (
+                    <div className="catalog-pdp-review-more">
+                      {additionalProductReviews.map((review) => (
+                        <ProductReviewCard review={review} key={review.id} />
+                      ))}
+                    </div>
+                  )}
                   {productReviewsLoading && <p className="catalog-pdp-review-loading">Loading recent verified reviews…</p>}
                 </div>
               </section>
