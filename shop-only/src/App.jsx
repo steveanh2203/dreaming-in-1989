@@ -1457,6 +1457,49 @@ const saveStoredWishlistIds = (wishlistIds) => {
   }
 }
 
+// Client-side review store (demo): reviews written on the PDP plus photos for any
+// review, kept in localStorage so the experience survives a reload without a backend.
+const LOCAL_REVIEWS_KEY = 'dreaming-1989-local-reviews'
+const LOCAL_REVIEW_IMAGES_KEY = 'dreaming-1989-review-images'
+
+const getStoredLocalReviews = () => {
+  try {
+    const saved = window.localStorage.getItem(LOCAL_REVIEWS_KEY)
+    const parsed = saved ? JSON.parse(saved) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+const saveStoredLocalReviews = (reviews) => {
+  try {
+    window.localStorage.setItem(LOCAL_REVIEWS_KEY, JSON.stringify(reviews))
+    return true
+  } catch {
+    return false
+  }
+}
+
+const getStoredReviewImages = () => {
+  try {
+    const saved = window.localStorage.getItem(LOCAL_REVIEW_IMAGES_KEY)
+    const parsed = saved ? JSON.parse(saved) : {}
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+const saveStoredReviewImages = (imageMap) => {
+  try {
+    window.localStorage.setItem(LOCAL_REVIEW_IMAGES_KEY, JSON.stringify(imageMap))
+    return true
+  } catch {
+    return false
+  }
+}
+
 const titleizeStatus = (value, fallback = 'Pending') => {
   const normalizedValue = String(value ?? '').replace(/[_-]+/g, ' ').trim()
   if (!normalizedValue) return fallback
@@ -1709,12 +1752,27 @@ const mapSupabaseSupportTicket = (ticket) => ({
   createdAt: ticket.created_at,
 })
 
-function ProductReviewCard({ review }) {
+function ProductReviewCard({ review, onImageClick }) {
   return (
     <blockquote className={review.verified ? 'catalog-pdp-live-review' : 'catalog-pdp-sample-review'}>
       <span aria-label={`${review.rating} out of 5 stars`}>{getReviewStars(review.rating)}</span>
       <strong>{review.title}</strong>
       <p>{review.body}</p>
+      {review.images?.length > 0 && (
+        <div className="review-photo-strip">
+          {review.images.map((src, index) => (
+            <button
+              type="button"
+              className="review-photo-thumb"
+              key={`${review.id}-photo-${index}`}
+              onClick={() => onImageClick?.(src)}
+              aria-label={`Open customer photo ${index + 1}`}
+            >
+              <img src={src} alt={`Customer photo ${index + 1}`} loading="lazy" />
+            </button>
+          ))}
+        </div>
+      )}
       <cite>
         <span>{review.reviewerName}</span>
         <span aria-hidden="true">·</span>
@@ -1723,6 +1781,8 @@ function ProductReviewCard({ review }) {
             <CheckCircle2 size={13} aria-hidden="true" />
             Verified buyer
           </span>
+        ) : review.source === 'local' ? (
+          <span className="reviewer-badge">Reviewer</span>
         ) : (
           <span className="sample-review-badge">Sample review</span>
         )}
@@ -1787,6 +1847,10 @@ function App() {
   const [productReviews, setProductReviews] = useState([])
   const [productReviewsLoading, setProductReviewsLoading] = useState(false)
   const [productReviewsExpanded, setProductReviewsExpanded] = useState(false)
+  const [localReviews, setLocalReviews] = useState(() => getStoredLocalReviews())
+  const [reviewImages, setReviewImages] = useState(() => getStoredReviewImages())
+  const [pdpReviewOpen, setPdpReviewOpen] = useState(false)
+  const [pdpReviewNotice, setPdpReviewNotice] = useState('')
   const [activeSupportAction, setActiveSupportAction] = useState('help')
   const [supportTicketNotice, setSupportTicketNotice] = useState('')
   const [supportTickets, setSupportTickets] = useState([])
@@ -2077,9 +2141,15 @@ function App() {
   const selectedProductProof = getProductProof(selectedProduct)
   const visibleProductReviews = productReviews
     .filter((review) => review.productId === selectedProduct?.id)
-    .map((review) => ({ ...review, verified: true, source: 'live' }))
+    .map((review) => ({ ...review, verified: true, source: 'live', images: reviewImages[review.id] ?? [] }))
+  const selectedLocalReviews = localReviews
+    .filter((review) => review.productId === selectedProduct?.id)
+    .map((review) => ({ ...review, images: review.images ?? [] }))
   const demoProductReviews = useMemo(() => createDemoProductReviews(selectedProduct), [selectedProduct])
-  const combinedProductReviews = mergeProductReviews(visibleProductReviews, demoProductReviews)
+  const combinedProductReviews = mergeProductReviews(
+    [...selectedLocalReviews, ...visibleProductReviews],
+    demoProductReviews,
+  )
   const selectedProductReviewCount = combinedProductReviews.length
   const selectedProductReviewRating = selectedProductReviewCount
     ? getAverageReviewRating(combinedProductReviews)
@@ -2623,7 +2693,7 @@ function App() {
     })
   }
 
-  const submitPurchaseReview = async ({ rating, title, body }) => {
+  const submitPurchaseReview = async ({ rating, title, body, images }) => {
     if (!reviewEditor || !customer?.id) return
 
     setReviewSubmitting(true)
@@ -2655,6 +2725,14 @@ function App() {
       if (error) throw error
 
       const nextReview = mapProductReview(data)
+      if (Array.isArray(images) && images.length) {
+        nextReview.images = images
+        setReviewImages((current) => {
+          const next = { ...current, [nextReview.id]: images }
+          saveStoredReviewImages(next)
+          return next
+        })
+      }
       setCustomer((currentCustomer) => {
         const nextCustomer = {
           ...currentCustomer,
@@ -2684,6 +2762,48 @@ function App() {
     } finally {
       setReviewSubmitting(false)
     }
+  }
+
+  const hasPurchasedProduct = (productId) =>
+    (customer?.orders ?? []).some(
+      (order) =>
+        isOrderReviewEligible(order) &&
+        getReviewableOrderItems(order, products).some((item) => item.productId === productId),
+    )
+
+  // PDP "Write a review": demo flow that stores the review (and photos) client-side.
+  const submitPdpReview = ({ rating, title, body, reviewerName, images }) => {
+    if (!selectedProduct) return
+
+    const name = String(customer?.name || reviewerName || 'Guest reviewer').trim().slice(0, 60) || 'Guest reviewer'
+    const newReview = {
+      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      productId: selectedProduct.id,
+      reviewerName: name,
+      rating,
+      title,
+      body,
+      images: Array.isArray(images) ? images : [],
+      verified: hasPurchasedProduct(selectedProduct.id),
+      source: 'local',
+      createdAt: new Date().toISOString(),
+    }
+
+    const nextReviews = [newReview, ...localReviews]
+    setLocalReviews(nextReviews)
+    const saved = saveStoredLocalReviews(nextReviews)
+
+    trackStoreEvent('product_review_submitted', {
+      product_id: selectedProduct.id,
+      rating,
+      source: 'pdp',
+    })
+    setPdpReviewOpen(false)
+    setPdpReviewNotice(
+      saved
+        ? 'Thanks! Your review is now live on this product.'
+        : 'Your review is live for this session, but photos were too large to save for next time.',
+    )
   }
 
   const updateOrderDateRange = (field, value) => {
@@ -4376,7 +4496,34 @@ function App() {
                     <p className="receipt-label">What shoppers are saying</p>
                     <h2>Proof before the checkout counter.</h2>
                   </div>
+                  <button
+                    type="button"
+                    className="catalog-pdp-write-review"
+                    onClick={() => {
+                      setPdpReviewNotice('')
+                      setPdpReviewOpen((open) => !open)
+                    }}
+                  >
+                    <Sparkles size={15} /> Write a review
+                  </button>
                 </div>
+
+                {pdpReviewOpen && (
+                  <PurchaseReviewForm
+                    key={`pdp-review-${selectedProduct.id}`}
+                    productName={selectedProduct.name}
+                    maxImages={3}
+                    showNameField={!customer}
+                    submitLabel="Post review"
+                    badgeLabel={hasPurchasedProduct(selectedProduct.id) ? 'Verified purchase' : 'Share your experience'}
+                    onCancel={() => setPdpReviewOpen(false)}
+                    onSubmit={submitPdpReview}
+                  />
+                )}
+                {pdpReviewNotice && !pdpReviewOpen && (
+                  <p className="purchase-review-notice catalog-pdp-review-posted" role="status">{pdpReviewNotice}</p>
+                )}
+
                 <div className="catalog-pdp-reviews-grid">
                   <article className="catalog-pdp-reviews-summary">
                     <strong>{selectedProductReviewRating.toFixed(1)}</strong>
@@ -4394,12 +4541,20 @@ function App() {
                     </button>
                   </article>
                   {initialProductReviews.map((review) => (
-                    <ProductReviewCard review={review} key={review.id} />
+                    <ProductReviewCard
+                      review={review}
+                      key={review.id}
+                      onImageClick={(src) => openImageInfo({ image: src, name: 'Customer photo' }, 'Customer review photo', 'review')}
+                    />
                   ))}
                   {additionalProductReviews.length > 0 && (
                     <div className="catalog-pdp-review-more">
                       {additionalProductReviews.map((review) => (
-                        <ProductReviewCard review={review} key={review.id} />
+                        <ProductReviewCard
+                      review={review}
+                      key={review.id}
+                      onImageClick={(src) => openImageInfo({ image: src, name: 'Customer photo' }, 'Customer review photo', 'review')}
+                    />
                       ))}
                     </div>
                   )}
@@ -4410,7 +4565,8 @@ function App() {
               <section className="catalog-pdp-faq-section" aria-label="Questions and answers">
                 <div className="catalog-pdp-section-title">
                   <div>
-                    <p className="receipt-label">Questions? We've got answers.</p>
+                    <p className="receipt-label">FAQ</p>
+                    <h2>Questions? We've got answers.</h2>
                   </div>
                 </div>
                 <div className="catalog-pdp-faq-list">
@@ -6458,6 +6614,7 @@ function App() {
                   notice={reviewNotice}
                   productName={reviewEditor.productName}
                   submitting={reviewSubmitting}
+                  maxImages={3}
                   onCancel={() => {
                     setReviewEditor(null)
                     setReviewNotice('')

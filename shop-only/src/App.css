@@ -5093,6 +5093,11 @@
   color: rgba(117, 70, 41, 0.72);
 }
 
+.reviewer-badge {
+  color: var(--muted);
+  font-weight: 800;
+}
+
 .catalog-pdp-review-more {
   grid-column: 1 / -1;
   display: grid;
@@ -5194,8 +5199,8 @@
 }
 
 .catalog-pdp-faq-section {
-  padding: 15px 28px 13px;
-  background: url("./assets/pdp-generated/faq-paper-panel-bg-transparent.png") center / 100% 100% no-repeat;
+  padding: 0;
+  background: none;
   border: 0;
   border-radius: 0;
   box-shadow: none;
@@ -5203,17 +5208,6 @@
 
 .catalog-pdp-faq-section .catalog-pdp-section-title {
   margin-bottom: 9px;
-}
-
-.catalog-pdp-faq-section .receipt-label {
-  margin: 0;
-  color: var(--green);
-  font-family: var(--font-retro);
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 .catalog-pdp-faq-list details {
@@ -11179,6 +11173,7 @@
 
 .purchase-review-form-heading,
 .purchase-review-form > label,
+.purchase-review-form > .purchase-review-photos,
 .purchase-review-form > .purchase-review-notice,
 .purchase-review-form > .purchase-review-submit {
   grid-column: 1 / -1;
@@ -11295,6 +11290,168 @@
   background: var(--red);
   border: 2px solid var(--red-dark);
   border-radius: 4px;
+}
+
+.purchase-review-submit:disabled {
+  opacity: 0.6;
+}
+
+/* Review photo upload */
+.purchase-review-photos {
+  display: grid;
+  gap: 8px;
+}
+
+.purchase-review-photos-label {
+  color: var(--pine);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.purchase-review-photos-label small {
+  color: var(--muted);
+  font-weight: 700;
+  text-transform: none;
+}
+
+.purchase-review-photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.purchase-review-photo,
+.purchase-review-photo-add {
+  position: relative;
+  width: 74px;
+  height: 74px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.purchase-review-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid rgba(117, 70, 41, 0.46);
+  border-radius: 4px;
+}
+
+.purchase-review-photo button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: #fff8e8;
+  font-size: 15px;
+  line-height: 1;
+  background: rgba(31, 18, 13, 0.78);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.purchase-review-photo-add {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-weight: 800;
+  background: #fffaf0;
+  border: 1px dashed rgba(117, 70, 41, 0.55);
+  cursor: pointer;
+}
+
+.purchase-review-photo-add span {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.purchase-review-photo-add small {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.purchase-review-photo-add input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.purchase-review-photo-error {
+  margin: 0;
+  color: var(--red);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* PDP "Write a review" trigger */
+.catalog-pdp-write-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: center;
+  min-height: 38px;
+  padding: 0 14px;
+  color: var(--cream);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: linear-gradient(180deg, var(--red), var(--red-dark));
+  border: 2px solid var(--red-dark);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.catalog-pdp-review-posted {
+  margin-top: 4px;
+}
+
+/* Customer photos inside a review card */
+.review-photo-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.review-photo-thumb {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.review-photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 1px solid rgba(117, 70, 41, 0.4);
+  border-radius: 4px;
+  transition: transform 140ms ease;
+}
+
+.review-photo-thumb:hover img {
+  transform: scale(1.05);
 }
 
 .purchase-review-submit:disabled {
