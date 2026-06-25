@@ -1073,33 +1073,6 @@ const formatPrice = (value) => `$${value.toFixed(2)}`
 const collapsedCartItemCount = 2
 const FREE_SHIPPING_THRESHOLD = 75
 
-const sizeGuideRowsByCategory = {
-  'T Shirt': [
-    ['S', 'Chest 34-36"', 'Length 27"', 'Fits trim'],
-    ['M', 'Chest 38-40"', 'Length 28"', 'Most picked'],
-    ['L', 'Chest 42-44"', 'Length 29"', 'Relaxed'],
-    ['XL', 'Chest 46-48"', 'Length 30"', 'Roomy +$2'],
-  ],
-  Mug: [
-    ['11 oz', 'Classic mug', '3.7" tall', 'Desk friendly'],
-    ['15 oz', 'Large mug', '4.5" tall', 'Long refills'],
-  ],
-  Apparel: [
-    ['S', 'Chest 34-36"', 'Length 27"', 'Fits trim'],
-    ['M', 'Chest 38-40"', 'Length 28"', 'Most picked'],
-    ['L', 'Chest 42-44"', 'Length 29"', 'Relaxed'],
-    ['XL', 'Chest 46-48"', 'Length 30"', 'Roomy +$2'],
-  ],
-  Drinkware: [
-    ['11 oz', 'Classic mug', '3.7" tall', 'Desk friendly'],
-    ['15 oz', 'Large mug', '4.5" tall', 'Long refills'],
-  ],
-  'Wall Art': [
-    ['18x24', 'Poster size', 'Easy frame fit', 'Small rooms'],
-    ['24x36', 'Statement size', 'Large wall fit', 'Studio pick'],
-  ],
-}
-
 const trackStoreEvent = (eventName, payload = {}) => {
   if (typeof window === 'undefined') return
 
@@ -1141,6 +1114,10 @@ const sunburstLabels = {
   'Low Stock': 'LAST FEW',
 }
 const getSunburstLabel = (product) => sunburstLabels[product?.tag] ?? null
+
+// Sale pricing: `price` is the live (sale) price, `compareAtPrice` is the higher "was" price.
+const getDiscountPercent = (price, compareAt) =>
+  compareAt && compareAt > price ? Math.round(((compareAt - price) / compareAt) * 100) : 0
 
 const escapePdfText = (value) =>
   String(value ?? '')
@@ -2093,6 +2070,10 @@ function App() {
     .join(' / ')
   const selectedVariantPrice =
     (selectedProduct?.price ?? 0) + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+  const selectedVariantCompareAt = selectedProduct?.compareAtPrice
+    ? selectedProduct.compareAtPrice + selectedVariantOptions.reduce((sum, option) => sum + option.priceDelta, 0)
+    : 0
+  const selectedVariantDiscount = getDiscountPercent(selectedVariantPrice, selectedVariantCompareAt)
   const selectedProductProof = getProductProof(selectedProduct)
   const visibleProductReviews = productReviews
     .filter((review) => review.productId === selectedProduct?.id)
@@ -2107,8 +2088,6 @@ function App() {
   const initialProductReviews = combinedProductReviews.slice(0, 3)
   const additionalProductReviews = productReviewsExpanded ? combinedProductReviews.slice(3) : []
   const selectedProductExperience = getProductDetailExperience(selectedProduct)
-  const sizeGuideRows = sizeGuideRowsByCategory[selectedProduct?.category] ?? []
-  const selectedProductHasSizeGuide = selectedOptionGroups.some((group) => group.name === 'Size') && sizeGuideRows.length > 0
   const selectedProductGallery = selectedProduct
     ? selectedProduct.galleryImages?.length
       ? selectedProduct.galleryImages
@@ -2352,15 +2331,6 @@ function App() {
     if (!carousel) return
     carousel.scrollBy({
       left: direction * Math.max(carousel.clientWidth * 0.82, 220),
-      behavior: 'smooth',
-    })
-  }
-
-  const scrollProductGallery = (direction) => {
-    const gallery = productGalleryRef.current
-    if (!gallery) return
-    gallery.scrollBy({
-      top: direction * Math.max(gallery.clientHeight * 0.72, 220),
       behavior: 'smooth',
     })
   }
@@ -4119,16 +4089,6 @@ function App() {
 
               <div className="catalog-pdp-hero" ref={productHeroRef}>
                 <div className="catalog-pdp-gallery-shell">
-                  {selectedProductGallery.length > 4 && (
-                    <button
-                      className="catalog-pdp-gallery-scroll catalog-pdp-gallery-scroll--up"
-                      type="button"
-                      aria-label="Scroll product views up"
-                      onClick={() => scrollProductGallery(-1)}
-                    >
-                      <ChevronDown size={24} />
-                    </button>
-                  )}
                   <aside
                     className="catalog-pdp-gallery"
                     ref={productGalleryRef}
@@ -4148,16 +4108,6 @@ function App() {
                       </button>
                     ))}
                   </aside>
-                  {selectedProductGallery.length > 4 && (
-                    <button
-                      className="catalog-pdp-gallery-scroll catalog-pdp-gallery-scroll--down"
-                      type="button"
-                      aria-label="Scroll product views down"
-                      onClick={() => scrollProductGallery(1)}
-                    >
-                      <ChevronDown size={24} />
-                    </button>
-                  )}
                 </div>
 
                 <figure className="catalog-pdp-main-frame">
@@ -4191,20 +4141,15 @@ function App() {
                   </div>
                   <p className="catalog-pdp-short">{selectedProduct.shortDetail}</p>
 
-                  <div className="catalog-pdp-proof-strip" aria-label="Why shoppers choose this item">
-                    {selectedProductExperience.proofCards.map(({ Icon, label, value }) => (
-                      <span key={label}>
-                        <Icon size={17} />
-                        <strong>{label}</strong>
-                        <small>{value}</small>
-                      </span>
-                    ))}
-                  </div>
-
                   <div className="catalog-pdp-price-row">
                     <div>
-                      <strong>{formatPrice(selectedVariantPrice)}</strong>
-                      <small>Ships in 2-4 business days</small>
+                      <span className="catalog-pdp-price-line">
+                        <strong>{formatPrice(selectedVariantPrice)}</strong>
+                        {selectedVariantDiscount > 0 && <s>{formatPrice(selectedVariantCompareAt)}</s>}
+                        {selectedVariantDiscount > 0 && (
+                          <b className="catalog-pdp-save-badge">Save {selectedVariantDiscount}%</b>
+                        )}
+                      </span>
                     </div>
                     <span
                       className={`stock-pill stock-pill--${
@@ -4222,6 +4167,11 @@ function App() {
                       : 'In stock'}
                     </span>
                   </div>
+
+                  <p className="catalog-pdp-installment">
+                    <CreditCard size={14} />
+                    <span>or 4 interest-free payments of <strong>{formatPrice(selectedVariantPrice / 4)}</strong></span>
+                  </p>
 
                   <div className="catalog-pdp-options">
                     {selectedOptionGroups.map((group) => (
@@ -4251,26 +4201,6 @@ function App() {
                     ))}
                   </div>
 
-                  {selectedProductHasSizeGuide && (
-                    <details className="catalog-pdp-size-guide">
-                      <summary>
-                        <Package size={15} />
-                        Size guide / fit check
-                      </summary>
-                      <div>
-                        {sizeGuideRows.map(([size, measure, length, note]) => (
-                          <span key={size}>
-                            <strong>{size}</strong>
-                            <small>{measure}</small>
-                            <small>{length}</small>
-                            <em>{note}</em>
-                          </span>
-                        ))}
-                      </div>
-                      <p>Made-to-order sizing mistakes are not automatic refunds. Check the fit before checkout.</p>
-                    </details>
-                  )}
-
                   <div className="catalog-pdp-quantity">
                     <span>Quantity</span>
                     <div>
@@ -4290,7 +4220,6 @@ function App() {
                         <Plus size={15} />
                       </button>
                     </div>
-                    <strong className="catalog-pdp-low-stock">Only 7 left in stock!</strong>
                   </div>
 
                   {inlineAddOns.length > 0 && (
@@ -4340,6 +4269,20 @@ function App() {
                     <button className="catalog-pdp-buy-now" type="button" onClick={buySelectedProductNow}>
                       Buy Now
                     </button>
+                  </div>
+                  <button
+                    className={`catalog-pdp-save${activeWishlistIds.includes(selectedProduct.id) ? ' is-saved' : ''}`}
+                    type="button"
+                    aria-pressed={activeWishlistIds.includes(selectedProduct.id)}
+                    onClick={() => toggleWishlistProduct(selectedProduct)}
+                  >
+                    <Heart size={16} />
+                    {activeWishlistIds.includes(selectedProduct.id) ? 'Saved to Wishlist' : 'Save for Later'}
+                  </button>
+                  <div className="catalog-pdp-panel-trust" aria-label="Purchase guarantees">
+                    <span><ShieldCheck size={14} /> Secure checkout</span>
+                    <span><RefreshCcw size={14} /> 30-day returns</span>
+                    <span><Package size={14} /> Made to order</span>
                   </div>
                   <div className="catalog-pdp-pay-row" aria-label="Accepted payments">
                     <PaymentBadges />
@@ -4610,6 +4553,11 @@ function App() {
                   >
                     <img src={product.image} alt={product.name} />
                     <span>{product.tag}</span>
+                    {getDiscountPercent(product.price, product.compareAtPrice) > 0 && (
+                      <span className="product-sale-flag" aria-hidden="true">
+                        -{getDiscountPercent(product.price, product.compareAtPrice)}%
+                      </span>
+                    )}
                     {getSunburstLabel(product) && (
                       <span className="price-sunburst" aria-hidden="true">{getSunburstLabel(product)}</span>
                     )}
@@ -4642,7 +4590,12 @@ function App() {
                     )}
                   </div>
                   <div className="product-buy">
-                    <strong>{formatPrice(product.price)}</strong>
+                    <span className="product-price">
+                      <strong>{formatPrice(product.price)}</strong>
+                      {getDiscountPercent(product.price, product.compareAtPrice) > 0 && (
+                        <s>{formatPrice(product.compareAtPrice)}</s>
+                      )}
+                    </span>
                     <span className="buy-actions">
                       <button
                         className="collection-view-detail"
@@ -4923,6 +4876,11 @@ function App() {
                   >
                     <img src={product.image} alt={product.name} />
                     <span>{product.tag}</span>
+                    {getDiscountPercent(product.price, product.compareAtPrice) > 0 && (
+                      <span className="product-sale-flag" aria-hidden="true">
+                        -{getDiscountPercent(product.price, product.compareAtPrice)}%
+                      </span>
+                    )}
                     {getSunburstLabel(product) && (
                       <span className="price-sunburst" aria-hidden="true">{getSunburstLabel(product)}</span>
                     )}
@@ -4955,7 +4913,12 @@ function App() {
                     )}
                   </div>
                   <div className="product-buy">
-                    <strong>{formatPrice(product.price)}</strong>
+                    <span className="product-price">
+                      <strong>{formatPrice(product.price)}</strong>
+                      {getDiscountPercent(product.price, product.compareAtPrice) > 0 && (
+                        <s>{formatPrice(product.compareAtPrice)}</s>
+                      )}
+                    </span>
                     <span className="buy-actions">
                       <button
                         type="button"

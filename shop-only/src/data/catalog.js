@@ -32,6 +32,7 @@ export const products = [
     tag: 'New Drop',
     shortDetail: 'White retro graphic tee inspired by late-night video store runs and after-hours rewinds.',
     price: 29,
+    compareAtPrice: 38,
     sku: 'SKU-1989-AHVC-TEE',
     stockState: 'in-stock',
     image: afterHoursTeeFrontImage,
