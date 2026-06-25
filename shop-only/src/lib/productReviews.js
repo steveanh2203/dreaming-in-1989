@@ -9,7 +9,7 @@ export const isOrderReviewEligible = (order) => {
   const orderBlocked = ['cancelled', 'canceled', 'refunded'].includes(orderStatus)
 
   return !orderBlocked && (
-    ['paid', 'captured', 'demo_approved'].some((status) => paymentStatus === status || paymentStatus.endsWith(`_${status}`))
+    ['paid', 'captured'].some((status) => paymentStatus === status || paymentStatus.endsWith(`_${status}`))
     || ['delivered', 'completed'].includes(orderStatus)
     || ['delivered', 'fulfilled'].includes(fulfillmentStatus)
   )

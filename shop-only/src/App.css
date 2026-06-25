@@ -1983,7 +1983,7 @@
   .department-card {
     position: relative;
     display: grid;
-    width: min(100%, 272px);
+    width: min(100%, 244px);
     aspect-ratio: 1 / 1;
     overflow: hidden;
     padding: 0;
@@ -2022,14 +2022,14 @@
     display: grid;
     justify-items: center;
     gap: 9px;
-    padding: 0 24px 30px;
+    padding: 0 22px 27px;
     text-align: center;
   }
 
   .department-card h3 {
     margin: 0;
     color: var(--cream);
-    font-size: clamp(22px, 1.8vw, 28px);
+    font-size: clamp(20px, 1.6vw, 25px);
     line-height: 1.04;
     text-shadow: 0 2px 0 rgba(31, 18, 13, 0.62);
   }
@@ -2040,10 +2040,10 @@
 
   .department-card button {
     align-self: center;
-    min-height: 34px;
+    min-height: 32px;
     margin: 0;
-    padding: 0 13px;
-    font-size: 11px;
+    padding: 0 12px;
+    font-size: 10px;
     border-color: rgba(255, 242, 216, 0.62);
     box-shadow: inset 0 1px 0 rgba(255, 242, 216, 0.28), 0 3px 0 rgba(31, 18, 13, 0.52);
   }
@@ -2389,29 +2389,40 @@
 
 .featured-drop-card {
   display: grid;
-  grid-template-columns: minmax(300px, 0.46fr) minmax(420px, 0.96fr) minmax(260px, 0.54fr);
+  grid-template-columns: minmax(280px, 0.82fr) minmax(420px, 1.05fr);
+  align-items: stretch;
   overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 242, 216, 0.92), rgba(232, 210, 164, 0.72)),
+    var(--paper);
 }
 
 .featured-drop-image {
+  position: relative;
   display: grid;
   place-items: center;
   min-height: 100%;
-  padding: var(--space-4);
+  padding: clamp(24px, 4vw, 52px);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 242, 216, 0.96) 0 31%, rgba(194, 122, 49, 0.18) 32% 53%, transparent 54%),
+    linear-gradient(rgba(117, 70, 41, 0.1) 1px, transparent 1px),
+    var(--paper-soft);
+  background-size: auto, 100% 24px, auto;
   border-right: 2px solid var(--wood);
 }
 
 .featured-drop-image img {
-  width: min(100%, 330px);
+  width: min(100%, 390px);
   height: auto;
   aspect-ratio: 1 / 1;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   padding: 0;
-  background: #1d120e;
-  border: 2px solid var(--wood);
-  border-radius: 5px;
-  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.22);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 14px 18px rgba(62, 36, 24, 0.28));
   transform: translateZ(0);
 }
 
@@ -2419,10 +2430,29 @@
   transform: translateZ(0) scale(1.025);
 }
 
+.featured-drop-badge {
+  position: absolute;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 1;
+  padding: 7px 10px;
+  color: #fff6dc;
+  font-family: var(--font-retro);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--red);
+  border: 2px solid var(--red-dark);
+  border-radius: 999px;
+  box-shadow: 0 4px 0 rgba(62, 36, 24, 0.28);
+}
+
 .featured-drop-copy {
   display: flex;
   flex-direction: column;
-  padding: var(--space-5) var(--space-6);
+  padding: clamp(24px, 4vw, 48px);
   background:
     linear-gradient(rgba(117, 70, 41, 0.09) 1px, transparent 1px),
     var(--paper);
@@ -2454,12 +2484,14 @@
   margin: 0;
   color: var(--muted);
   font-family: var(--font-editorial);
+  font-size: 18px;
   line-height: 1.5;
 }
 
 .drop-spec-list {
   display: grid;
-  gap: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 var(--space-4);
   margin: var(--space-4) 0 0;
   padding-top: var(--space-3);
   border-top: 1px dashed rgba(117, 70, 41, 0.72);
@@ -2468,10 +2500,10 @@
 
 .drop-spec-list div {
   display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: var(--space-3);
+  grid-template-columns: 1fr;
+  gap: 2px;
   min-height: 0;
-  padding: 2px 0;
+  padding: 8px 0;
   color: var(--ink);
   background: transparent;
   border: 0;
@@ -2493,22 +2525,24 @@
 
 .featured-drop-actions {
   display: grid;
-  align-content: center;
+  grid-column: 2;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: var(--space-3);
-  margin: var(--space-5);
-  padding: var(--space-5);
+  align-items: center;
+  margin: 0 clamp(24px, 4vw, 48px) clamp(24px, 4vw, 48px);
+  padding-top: var(--space-4);
   color: var(--ink);
-  background: rgba(255, 242, 216, 0.6);
-  border: 2px dashed rgba(117, 70, 41, 0.48);
-  border-radius: 5px;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  background: transparent;
+  border-top: 2px dashed rgba(117, 70, 41, 0.48);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .featured-price {
   display: grid;
-  justify-items: center;
+  justify-items: start;
   gap: 3px;
-  margin-bottom: var(--space-2);
+  margin: 0;
 }
 
 .featured-price strong {
@@ -2537,7 +2571,7 @@
 
 .featured-drop-actions .checkout-button,
 .wishlist-button {
-  width: 100%;
+  width: auto;
   min-height: 48px;
 }
 
@@ -2568,6 +2602,77 @@
   text-transform: uppercase;
   border: 2px dashed rgba(117, 70, 41, 0.72);
   transform: rotate(-1deg);
+}
+
+@media (min-width: 1200px) {
+  #featured .featured-drop-card {
+    grid-template-columns: minmax(300px, 0.72fr) minmax(430px, 1fr) minmax(220px, 0.42fr);
+    min-height: 0;
+  }
+
+  #featured .featured-drop-image {
+    grid-row: 1;
+    grid-column: 1;
+    min-height: 420px;
+    padding: clamp(28px, 3vw, 44px);
+    border-right: 2px solid var(--wood);
+    border-bottom: 0;
+  }
+
+  #featured .featured-drop-image img {
+    width: min(100%, 340px);
+  }
+
+  #featured .featured-drop-copy {
+    grid-row: 1;
+    grid-column: 2;
+    padding: clamp(28px, 3vw, 42px);
+  }
+
+  #featured .featured-title-button {
+    font-size: clamp(28px, 2.25vw, 36px);
+  }
+
+  #featured .featured-drop-copy > p:not(.receipt-label) {
+    max-width: 760px;
+    font-size: 16px;
+    line-height: 1.42;
+  }
+
+  #featured .drop-spec-list {
+    margin-top: var(--space-4);
+    padding-bottom: var(--space-2);
+  }
+
+  #featured .featured-drop-actions {
+    grid-row: 1;
+    grid-column: 3;
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: var(--space-3);
+    margin: var(--space-5) var(--space-5) var(--space-5) 0;
+    padding: var(--space-5);
+    background: rgba(255, 242, 216, 0.42);
+    border-top: 0;
+    border-left: 2px dashed rgba(117, 70, 41, 0.48);
+    border-radius: 5px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  }
+
+  #featured .featured-price {
+    justify-items: start;
+    margin-bottom: var(--space-2);
+  }
+
+  #featured .featured-drop-actions .checkout-button,
+  #featured .wishlist-button {
+    width: 100%;
+  }
+
+  #featured .drop-stamp {
+    width: 100%;
+    margin-top: var(--space-1);
+  }
 }
 
 .shelf-set-grid {
@@ -5029,6 +5134,7 @@
   grid-template-columns: 260px repeat(3, minmax(0, 1fr));
   align-items: stretch;
   gap: 16px;
+  margin-top: 22px;
 }
 
 /* Equal-height review cards: let the body fill so the author line pins to the bottom */
@@ -5427,11 +5533,27 @@
 .product-route-page--reset .catalog-pdp-era-grid,
 .product-route-page--reset .catalog-pdp-reviews-section,
 .product-route-page--reset .catalog-pdp-faq-section,
-.product-route-page--reset .catalog-pdp-related,
-.product-route-page--reset .catalog-pdp-final-cta {
+.product-route-page--reset .catalog-pdp-related {
   width: min(var(--pdp-content-width), calc(100% - var(--pdp-content-gutter)));
   margin-right: auto;
   margin-left: auto;
+}
+
+/*
+ * The sticky bar is `position: fixed`, so its percentage widths resolve against the
+ * viewport, not against the already 1280px-capped `.store-section`. The other PDP
+ * sections measure their gutter against that capped box, so matching their on-screen
+ * width here needs the *combined* outer + inner reduction instead of the shared
+ * --pdp-content-width/--pdp-content-gutter pair.
+ */
+.product-route-page--reset .catalog-pdp-final-cta {
+  width: min(1280px, calc(100% - 96px));
+}
+
+@media (min-width: 1200px) {
+  .product-route-page--reset .catalog-pdp-final-cta {
+    width: min(1232px, calc(100% - 192px));
+  }
 }
 
 @media (max-width: 1180px) {
@@ -8095,6 +8217,11 @@
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.24), 0 18px 34px var(--shadow);
 }
 
+.image-info-modal .modal-close {
+  z-index: 3;
+  pointer-events: auto;
+}
+
 .image-info-preview {
   width: 100%;
   height: 100%;
@@ -8113,10 +8240,9 @@
 .image-info-preview--product,
 .image-info-preview--cutout {
   background:
-    linear-gradient(rgba(255, 242, 216, 0.12), rgba(117, 70, 41, 0.05)),
-    url('./assets/paper/product-paper-b.png');
-  background-color: #e8d2a4;
-  background-size: auto, cover;
+    linear-gradient(180deg, rgba(255, 242, 216, 0.3), rgba(117, 70, 41, 0.06)),
+    #e8d2a4;
+  background-size: auto;
   background-position: center;
 }
 
@@ -11358,11 +11484,13 @@
 }
 
 .purchase-review-photo-add {
-  display: inline-flex;
-  flex-direction: column;
+  display: inline-grid;
   align-items: center;
   justify-content: center;
+  justify-items: center;
+  align-content: center;
   gap: 2px;
+  text-align: center;
   color: var(--muted);
   font-family: var(--font-ui);
   font-weight: 800;
@@ -11372,12 +11500,19 @@
 }
 
 .purchase-review-photo-add span {
+  display: block;
+  width: 100%;
   font-size: 22px;
   line-height: 1;
+  text-align: center;
 }
 
 .purchase-review-photo-add small {
+  display: block;
+  width: 100%;
   font-size: 10px;
+  line-height: 1.1;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -12970,6 +13105,13 @@
   .service-strip,
   .store-section {
     width: min(1440px, calc(100% - 48px));
+  }
+}
+
+@media (min-width: 1200px) {
+  .service-strip,
+  .store-section {
+    width: min(1280px, calc(100% - 144px));
   }
 }
 
@@ -14746,11 +14888,13 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   position: sticky;
   top: 0;
   z-index: 6;
-  padding: var(--space-3) var(--space-3);
-  margin: 0 calc(var(--space-3) * -1) var(--space-4);
-  background: var(--paper);
-  border-bottom: 1px solid rgba(117, 70, 41, 0.4);
-  box-shadow: 0 6px 14px rgba(8, 19, 18, 0.14);
+  width: 100%;
+  padding: var(--space-3);
+  margin: 0 0 var(--space-4);
+  background: rgba(244, 222, 184, 0.92);
+  border: 1px solid rgba(117, 70, 41, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 6px 14px rgba(8, 19, 18, 0.1);
 }
 
 /* --- PDP mobile sticky add-to-cart bar (mobile only) --- */
@@ -15405,6 +15549,12 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   box-shadow: 0 8px 0 rgba(0, 0, 0, 0.24), inset 0 0 0 9px #161616;
 }
 
+@media (min-width: 1200px) {
+  .film-divider {
+    width: min(1280px, calc(100% - 144px));
+  }
+}
+
 .film-divider span {
   display: inline-flex;
   align-items: center;
@@ -15506,7 +15656,9 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   min-height: 560px;
   padding: 12px 14px 12px 28px;
   overflow: visible;
-  align-content: start;
+  /* Match the gallery / card height and spread the rows to fill */
+  align-self: stretch;
+  align-content: space-between;
   background: url('./assets/pdp-generated/order-form-paper-bg-transparent.png');
   background-position: center;
   background-repeat: no-repeat;
@@ -15516,8 +15668,30 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 }
 
 /* Keep the product card its natural square height and center it against the taller buy-panel */
+.product-route-page .catalog-pdp-hero {
+  align-items: stretch;
+}
+
 .product-route-page .catalog-pdp-main-frame {
-  align-self: center;
+  align-self: stretch;
+  aspect-ratio: auto;
+}
+
+/*
+ * The thumbnail strip opted out of the hero's stretch (align-self: start) and its inner
+ * scroller was capped by a viewport-height formula, so on shorter browser windows it fell
+ * short of the main image frame and buy panel. Stretch it to the same row height and let
+ * it scroll internally instead of being limited by 100vh.
+ */
+.product-route-page .catalog-pdp-gallery-shell {
+  align-self: stretch;
+}
+
+.product-route-page .catalog-pdp-gallery {
+  height: 100%;
+  /* Flat cap (no viewport-height term) so the strip can't blow past the frame/panel's
+     natural size and force the whole row taller; extra thumbnails scroll internally. */
+  max-height: 650px;
 }
 
 .product-route-page .catalog-pdp-buy-panel h1 {
@@ -17114,8 +17288,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 @media (max-width: 767px) {
   .primary-nav {
     display: grid;
-    grid-template-columns: 38px repeat(4, minmax(0, 1fr));
-    gap: 3px;
+    grid-template-columns: 44px repeat(4, minmax(0, 1fr));
+    gap: 8px;
     width: calc(100% - 18px);
     max-width: calc(100% - 18px);
     min-height: 0;
@@ -17145,10 +17319,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   .primary-nav .home-tab {
     min-width: 0;
     padding: 0;
-  }
-
-  .primary-nav .mobile-gift-link {
-    display: none;
+    border-radius: 50%;
   }
 
   .primary-nav .support-menu {
@@ -17205,6 +17376,11 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 }
 
 @media (max-width: 360px) {
+  .primary-nav {
+    grid-template-columns: 42px repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
   .primary-nav a,
   .primary-nav button,
   .shop-app.memory-entered .primary-nav a,
@@ -17300,21 +17476,29 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   }
 
   #featured .featured-drop-image {
-    min-height: 0;
-    padding: 12px;
+    min-height: 300px;
+    padding: 22px 16px 18px;
     border-right: 0;
     border-bottom: 1.5px solid var(--wood);
   }
 
   #featured .featured-drop-image img {
-    width: min(100%, 210px);
-    border-width: 1.5px;
-    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+    width: min(82vw, 310px);
+    border-width: 0;
+    box-shadow: none;
+    filter: drop-shadow(0 10px 14px rgba(62, 36, 24, 0.24));
+  }
+
+  #featured .featured-drop-badge {
+    top: 12px;
+    left: 12px;
+    padding: 6px 9px;
+    font-size: 10px;
   }
 
   #featured .featured-drop-copy {
     min-width: 0;
-    padding: 12px;
+    padding: 16px;
     background-size: 100% 22px, auto;
   }
 
@@ -17369,6 +17553,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
   #featured .featured-drop-actions {
     display: grid;
+    grid-column: 1;
     grid-template-columns: minmax(0, 1fr) auto auto;
     gap: 8px;
     align-items: center;
@@ -17465,8 +17650,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   }
 
   .department-section .department-card img {
-    width: min(68px, 100%);
-    height: min(68px, calc((100vw - 54px) / 4));
+    width: min(62px, 100%);
+    height: min(62px, calc((100vw - 54px) / 4));
     aspect-ratio: 1 / 1;
     padding: 0;
     object-fit: cover;
@@ -17656,8 +17841,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     padding: 6px;
   }
 
-  .products-section .product-image span:not(.price-sunburst),
-  .collection-route-grid .product-image span:not(.price-sunburst) {
+  .products-section .product-image span:not(.price-sunburst):not(.product-sale-flag),
+  .collection-route-grid .product-image span:not(.price-sunburst):not(.product-sale-flag) {
     top: 6px;
     left: 6px;
     max-width: calc(100% - 12px);
@@ -17665,6 +17850,21 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     padding: 0 7px;
     font-size: 8.5px;
     line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .products-section .product-image .product-sale-flag,
+  .collection-route-grid .product-image .product-sale-flag {
+    top: auto;
+    right: auto;
+    bottom: 6px;
+    left: 6px;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 4px 7px;
+    font-size: 9px;
+    line-height: 1;
     white-space: nowrap;
   }
 
@@ -17811,7 +18011,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   }
 
   #featured .featured-drop-image img {
-    width: min(100%, 188px);
+    width: min(80vw, 270px);
   }
 
   #featured .featured-title-button {
@@ -17835,8 +18035,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   }
 
   .department-section .department-card img {
-    width: min(60px, 100%);
-    height: min(60px, calc((100vw - 48px) / 4));
+    width: min(56px, 100%);
+    height: min(56px, calc((100vw - 48px) / 4));
   }
 
   .department-section .department-card h3 {

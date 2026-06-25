@@ -10,11 +10,15 @@ import { promisify } from 'node:util'
 const scrypt = promisify(scryptCallback)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const dataDir = path.join(__dirname, 'data')
-const dbPath = path.join(dataDir, 'auth-db.json')
+const dbPath = process.env.AUTH_DB_PATH ? path.resolve(process.env.AUTH_DB_PATH) : path.join(dataDir, 'auth-db.json')
 const port = Number(process.env.AUTH_PORT ?? 8789)
+const host = process.env.AUTH_HOST ?? '127.0.0.1'
 const sessionCookieName = 'di1989_session'
 const sessionMaxAgeMs = 1000 * 60 * 60 * 24 * 7
 const resetTokenMaxAgeMs = 1000 * 60 * 30
+const exposeResetTokens = process.env.AUTH_EXPOSE_RESET_TOKEN === 'true'
+const secureCookie = process.env.NODE_ENV === 'production' || process.env.AUTH_COOKIE_SECURE === 'true'
+const authAttempts = new Map()
 
 const defaultDb = {
   users: [],
@@ -28,6 +32,26 @@ const json = (res, status, body, headers = {}) => {
     ...headers,
   })
   res.end(JSON.stringify(body))
+}
+
+const getClientKey = (req) =>
+  String(req.headers['x-forwarded-for'] ?? req.socket.remoteAddress ?? 'unknown')
+    .split(',')[0]
+    .trim()
+
+const isRateLimited = (req, action, limit, windowMs) => {
+  const now = Date.now()
+  const key = `${action}:${getClientKey(req)}`
+  const entry = authAttempts.get(key) ?? { count: 0, resetAt: now + windowMs }
+
+  if (entry.resetAt <= now) {
+    entry.count = 0
+    entry.resetAt = now + windowMs
+  }
+
+  entry.count += 1
+  authAttempts.set(key, entry)
+  return entry.count > limit
 }
 
 const parseCookies = (cookieHeader = '') =>
@@ -114,9 +138,9 @@ const getAuthenticatedUser = (db, req) => {
 }
 
 const sessionCookie = (token) =>
-  `${sessionCookieName}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${Math.floor(sessionMaxAgeMs / 1000)}`
+  `${sessionCookieName}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${Math.floor(sessionMaxAgeMs / 1000)}${secureCookie ? '; Secure' : ''}`
 
-const clearSessionCookie = () => `${sessionCookieName}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`
+const clearSessionCookie = () => `${sessionCookieName}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secureCookie ? '; Secure' : ''}`
 
 const requirePassword = (password) => {
   const value = String(password ?? '')
@@ -127,6 +151,7 @@ const requirePassword = (password) => {
 
 const routes = {
   'POST /api/auth/register': async (req, res, db) => {
+    if (isRateLimited(req, 'register', 10, 15 * 60 * 1000)) return json(res, 429, { error: 'Too many attempts. Try again later.' })
     const body = await parseBody(req)
     const email = normalizeEmail(body.email)
     const name = String(body.name ?? '').trim()
@@ -153,6 +178,7 @@ const routes = {
   },
 
   'POST /api/auth/sign-in': async (req, res, db) => {
+    if (isRateLimited(req, 'sign-in', 20, 15 * 60 * 1000)) return json(res, 429, { error: 'Too many attempts. Try again later.' })
     const body = await parseBody(req)
     const email = normalizeEmail(body.email)
     const user = db.users.find((entry) => entry.email === email)
@@ -179,6 +205,7 @@ const routes = {
   },
 
   'POST /api/auth/change-password': async (req, res, db) => {
+    if (isRateLimited(req, 'change-password', 10, 15 * 60 * 1000)) return json(res, 429, { error: 'Too many attempts. Try again later.' })
     const user = getAuthenticatedUser(db, req)
     if (!user) return json(res, 401, { error: 'Please sign in again.' })
     const body = await parseBody(req)
@@ -196,6 +223,7 @@ const routes = {
   },
 
   'POST /api/auth/request-reset': async (req, res, db) => {
+    if (isRateLimited(req, 'request-reset', 5, 15 * 60 * 1000)) return json(res, 429, { error: 'Too many attempts. Try again later.' })
     const body = await parseBody(req)
     const email = normalizeEmail(body.email)
     const user = db.users.find((entry) => entry.email === email)
@@ -211,15 +239,19 @@ const routes = {
       usedAt: null,
     })
     await saveDb(db)
-    console.log(`[auth] reset link for ${email}: /reset-password?token=${token}`)
-    return json(res, 200, {
-      ok: true,
-      devResetToken: token,
-      resetPath: `/reset-password?token=${token}`,
-    })
+    if (exposeResetTokens) {
+      console.warn(`[auth] AUTH_EXPOSE_RESET_TOKEN is enabled; reset token for ${email}: /reset-password?token=${token}`)
+      return json(res, 200, {
+        ok: true,
+        devResetToken: token,
+        resetPath: `/reset-password?token=${token}`,
+      })
+    }
+    return json(res, 200, { ok: true })
   },
 
   'POST /api/auth/reset-password': async (req, res, db) => {
+    if (isRateLimited(req, 'reset-password', 10, 15 * 60 * 1000)) return json(res, 429, { error: 'Too many attempts. Try again later.' })
     const body = await parseBody(req)
     const resetToken = db.resetTokens.find((entry) => entry.token === body.token)
     if (!resetToken || resetToken.usedAt || resetToken.expiresAt <= Date.now()) {
@@ -254,6 +286,6 @@ const server = createServer(async (req, res) => {
   }
 })
 
-server.listen(port, () => {
-  console.log(`[auth] server listening on http://127.0.0.1:${port}`)
+server.listen(port, host, () => {
+  console.log(`[auth] server listening on http://${host}:${port}`)
 })

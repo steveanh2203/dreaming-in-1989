@@ -1532,7 +1532,7 @@ const getDefaultOrderTimeline = (order) => [
   {
     label: 'Payment',
     detail: titleizeStatus(order.payment_status, 'Payment pending'),
-    done: ['paid', 'captured', 'demo approved', 'demo_approved'].includes(String(order.payment_status ?? '').toLowerCase()),
+    done: ['paid', 'captured'].includes(String(order.payment_status ?? '').toLowerCase()),
   },
   {
     label: 'Production review',
@@ -3355,13 +3355,13 @@ function App() {
         price: item.price,
         optionSummary: item.optionSummary,
       })),
-      payment: paymentMethod === 'paypal' ? 'PayPal demo approved' : 'Demo payment',
+      payment: paymentMethod === 'paypal' ? 'PayPal pending review' : 'Payment pending review',
       fulfillment: 'Production pending',
       tracking: 'Tracking appears after shipment',
       shippingAddress,
       timeline: [
         { label: 'Order received', detail: 'Demo checkout saved to the customer dashboard.', done: true },
-        { label: 'Payment demo', detail: 'PayPal demo approval completed. No real payment was captured.', done: true },
+        { label: 'Payment review', detail: 'No real payment is trusted until provider confirmation is verified.', done: false },
         { label: 'Production review', detail: 'Next real step is sending the order into production after human approval.', done: false },
         { label: 'Production', detail: 'Production begins only after the order is confirmed.', done: false },
         { label: 'Tracking', detail: 'Carrier tracking appears here after shipment.', done: false },
@@ -3382,7 +3382,7 @@ function App() {
             customer_name: name,
             status: 'order_received',
             payment_provider: 'paypal',
-            payment_status: paymentMethod === 'paypal' ? 'demo_approved' : 'demo',
+            payment_status: 'pending_review',
             fulfillment_status: 'production_pending',
             subtotal,
             discount,
@@ -3770,7 +3770,10 @@ function App() {
             <span className="nav-label-desktop">Catalog</span>
             <span className="nav-label-mobile">Catalog</span>
           </a>
-          <a className="mobile-gift-link" href="#deals">Gift Counter</a>
+          <a className="mobile-gift-link" href="#deals">
+            <span className="nav-label-desktop">Gift Counter</span>
+            <span className="nav-label-mobile">Gifts</span>
+          </a>
           <div
             className={`support-menu ${supportMenuOpen ? 'is-open' : ''}`}
             onBlur={(event) => {
@@ -5236,7 +5239,7 @@ function App() {
                 <p className="receipt-label">Staff counter pick</p>
                 <h2>Featured Drop</h2>
               </div>
-              <p className="section-note">Today&apos;s pick, ready to add.</p>
+              <p className="section-note">One clean counter pick, ready for the next late-night run.</p>
             </div>
             <article className="featured-drop-card">
               <button
@@ -5249,6 +5252,7 @@ function App() {
                   })
                 }
               >
+                <span className="featured-drop-badge">Staff Pick</span>
                 <img src={featuredDropImage} alt={featuredDrop.name} />
               </button>
               <div className="featured-drop-copy">
@@ -5260,27 +5264,27 @@ function App() {
                 <dl className="drop-spec-list">
                   <div>
                     <dt>Type</dt>
-                    <dd>Wall poster</dd>
+                    <dd>Graphic tee</dd>
                   </div>
                   <div>
                     <dt>Size</dt>
-                    <dd>18x24 in</dd>
+                    <dd>S through XL</dd>
                   </div>
                   <div>
                     <dt>Artwork</dt>
-                    <dd>Original print</dd>
-                  </div>
-                  <div>
-                    <dt>Ships</dt>
-                    <dd>After production</dd>
-                  </div>
-                  <div>
-                    <dt>Frame</dt>
-                    <dd>Optional</dd>
+                    <dd>Front print</dd>
                   </div>
                   <div>
                     <dt>Production</dt>
                     <dd>Made to order</dd>
+                  </div>
+                  <div>
+                    <dt>Care</dt>
+                    <dd>Wash inside out</dd>
+                  </div>
+                  <div>
+                    <dt>Best For</dt>
+                    <dd>Video-store nights</dd>
                   </div>
                 </dl>
               </div>
