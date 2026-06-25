@@ -4805,7 +4805,6 @@ function App() {
               <p className="receipt-label">Shop by shelf</p>
               <h2>Departments</h2>
             </div>
-            <p className="section-note">Jump straight into the product type you want.</p>
           </div>
           <div className="department-grid">
             {departmentCards.map((department) => (
@@ -4837,7 +4836,6 @@ function App() {
                 <p className="receipt-label">Fresh on the counter</p>
                 <h2>New Arrivals</h2>
               </div>
-              <p className="section-note">Fresh apparel, mugs, wall art, and desk goods.</p>
             </div>
             <div className="feature-product-grid">
               {newArrivals.map((product) => (
