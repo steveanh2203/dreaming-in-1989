@@ -15,6 +15,16 @@ import afterHoursTeeVideoStoreLifestyleImage from '../assets/catalog/after-hours
 import afterHoursTeeParkingLotLifestyleImage from '../assets/catalog/after-hours-video-club-tee/13-lifestyle-rental-parking-lot.png'
 import afterHoursTeeMovieNightLifestyleImage from '../assets/catalog/after-hours-video-club-tee/14-lifestyle-movie-night.png'
 import afterHoursTeeArcadeLifestyleImage from '../assets/catalog/after-hours-video-club-tee/15-lifestyle-arcade.png'
+import jukeboxJavaMugFrontImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/01-front.png'
+import jukeboxJavaMugHandleRightImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/02-handle-right.png'
+import jukeboxJavaMugHandleLeftImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/03-handle-left.png'
+import jukeboxJavaMugFrontCloseupImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/04-front-closeup.png'
+import jukeboxJavaMugPrintDetailImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/05-print-detail.png'
+import jukeboxJavaMugHeroDinerBoothImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/06-hero-diner-booth.png'
+import jukeboxJavaMugBreakfastCounterImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/07-lifestyle-breakfast-counter.png'
+import jukeboxJavaMugKitchenShelfImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/08-lifestyle-kitchen-shelf.png'
+import jukeboxJavaMugMusicDeskImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/09-lifestyle-music-desk.png'
+import jukeboxJavaMugNightWindowImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/10-lifestyle-night-window.png'
 
 const afterHoursTeeVariants = ['S', 'M', 'L', 'XL'].map((size) => ({
   size,
@@ -23,6 +33,25 @@ const afterHoursTeeVariants = ['S', 'M', 'L', 'XL'].map((size) => ({
   sku: `SKU-1989-AHVC-TEE-${size}`,
   externalId: `after-hours-video-club-tee-${size.toLowerCase()}-white`,
 }))
+
+const jukeboxJavaMugVariants = [
+  {
+    size: '11 oz',
+    color: 'White',
+    retailPrice: 18,
+    sku: 'SKU-1989-JJ-MUG-11OZ',
+    externalId: 'jukebox-java-retro-diner-mug-11oz-glossy-white',
+    catalogVariantId: 1320,
+  },
+  {
+    size: '15 oz',
+    color: 'White',
+    retailPrice: 22,
+    sku: 'SKU-1989-JJ-MUG-15OZ',
+    externalId: 'jukebox-java-retro-diner-mug-15oz-glossy-white',
+    catalogVariantId: 4830,
+  },
+]
 
 export const products = [
   {
@@ -57,9 +86,48 @@ export const products = [
       variants: afterHoursTeeVariants,
     },
   },
+  {
+    id: 'jukebox-java-retro-diner-mug',
+    name: 'Jukebox Java Retro Diner Mug',
+    category: 'Mug',
+    tag: 'New Drop',
+    shortDetail:
+      'Glossy white retro diner coffee mug with a Jukebox Java graphic inspired by tabletop tunes, sugar packets, and late-night booth refills.',
+    price: 18,
+    compareAtPrice: 24,
+    sku: 'SKU-1989-JJ-MUG',
+    stockState: 'in-stock',
+    image: jukeboxJavaMugFrontImage,
+    lifestyleImage: jukeboxJavaMugHeroDinerBoothImage,
+    printDetailImage: jukeboxJavaMugPrintDetailImage,
+    seoTitle: 'Jukebox Java Retro Diner Mug | 80s Coffee Mug Gift',
+    metaDescription:
+      'Shop the Jukebox Java Retro Diner Mug, a glossy white coffee mug with 1980s diner artwork, jukebox charm, and nostalgic gift-ready style.',
+    productDescription:
+      'Bring the booth-side soundtrack to your morning coffee with the Jukebox Java Retro Diner Mug. Inspired by American diners, tabletop jukeboxes, sugar packets, chrome trim, and the warm buzz of a late-night coffee refill, this glossy white mug turns an everyday cup into a small piece of 1980s nostalgia. The artwork features a playful Jukebox Java diner graphic designed for fans of retro coffee bars, vintage restaurant signs, old-school music culture, and giftable Americana.',
+    galleryImages: [
+      { label: '01 Front', image: jukeboxJavaMugFrontImage },
+      { label: '02 Handle Right', image: jukeboxJavaMugHandleRightImage },
+      { label: '03 Handle Left', image: jukeboxJavaMugHandleLeftImage },
+      { label: '04 Front Closeup', image: jukeboxJavaMugFrontCloseupImage },
+      { label: '05 Print Detail', image: jukeboxJavaMugPrintDetailImage },
+      { label: '06 Diner Booth', image: jukeboxJavaMugHeroDinerBoothImage },
+      { label: '07 Breakfast Counter', image: jukeboxJavaMugBreakfastCounterImage },
+      { label: '08 Kitchen Shelf', image: jukeboxJavaMugKitchenShelfImage },
+      { label: '09 Music Desk', image: jukeboxJavaMugMusicDeskImage },
+      { label: '10 Night Window', image: jukeboxJavaMugNightWindowImage },
+    ],
+    printful: {
+      externalId: 'jukebox-java-retro-diner-mug',
+      catalogProductId: 19,
+      technique: 'sublimation',
+      placement: 'default',
+      variants: jukeboxJavaMugVariants,
+    },
+  },
 ]
 
-export const newArrivalIds = ['after-hours-video-club-tee']
+export const newArrivalIds = ['after-hours-video-club-tee', 'jukebox-java-retro-diner-mug']
 
 export const featuredDropProduct = products[0]
 
@@ -91,6 +159,32 @@ export const productDetailExperiences = {
       [afterHoursTeeParkingLotLifestyleImage, 'Rental-store parking lot'],
       [afterHoursTeeMovieNightLifestyleImage, 'Living-room movie night'],
       [afterHoursTeeArcadeLifestyleImage, 'After-school arcade'],
+    ],
+  },
+  'jukebox-java-retro-diner-mug': {
+    tone: 'diner',
+    orderLabel: '1989 Diner Counter Mail Order',
+    storyTitle: 'Coffee With A Tabletop Soundtrack',
+    storyBody:
+      'A mug for the booth in the corner, the glowing jukebox selector, the clink of a spoon against ceramic, and one more refill before heading home. The gallery leads with real mug views first, then moves into diner-counter lifestyle scenes built around the same approved Jukebox Java artwork.',
+    storyBullets: [
+      'Glossy white diner-style mug with front Jukebox Java artwork',
+      'Retro 1980s-inspired coffee, music, and diner counter illustration',
+      'Official Printful mockup views lead the product gallery before artwork details',
+      'Great for coffee lovers, vintage kitchen shelves, desk setups, and nostalgic gifts',
+      'Transparent artwork prepared so the mug surface stays clean and natural',
+    ],
+    careRows: [
+      ['Production', 'Printed after checkout through Printful'],
+      ['Best For', 'Coffee lovers, diner fans, desk refills, kitchen shelves, and nostalgic gifts'],
+      ['Care', 'Hand wash recommended for longest print life'],
+      ['Artwork', 'Jukebox, coffee mug, sugar packets, and tabletop diner details'],
+    ],
+    lookbook: [
+      [jukeboxJavaMugBreakfastCounterImage, 'Breakfast counter refill'],
+      [jukeboxJavaMugKitchenShelfImage, 'Kitchen shelf nostalgia'],
+      [jukeboxJavaMugMusicDeskImage, 'Desk-side mixtape coffee'],
+      [jukeboxJavaMugNightWindowImage, 'Night-shift diner window'],
     ],
   },
 }

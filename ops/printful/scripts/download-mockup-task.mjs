@@ -9,17 +9,22 @@ const outputDirectory = path.resolve(
 )
 if (!taskId) throw new Error('Usage: node download-mockup-task.mjs TASK_ID [OUTPUT_DIRECTORY]')
 
-const env = Object.fromEntries(
-  fs
-    .readFileSync(envPath, 'utf8')
-    .split(/\n/)
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith('#'))
-    .map((line) => {
-      const separator = line.indexOf('=')
-      return [line.slice(0, separator), line.slice(separator + 1)]
-    }),
-)
+const parseEnv = (filePath) =>
+  fs.existsSync(filePath)
+    ? Object.fromEntries(
+        fs
+          .readFileSync(filePath, 'utf8')
+          .split(/\n/)
+          .map((line) => line.trim())
+          .filter((line) => line && !line.startsWith('#'))
+          .map((line) => {
+            const separator = line.indexOf('=')
+            return [line.slice(0, separator), line.slice(separator + 1)]
+          }),
+      )
+    : {}
+
+const env = { ...process.env, ...parseEnv(envPath) }
 const headers = { Authorization: `Bearer ${env.PRINTFUL_API_TOKEN}` }
 if (env.PRINTFUL_STORE_ID) headers['X-PF-Store-Id'] = env.PRINTFUL_STORE_ID
 
@@ -39,11 +44,17 @@ if (task?.status !== 'completed') {
 
 fs.mkdirSync(outputDirectory, { recursive: true })
 const mockups = task.catalog_variant_mockups.flatMap((variant) => variant.mockups)
-const filenames = ['front-view.png', 'handle-right.png', 'handle-left.png']
+const filenameForView = (mockup, index) => {
+  const view = mockup.view?.toLowerCase() ?? ''
+  if (view.includes('front')) return 'front-view.png'
+  if (view.includes('right')) return 'handle-right.png'
+  if (view.includes('left')) return 'handle-left.png'
+  return `view-${index + 1}.png`
+}
 for (const [index, mockup] of mockups.entries()) {
   const response = await fetch(mockup.mockup_url)
   if (!response.ok) throw new Error(`Download failed (${response.status}): ${mockup.mockup_url}`)
-  const filename = filenames[index] ?? `view-${index + 1}.png`
+  const filename = filenameForView(mockup, index)
   fs.writeFileSync(path.join(outputDirectory, filename), Buffer.from(await response.arrayBuffer()))
 }
 

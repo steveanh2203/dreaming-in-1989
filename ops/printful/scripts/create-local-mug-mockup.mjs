@@ -12,19 +12,21 @@ const artworkPath = path.resolve(
 )
 
 const parseEnv = (filePath) =>
-  Object.fromEntries(
-    fs
-      .readFileSync(filePath, 'utf8')
-      .split(/\n/)
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith('#'))
-      .map((line) => {
-        const separator = line.indexOf('=')
-        return [line.slice(0, separator), line.slice(separator + 1)]
-      }),
-  )
+  fs.existsSync(filePath)
+    ? Object.fromEntries(
+        fs
+          .readFileSync(filePath, 'utf8')
+          .split(/\n/)
+          .map((line) => line.trim())
+          .filter((line) => line && !line.startsWith('#'))
+          .map((line) => {
+            const separator = line.indexOf('=')
+            return [line.slice(0, separator), line.slice(separator + 1)]
+          }),
+      )
+    : {}
 
-const env = parseEnv(envPath)
+const env = { ...process.env, ...parseEnv(envPath) }
 if (!env.PRINTFUL_API_TOKEN) throw new Error('PRINTFUL_API_TOKEN is missing.')
 if (!fs.existsSync(artworkPath)) throw new Error(`Artwork not found: ${artworkPath}`)
 
