@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Vite Dev Server",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "shop-only", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "Auth API Server",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["shop-only/server/auth-server.js"],
+      "port": 8789
+    },
+    {
+      "name": "Vite Dev Server (Doppler)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "shop-only", "run", "dev:doppler"],
+      "port": 5173
+    },
+    {
+      "name": "Auth API Server (Doppler)",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "shop-only", "run", "dev:api:doppler"],
+      "port": 8789
+    }
+  ]
+}

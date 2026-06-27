@@ -100,7 +100,28 @@ const buildRatingSequence = (count, seed) => {
   return seededShuffle(ratings, seed)
 }
 
-export const createDemoProductReviews = (product) => {
+const buildOptionSummary = (optionGroups, seed, index) => {
+  if (!optionGroups?.length) return ''
+
+  return optionGroups
+    .map((group, groupIndex) => {
+      const options = group.options ?? []
+      if (!options.length) return null
+      const optionIndex = (seed + index * 7 + groupIndex * 13) % options.length
+      return `${group.name}: ${options[optionIndex].label}`
+    })
+    .filter(Boolean)
+    .join(' | ')
+}
+
+const getCustomerPhotoPool = (product) => {
+  const gallery = product?.galleryImages ?? []
+  const lifestyleShots = gallery.slice(5).map((entry) => entry.image)
+  if (lifestyleShots.length) return lifestyleShots
+  return gallery.map((entry) => entry.image)
+}
+
+export const createDemoProductReviews = (product, optionGroups = []) => {
   if (!product) return []
 
   const productKey = String(product.id ?? product.name ?? 'product')
@@ -108,12 +129,15 @@ export const createDemoProductReviews = (product) => {
   const count = 10 + (seed % 11)
   const ratings = buildRatingSequence(count, seed)
   const copyOffsets = new Map()
+  const photoPool = getCustomerPhotoPool(product)
 
   return ratings.map((rating, index) => {
     const copyBank = reviewCopyByRating[rating]
     const offset = copyOffsets.get(rating) ?? seed % copyBank.length
     const [title, body] = copyBank[offset % copyBank.length]
     copyOffsets.set(rating, offset + 1)
+    const hasPhoto = rating >= 4 && photoPool.length > 0 && (seed + index) % 3 === 0
+    const photo = hasPhoto ? photoPool[(seed + index) % photoPool.length] : null
 
     return {
       id: `sample-${productKey}-${index + 1}`,
@@ -125,6 +149,8 @@ export const createDemoProductReviews = (product) => {
       verified: false,
       source: 'sample',
       createdAt: null,
+      optionSummary: buildOptionSummary(optionGroups, seed, index),
+      images: photo ? [photo] : [],
     }
   })
 }

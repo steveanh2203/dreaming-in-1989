@@ -1753,41 +1753,57 @@ const mapSupabaseSupportTicket = (ticket) => ({
 })
 
 function ProductReviewCard({ review, onImageClick }) {
+  const recommends = Number(review.rating) >= 4
+  const initial = (review.reviewerName || '?').trim().charAt(0).toUpperCase()
+  const badge = review.verified ? 'Verified buyer' : review.source === 'local' ? 'Reviewer' : 'Sample review'
+
   return (
     <blockquote className={review.verified ? 'catalog-pdp-live-review' : 'catalog-pdp-sample-review'}>
-      <span aria-label={`${review.rating} out of 5 stars`}>{getReviewStars(review.rating)}</span>
-      <strong>{review.title}</strong>
-      <p>{review.body}</p>
-      {review.images?.length > 0 && (
-        <div className="review-photo-strip">
-          {review.images.map((src, index) => (
-            <button
-              type="button"
-              className="review-photo-thumb"
-              key={`${review.id}-photo-${index}`}
-              onClick={() => onImageClick?.(src)}
-              aria-label={`Open customer photo ${index + 1}`}
-            >
-              <img src={src} alt={`Customer photo ${index + 1}`} loading="lazy" />
-            </button>
-          ))}
-        </div>
-      )}
-      <cite>
-        <span>{review.reviewerName}</span>
-        <span aria-hidden="true">·</span>
-        {review.verified ? (
-          <span className="verified-buyer-badge">
+      <div className="review-card-top">
+        <span aria-label={`${review.rating} out of 5 stars`}>{getReviewStars(review.rating)}</span>
+        {recommends && (
+          <span className="review-card-recommends">
             <CheckCircle2 size={13} aria-hidden="true" />
-            Verified buyer
+            Recommends
           </span>
-        ) : review.source === 'local' ? (
-          <span className="reviewer-badge">Reviewer</span>
-        ) : (
-          <span className="sample-review-badge">Sample review</span>
         )}
-        {review.createdAt && <time dateTime={review.createdAt}>{formatOrderDate(review.createdAt)}</time>}
-      </cite>
+      </div>
+
+      <div className="review-card-meta">
+        <span className="review-card-avatar" aria-hidden="true">{initial}</span>
+        <span className="review-card-meta-text">
+          <strong>{review.reviewerName}</strong>
+          <span className="review-card-meta-line">
+            {review.createdAt && <time dateTime={review.createdAt}>{formatOrderDate(review.createdAt)}</time>}
+            {review.createdAt && <span aria-hidden="true">·</span>}
+            <span>{badge}</span>
+          </span>
+        </span>
+      </div>
+
+      {review.optionSummary && <p className="review-card-options">{review.optionSummary}</p>}
+
+      <div className="review-card-content">
+        <div className="review-card-text">
+          <strong>{review.title}</strong>
+          <p>{review.body}</p>
+        </div>
+        {review.images?.length > 0 && (
+          <div className="review-photo-strip">
+            {review.images.map((src, index) => (
+              <button
+                type="button"
+                className="review-photo-thumb"
+                key={`${review.id}-photo-${index}`}
+                onClick={() => onImageClick?.(src)}
+                aria-label={`Open customer photo ${index + 1}`}
+              >
+                <img src={src} alt={`Customer photo ${index + 1}`} loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </blockquote>
   )
 }
@@ -1846,7 +1862,9 @@ function App() {
   const [reviewNotice, setReviewNotice] = useState('')
   const [productReviews, setProductReviews] = useState([])
   const [productReviewsLoading, setProductReviewsLoading] = useState(false)
-  const [productReviewsExpanded, setProductReviewsExpanded] = useState(false)
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false)
+  const [reviewsModalPage, setReviewsModalPage] = useState(1)
+  const [writeReviewGateOpen, setWriteReviewGateOpen] = useState(false)
   const [localReviews, setLocalReviews] = useState(() => getStoredLocalReviews())
   const [reviewImages, setReviewImages] = useState(() => getStoredReviewImages())
   const [pdpReviewOpen, setPdpReviewOpen] = useState(false)
@@ -1923,7 +1941,8 @@ function App() {
         setPdpStickyCartVisible(false)
         setSelectedProductQuantity(1)
         setActiveProductImageIndex(getInitialProductImageIndex(nextProduct))
-        setProductReviewsExpanded(false)
+        setReviewsModalOpen(false)
+        setReviewsModalPage(1)
         setActiveRoute('product')
         return
       }
@@ -2145,7 +2164,10 @@ function App() {
   const selectedLocalReviews = localReviews
     .filter((review) => review.productId === selectedProduct?.id)
     .map((review) => ({ ...review, images: review.images ?? [] }))
-  const demoProductReviews = useMemo(() => createDemoProductReviews(selectedProduct), [selectedProduct])
+  const demoProductReviews = useMemo(
+    () => createDemoProductReviews(selectedProduct, selectedOptionGroups),
+    [selectedProduct, selectedOptionGroups],
+  )
   const combinedProductReviews = mergeProductReviews(
     [...selectedLocalReviews, ...visibleProductReviews],
     demoProductReviews,
@@ -2155,8 +2177,14 @@ function App() {
     ? getAverageReviewRating(combinedProductReviews)
     : selectedProductProof.rating
   const selectedProductReviewDistribution = getReviewDistribution(combinedProductReviews)
-  const initialProductReviews = combinedProductReviews.slice(0, 3)
-  const additionalProductReviews = productReviewsExpanded ? combinedProductReviews.slice(3) : []
+  const previewProductReviews = combinedProductReviews.slice(0, 3)
+  const reviewsModalPageSize = 5
+  const reviewsModalPageCount = Math.max(1, Math.ceil(combinedProductReviews.length / reviewsModalPageSize))
+  const reviewsModalPageReviews = combinedProductReviews.slice(
+    (reviewsModalPage - 1) * reviewsModalPageSize,
+    reviewsModalPage * reviewsModalPageSize,
+  )
+  const reviewsModalPhotos = combinedProductReviews.flatMap((review) => review.images ?? [])
   const selectedProductExperience = getProductDetailExperience(selectedProduct)
   const selectedProductGallery = selectedProduct
     ? selectedProduct.galleryImages?.length
@@ -2377,7 +2405,8 @@ function App() {
     setPdpStickyCartVisible(false)
     setSelectedProductQuantity(1)
     setActiveProductImageIndex(getInitialProductImageIndex(product))
-    setProductReviewsExpanded(false)
+    setReviewsModalOpen(false)
+    setReviewsModalPage(1)
     trackStoreEvent('view_product', {
       product_id: product.id,
       name: product.name,
@@ -2875,6 +2904,19 @@ function App() {
       navigateToAccount('orders')
     } catch (error) {
       setAuthPasswordNotice(error.message || 'Could not complete account sign in.')
+    }
+  }
+
+  const handleOAuthSignIn = async (provider) => {
+    try {
+      const client = requireSupabaseClient()
+      const { error } = await client.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}${signInPath}` },
+      })
+      if (error) throw error
+    } catch (error) {
+      setAuthPasswordNotice(error.message || `Could not start ${provider} sign-in.`)
     }
   }
 
@@ -3619,6 +3661,31 @@ function App() {
               <button className="auth-forgot-button" type="button" onClick={() => openAuth('forgot-password')}>
                 Forgot password?
               </button>
+            )}
+
+            {activeAuthMode !== 'forgot-password' && activeAuthMode !== 'reset-password' && (
+              <>
+                <div className="auth-oauth-divider">
+                  <span>or</span>
+                </div>
+                <div className="auth-oauth-options">
+                  <button type="button" className="auth-oauth-button auth-oauth-google" onClick={() => handleOAuthSignIn('google')}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                      <path fill="#4285F4" d="M23.04 12.27c0-.79-.07-1.54-.2-2.27H12v4.3h6.18a5.28 5.28 0 0 1-2.29 3.46v2.88h3.7c2.16-1.99 3.45-4.93 3.45-8.37z" />
+                      <path fill="#34A853" d="M12 23c3.1 0 5.7-1.02 7.59-2.76l-3.7-2.88c-1.03.7-2.35 1.1-3.89 1.1-2.98 0-5.5-2-6.4-4.7H1.8v2.97A11.99 11.99 0 0 0 12 23z" />
+                      <path fill="#FBBC05" d="M5.6 13.76A7.16 7.16 0 0 1 5.22 12c0-.61.1-1.2.28-1.76V7.27H1.8a11.96 11.96 0 0 0 0 9.46z" />
+                      <path fill="#EA4335" d="M12 5.54c1.68 0 3.19.58 4.38 1.7l3.28-3.28C17.69 2.09 15.1 1 12 1A11.99 11.99 0 0 0 1.8 7.27l3.8 2.97c.9-2.7 3.42-4.7 6.4-4.7z" />
+                    </svg>
+                    Continue with Google
+                  </button>
+                  <button type="button" className="auth-oauth-button auth-oauth-facebook" onClick={() => handleOAuthSignIn('facebook')}>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff" aria-hidden="true">
+                      <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z" />
+                    </svg>
+                    Continue with Facebook
+                  </button>
+                </div>
+              </>
             )}
 
             <div className="auth-switch auth-page-switch">
@@ -4503,6 +4570,10 @@ function App() {
                     type="button"
                     className="catalog-pdp-write-review"
                     onClick={() => {
+                      if (!customer) {
+                        setWriteReviewGateOpen(true)
+                        return
+                      }
                       setPdpReviewNotice('')
                       setPdpReviewOpen((open) => !open)
                     }}
@@ -4511,12 +4582,12 @@ function App() {
                   </button>
                 </div>
 
-                {pdpReviewOpen && (
+                {pdpReviewOpen && customer && (
                   <PurchaseReviewForm
                     key={`pdp-review-${selectedProduct.id}`}
                     productName={selectedProduct.name}
                     maxImages={3}
-                    showNameField={!customer}
+                    showNameField={false}
                     submitLabel="Post review"
                     badgeLabel={hasPurchasedProduct(selectedProduct.id) ? 'Verified purchase' : 'Share your experience'}
                     onCancel={() => setPdpReviewOpen(false)}
@@ -4539,28 +4610,23 @@ function App() {
                         <small>{percentage}%</small>
                       </p>
                     ))}
-                    <button type="button" onClick={() => setProductReviewsExpanded((expanded) => !expanded)}>
-                      {productReviewsExpanded ? 'Show fewer reviews' : `View all ${selectedProductReviewCount} reviews`}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReviewsModalPage(1)
+                        setReviewsModalOpen(true)
+                      }}
+                    >
+                      Show all {selectedProductReviewCount} reviews
                     </button>
                   </article>
-                  {initialProductReviews.map((review) => (
+                  {previewProductReviews.map((review) => (
                     <ProductReviewCard
                       review={review}
                       key={review.id}
                       onImageClick={(src) => openImageInfo({ image: src, name: 'Customer photo' }, 'Customer review photo', 'review')}
                     />
                   ))}
-                  {additionalProductReviews.length > 0 && (
-                    <div className="catalog-pdp-review-more">
-                      {additionalProductReviews.map((review) => (
-                        <ProductReviewCard
-                      review={review}
-                      key={review.id}
-                      onImageClick={(src) => openImageInfo({ image: src, name: 'Customer photo' }, 'Customer review photo', 'review')}
-                    />
-                      ))}
-                    </div>
-                  )}
                   {productReviewsLoading && <p className="catalog-pdp-review-loading">Loading recent verified reviews…</p>}
                 </div>
               </section>
@@ -4611,27 +4677,6 @@ function App() {
                   </div>
                 </section>
               )}
-
-              <aside
-                className={`catalog-pdp-final-cta${pdpStickyCartVisible ? ' is-visible' : ''}`}
-                aria-hidden={!pdpStickyCartVisible}
-                aria-label="Sticky purchase prompt"
-              >
-                <img src={selectedProduct.image} alt="" />
-                <div>
-                  <strong>{selectedProduct.name}</strong>
-                  <span>{selectedVariantSummary || 'Ready to order'} / Qty {selectedProductQuantity}</span>
-                </div>
-                <b>{formatPrice(selectedPdpOrderTotal)}</b>
-                <small>
-                  <i className={`stock-dot stock-dot--${selectedProduct.stockState}`} />
-                  {selectedProduct.stockState === 'sold-out' ? 'Sold out' : 'In stock'}
-                </small>
-                <button type="button" disabled={!pdpStickyCartVisible} onClick={addSelectedProductToCart}>
-                  <ShoppingCart size={17} /> Add To Cart
-                </button>
-                <button type="button" disabled={!pdpStickyCartVisible} onClick={buySelectedProductNow}>Buy Now</button>
-              </aside>
 
             </section>
           ) : (
@@ -6652,6 +6697,125 @@ function App() {
               </button>
               <button type="button" onClick={() => setOrderDetailOpen(false)}>Close</button>
             </footer>
+          </section>
+        </div>
+      )}
+
+      {reviewsModalOpen && (
+        <div className="modal-backdrop reviews-modal-backdrop" role="presentation" onClick={() => setReviewsModalOpen(false)}>
+          <section
+            className="reviews-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reviews-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="reviews-modal-header">
+              <h2 id="reviews-modal-title">Reviews for this product ({selectedProductReviewCount})</h2>
+              <button type="button" aria-label="Close reviews" onClick={() => setReviewsModalOpen(false)}>
+                <X size={20} />
+              </button>
+            </header>
+
+            <div className="reviews-modal-stats">
+              <div className="reviews-modal-score">
+                <strong>{selectedProductReviewRating.toFixed(1)}</strong>
+                <span aria-hidden="true">★</span>
+                <small>{selectedProductReviewCount} ratings</small>
+              </div>
+              <div className="reviews-modal-bars">
+                {selectedProductReviewDistribution.map(({ rating, percentage }) => (
+                  <p key={`reviews-modal-bar-${rating}`}>
+                    <b>{rating} star</b>
+                    <i><em style={{ width: `${percentage}%` }} /></i>
+                    <small>{percentage}%</small>
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            {reviewsModalPhotos.length > 0 && (
+              <div className="reviews-modal-photo-strip">
+                {reviewsModalPhotos.map((src, index) => (
+                  <button
+                    type="button"
+                    key={`reviews-modal-photo-${index}`}
+                    onClick={() => openImageInfo({ image: src, name: 'Customer photo' }, 'Customer review photo', 'review')}
+                  >
+                    <img src={src} alt={`Customer photo ${index + 1}`} loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="reviews-modal-list">
+              {reviewsModalPageReviews.map((review) => (
+                <ProductReviewCard
+                  review={review}
+                  key={review.id}
+                  onImageClick={(src) => openImageInfo({ image: src, name: 'Customer photo' }, 'Customer review photo', 'review')}
+                />
+              ))}
+            </div>
+
+            {reviewsModalPageCount > 1 && (
+              <div className="reviews-modal-pagination">
+                <button
+                  type="button"
+                  aria-label="Previous page"
+                  disabled={reviewsModalPage === 1}
+                  onClick={() => setReviewsModalPage((page) => Math.max(1, page - 1))}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {Array.from({ length: reviewsModalPageCount }, (_, index) => index + 1).map((page) => (
+                  <button
+                    type="button"
+                    key={`reviews-modal-page-${page}`}
+                    className={page === reviewsModalPage ? 'active' : ''}
+                    onClick={() => setReviewsModalPage(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  aria-label="Next page"
+                  disabled={reviewsModalPage === reviewsModalPageCount}
+                  onClick={() => setReviewsModalPage((page) => Math.min(reviewsModalPageCount, page + 1))}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
+          </section>
+        </div>
+      )}
+
+      {writeReviewGateOpen && (
+        <div className="modal-backdrop write-review-gate-backdrop" role="presentation" onClick={() => setWriteReviewGateOpen(false)}>
+          <section
+            className="write-review-gate-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="write-review-gate-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="write-review-gate-close"
+              aria-label="Close"
+              onClick={() => setWriteReviewGateOpen(false)}
+            >
+              <X size={18} />
+            </button>
+            <Sparkles size={26} className="write-review-gate-icon" aria-hidden="true" />
+            <h2 id="write-review-gate-title">Log in to write a review</h2>
+            <p>Sign in or create a free account to share your experience with this product.</p>
+            <div className="write-review-gate-actions">
+              <button type="button" onClick={() => { setWriteReviewGateOpen(false); openAuth('sign-in') }}>Log in</button>
+              <button type="button" onClick={() => { setWriteReviewGateOpen(false); openAuth('sign-up') }}>Create account</button>
+            </div>
           </section>
         </div>
       )}
