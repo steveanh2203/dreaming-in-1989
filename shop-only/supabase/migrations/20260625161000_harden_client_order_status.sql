@@ -5,8 +5,8 @@ security definer
 set search_path = public
 as $$
 begin
-  if auth.role() = 'authenticated' then
-    new.user_id := auth.uid();
+  if (select auth.uid()) is not null then
+    new.user_id := (select auth.uid());
     new.status := 'order_received';
     new.payment_status := 'pending_review';
     new.fulfillment_status := 'production_pending';
@@ -17,6 +17,8 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.harden_authenticated_order_insert() from public, anon, authenticated;
 
 drop trigger if exists harden_authenticated_order_insert on public.orders;
 
@@ -32,13 +34,13 @@ security definer
 set search_path = public
 as $$
 begin
-  if auth.role() = 'authenticated' then
-    new.user_id := auth.uid();
+  if (select auth.uid()) is not null then
+    new.user_id := (select auth.uid());
 
     if new.order_number is not null and not exists (
       select 1
       from public.orders as customer_order
-      where customer_order.user_id = auth.uid()
+      where customer_order.user_id = (select auth.uid())
         and customer_order.order_number = new.order_number
     ) then
       raise exception 'Support ticket order does not belong to the signed-in customer.'
@@ -49,6 +51,8 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.harden_support_ticket_order_reference() from public, anon, authenticated;
 
 drop trigger if exists harden_support_ticket_order_reference on public.support_tickets;
 

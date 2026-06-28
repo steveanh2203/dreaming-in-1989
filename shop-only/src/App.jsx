@@ -72,8 +72,6 @@ import goodTimesStampImage from './assets/pdp-generated/good-times-stamp-generat
 import rewindClubTeeGeneratedImage from './assets/pdp-generated/rewind-club-tee-generated.png'
 import rewindStickerPackGeneratedImage from './assets/pdp-generated/rewind-sticker-pack-generated.png'
 import varsityHoodieGeneratedImage from './assets/pdp-generated/varsity-hoodie-generated.png'
-import authCreateAccountImage from './assets/auth/auth-create-account-desk.png'
-import authSignInImage from './assets/auth/auth-sign-in-video-counter.png'
 import retroCartImage from './assets/ui/retro-cart.png'
 import RevenueDashboard from './RevenueDashboard.jsx'
 import PurchaseReviewForm from './PurchaseReviewForm.jsx'
@@ -2313,11 +2311,6 @@ function App() {
         : currentPath === resetPasswordPath
           ? 'reset-password'
           : 'sign-in'
-  const authVisualImage = activeAuthMode === 'sign-up' ? authCreateAccountImage : authSignInImage
-  const authVisualAlt =
-    activeAuthMode === 'sign-up'
-      ? 'Retro new customer desk with paper forms, stickers, and a cassette'
-      : 'Retro video store customer counter with VHS tapes and a CRT television'
   const passwordStrength = useMemo(() => getPasswordStrength(authPasswordDraft), [authPasswordDraft])
   const accountSettingsTabs = ['settings', 'addresses', 'payments']
   const isAccountSettingsTab = accountSettingsTabs.includes(displayedAccountTab)
@@ -3676,13 +3669,13 @@ function App() {
                       <path fill="#FBBC05" d="M5.6 13.76A7.16 7.16 0 0 1 5.22 12c0-.61.1-1.2.28-1.76V7.27H1.8a11.96 11.96 0 0 0 0 9.46z" />
                       <path fill="#EA4335" d="M12 5.54c1.68 0 3.19.58 4.38 1.7l3.28-3.28C17.69 2.09 15.1 1 12 1A11.99 11.99 0 0 0 1.8 7.27l3.8 2.97c.9-2.7 3.42-4.7 6.4-4.7z" />
                     </svg>
-                    Continue with Google
+                    Google
                   </button>
                   <button type="button" className="auth-oauth-button auth-oauth-facebook" onClick={() => handleOAuthSignIn('facebook')}>
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff" aria-hidden="true">
                       <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z" />
                     </svg>
-                    Continue with Facebook
+                    Facebook
                   </button>
                 </div>
               </>
@@ -3703,27 +3696,6 @@ function App() {
             </div>
           </section>
 
-          <aside className="auth-page-aside" aria-label="Account benefits">
-            <div className="auth-page-photo">
-              <img src={authVisualImage} alt={authVisualAlt} />
-            </div>
-            <span className="auth-page-stamp">
-              {activeAuthMode === 'sign-up'
-                ? 'New customer file'
-                : activeAuthMode === 'reset-password'
-                  ? 'Security file'
-                  : 'Member file'}
-            </span>
-            <h2>{activeAuthMode === 'sign-up' ? 'Set up the counter once.' : 'Pick up where you left off.'}</h2>
-            <ul>
-              <li>Saved orders and demo receipts in one dashboard.</li>
-              <li>Wishlist and reorder shortcuts for repeat gifts.</li>
-              <li>Support history tied to the checkout email.</li>
-            </ul>
-            <button type="button" onClick={() => navigateToPath('/')}>
-              Back to shop
-            </button>
-          </aside>
         </div>
       </main>
     )
@@ -4496,13 +4468,6 @@ function App() {
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
-                    <div className="catalog-pdp-care-grid">
-                      {selectedProductExperience.careRows.map(([label, copy]) => (
-                        <span key={label}>
-                          <strong>{label}</strong> {copy}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                   <div className="catalog-pdp-story-stamp" aria-hidden="true">
                     <img src={goodTimesStampImage} alt="" />
@@ -5430,7 +5395,6 @@ function App() {
           <span className="footer-sticker footer-sticker--drop">
             <Tags size={15} /> New drop
           </span>
-          <span className="footer-sticker footer-sticker--year">1989</span>
           <span className="footer-sticker footer-sticker--gift">
             <Gift size={15} /> Gift pick
           </span>
@@ -5439,11 +5403,24 @@ function App() {
           <div className="footer-brand">
             <p className="receipt-label">Open late since 1989-ish</p>
           <h2>1989 Supply Co.</h2>
-            <p>Retro-inspired goods made to order after checkout.</p>
-            <div className="footer-service-row" aria-label="Store service notes">
-              <span><Truck size={16} /> US shipping plan</span>
-              <span><ShieldCheck size={16} /> Secure checkout</span>
-              <span><Package size={16} /> Made to order</span>
+            <p className="footer-brand-description">
+              Dreaming in 1989 makes retro-inspired gifts, apparel, and shelf pieces for people who still remember video stores, diner counters, and mall weekends.
+            </p>
+            <div className="footer-social-row" aria-label="Social links">
+              <a
+                className="footer-social-link"
+                href="https://www.facebook.com/dreamingin1989official"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Dreaming in 1989 official Facebook"
+              >
+                <span className="footer-social-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="16" height="16" focusable="false">
+                    <path d="M22 12.06C22 6.51 17.52 2 12 2S2 6.51 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.5 1.49-3.89 3.78-3.89 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.44 2.91h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94z" />
+                  </svg>
+                </span>
+                Facebook
+              </a>
             </div>
           </div>
 

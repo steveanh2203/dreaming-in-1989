@@ -4398,9 +4398,10 @@
 
 /* Back In The Day should read as one compact landscape strip, not two tall cards. */
 .catalog-pdp-memory-row {
-  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.04fr);
-  gap: 0;
-  min-height: 304px;
+  grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+  min-height: 0;
   padding: 10px;
   overflow: hidden;
   background:
@@ -4426,8 +4427,9 @@
 
 .catalog-pdp-memory-row .catalog-pdp-lifestyle-card img {
   min-height: 0;
-  height: 100%;
-  aspect-ratio: 16 / 9;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
   border-radius: 3px;
 }
 
@@ -4435,53 +4437,39 @@
   grid-template-columns: minmax(0, 1fr) 112px;
   gap: 10px 18px;
   align-content: center;
-  padding: 12px 20px 10px 28px;
+  min-height: 100%;
+  padding: 18px 20px 18px 20px;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-backstory-copy {
-  gap: 8px;
+  gap: 10px;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-backstory-card h2 {
-  font-size: 23px;
+  font-size: 25px;
   letter-spacing: 0.02em;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-backstory-card p {
-  max-width: 470px;
-  font-size: 14.5px;
-  line-height: 1.4;
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-story-bullets {
-  gap: 5px;
-  margin-top: 2px;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-story-bullets li {
-  font-size: 13.5px;
-  line-height: 1.3;
-}
-
-.catalog-pdp-memory-row .catalog-pdp-care-grid {
-  width: min(100%, 430px);
-  margin-top: 3px;
-}
-
-.catalog-pdp-memory-row .catalog-pdp-care-grid span {
-  padding: 8px 10px;
-  font-size: 12.5px;
-  line-height: 1.25;
-}
-
-.catalog-pdp-memory-row .catalog-pdp-care-grid strong {
-  font-size: 11px;
+  font-size: 14px;
+  line-height: 1.34;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-story-stamp {
-  width: 104px;
-  height: 104px;
-  margin-top: 26px;
+  width: 140px;
+  height: 140px;
+  margin-top: 16px;
 }
 
 .catalog-pdp-info-tabs {
@@ -6957,20 +6945,6 @@
   color: var(--amber);
 }
 
-.footer-sticker--year {
-  left: max(44px, calc((100vw - 1440px) / 2 + 34px));
-  bottom: 48px;
-  min-width: 82px;
-  color: var(--cream);
-  background: var(--pine);
-  border-color: var(--amber);
-  transform: rotate(-7deg);
-}
-
-.footer-sticker--year::after {
-  border-color: rgba(255, 178, 72, 0.55);
-}
-
 .footer-sticker--gift {
   right: max(120px, calc((100vw - 1440px) / 2 + 220px));
   bottom: 62px;
@@ -7023,24 +6997,61 @@
   color: var(--amber);
 }
 
-.footer-service-row {
+.footer-brand-description {
+  max-width: 480px;
+  color: rgba(255, 242, 216, 0.74);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.footer-social-row {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  margin-top: var(--space-4);
+  margin-top: var(--space-3);
 }
 
-.footer-service-row span {
+.footer-social-link {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   min-height: 36px;
   padding: 0 var(--space-3);
   color: var(--cream);
-  font-weight: 800;
-  background: rgba(255, 242, 216, 0.08);
-  border: 1px solid rgba(255, 178, 72, 0.42);
+  font-family: var(--font-ui);
+  font-weight: 900;
+  text-decoration: none;
+  background:
+    linear-gradient(rgba(255, 178, 72, 0.08) 1px, transparent 1px),
+    rgba(255, 242, 216, 0.08);
+  background-size: 100% 7px, auto;
+  border: 1px solid rgba(255, 178, 72, 0.5);
   border-radius: 5px;
+  box-shadow: inset 0 1px 0 rgba(255, 242, 216, 0.12);
+}
+
+.footer-social-link:hover {
+  color: var(--amber);
+  background:
+    linear-gradient(rgba(255, 178, 72, 0.12) 1px, transparent 1px),
+    rgba(255, 178, 72, 0.12);
+}
+
+.footer-social-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  background: #1877f2;
+  border: 1px solid rgba(255, 242, 216, 0.68);
+  border-radius: 999px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.footer-social-icon svg {
+  display: block;
+  fill: currentColor;
 }
 
 .footer-links {
@@ -7177,42 +7188,6 @@
   background:
     repeating-linear-gradient(0deg, rgba(117, 70, 41, 0.06) 0 1px, transparent 1px 9px),
     linear-gradient(180deg, #fff6dd 0%, #e7c486 100%);
-  transform: translateY(-1px);
-}
-
-.shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-button {
-  right: 20px;
-  bottom: calc(112px + env(safe-area-inset-bottom, 0px));
-  z-index: 82;
-  grid-template-columns: 44px auto;
-  min-height: 52px;
-  padding: 5px 10px 6px 7px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    0 4px 0 #7b4a2a,
-    0 10px 18px rgba(0, 0, 0, 0.18);
-}
-
-.shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-art {
-  width: 46px;
-  height: 36px;
-}
-
-.shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-count {
-  top: -8px;
-  left: 34px;
-}
-
-.shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-copy {
-  min-width: 54px;
-  font-size: 10px;
-}
-
-.shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-copy strong {
-  font-size: 12px;
-}
-
-.shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-button:hover {
   transform: translateY(-1px);
 }
 
@@ -16249,10 +16224,6 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     gap: 0;
   }
 
-  .shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-button {
-    bottom: calc(86px + env(safe-area-inset-bottom, 0px));
-  }
-
   .floating-cart-art,
   .shop-app.product-route-active.pdp-sticky-cart-visible .floating-cart-art {
     width: 42px;
@@ -16581,57 +16552,63 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
 .auth-page {
   align-items: start;
-  padding: clamp(14px, 2.6vw, 28px);
+  padding: clamp(12px, 2.2vw, 24px);
 }
 
 .auth-page-brand {
-  width: min(238px, 58vw);
-  margin-bottom: 14px;
+  width: min(206px, 54vw);
+  margin-bottom: 10px;
 }
 
 .auth-page-shell {
-  width: min(100%, 1120px);
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
-  gap: 18px;
-  align-items: stretch;
+  width: min(100%, 760px);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
 }
 
-.auth-page-panel,
-.auth-page-aside {
+.auth-page--sign-up .auth-page-shell {
+  width: min(100%, 860px);
+}
+
+.auth-page-panel {
   min-height: 0;
   border-radius: 7px;
   box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2), 0 14px 26px rgba(0, 0, 0, 0.22);
 }
 
 .auth-page-panel {
-  padding: clamp(22px, 3vw, 34px);
+  padding: clamp(20px, 2.6vw, 30px) clamp(28px, 4vw, 54px);
 }
 
 .auth-page .receipt-label {
-  margin-bottom: 7px;
+  margin-bottom: 8px;
   font-size: 11px;
+  text-align: center;
 }
 
 .auth-page-panel h1 {
-  max-width: 620px;
-  margin-bottom: 10px;
-  font-size: clamp(38px, 4.4vw, 60px);
-  line-height: 0.94;
+  max-width: none;
+  margin: 0 auto 8px;
+  font-size: clamp(36px, 4.2vw, 54px);
+  line-height: 0.96;
+  text-align: center;
 }
 
 .auth-page-lede {
-  max-width: 610px;
-  margin-bottom: 16px;
-  font-size: clamp(14.5px, 1.35vw, 17px);
-  line-height: 1.42;
+  max-width: 590px;
+  margin: 0 auto 14px;
+  font-size: clamp(14px, 1.15vw, 15.5px);
+  line-height: 1.34;
+  text-align: center;
 }
 
 .auth-mode-tabs {
-  width: min(100%, 360px);
+  width: min(100%, 520px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
-  margin: 0 0 16px;
+  margin: 0 auto 14px;
   padding: 4px;
   background: rgba(117, 70, 41, 0.16);
   border: 1px solid rgba(117, 70, 41, 0.38);
@@ -16643,7 +16620,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 36px;
+  min-height: 34px;
   padding: 0 10px;
   color: var(--muted);
   font-family: var(--font-ui);
@@ -16665,26 +16642,31 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
 .auth-oauth-options {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
-  width: min(100%, 280px);
-  margin: 0 auto 14px;
+  width: min(100%, 520px);
+  margin: 0 auto 12px;
 }
 
 .auth-oauth-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 42px;
-  padding: 0 14px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 12px;
   color: var(--ink);
   font-family: var(--font-ui);
-  font-size: 12.5px;
-  font-weight: 800;
+  font-size: 13px;
+  font-weight: 900;
   background: #fff4d7;
   border: 2px solid var(--wood);
   border-radius: 999px;
   cursor: pointer;
+}
+
+.auth-oauth-button svg {
+  flex: 0 0 18px;
 }
 
 .auth-oauth-button:hover {
@@ -16703,8 +16685,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
 .auth-oauth-divider {
   position: relative;
-  width: min(100%, 280px);
-  margin: 14px auto;
+  width: min(100%, 520px);
+  margin: 12px auto;
   text-align: center;
 }
 
@@ -16729,12 +16711,23 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 }
 
 .auth-page-form {
-  max-width: 620px;
-  gap: 12px;
+  width: min(100%, 520px);
+  max-width: none;
+  margin: 0 auto;
+  gap: 10px;
+}
+
+.auth-page-form--sign-up {
+  width: min(100%, 720px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-page-form--sign-up .checkout-button {
+  grid-column: 1 / -1;
 }
 
 .auth-field {
-  gap: 6px;
+  gap: 5px;
 }
 
 .auth-field > span {
@@ -16750,7 +16743,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   grid-template-columns: 22px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
-  min-height: 46px;
+  min-height: 42px;
   padding: 0 12px;
   color: var(--muted);
   background: #fff4d7;
@@ -16762,7 +16755,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 .auth-page-form .auth-input-shell input {
   width: 100%;
   min-width: 0;
-  min-height: 42px;
+  min-height: 38px;
   padding: 0;
   color: var(--ink);
   font-size: 15px;
@@ -16781,27 +16774,29 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
 .auth-page-form .checkout-button {
   width: 100%;
-  min-height: 46px;
+  min-height: 44px;
   margin-top: 2px;
   font-size: 14px;
   justify-self: stretch;
 }
 
 .auth-forgot-button {
-  min-height: 34px;
-  margin-top: 8px;
+  display: block;
+  width: fit-content;
+  min-height: 32px;
+  margin: 7px auto 0;
   padding: 0 2px;
   font-size: 13px;
 }
 
 .auth-page-switch {
-  width: min(100%, 620px);
+  width: min(100%, 520px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 14px;
-  padding-top: 14px;
+  margin: 12px auto 0;
+  padding-top: 12px;
 }
 
 .auth-page-switch button {
@@ -16903,6 +16898,11 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     grid-template-columns: 1fr;
     max-width: none;
     gap: 10px;
+  }
+
+  .auth-oauth-options {
+    grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .auth-field > span {
