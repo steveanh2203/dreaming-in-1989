@@ -4496,13 +4496,6 @@ function App() {
                         <li key={item}>{item}</li>
                       ))}
                     </ul>
-                    <div className="catalog-pdp-care-grid">
-                      {selectedProductExperience.careRows.map(([label, copy]) => (
-                        <span key={label}>
-                          <strong>{label}</strong> {copy}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                   <div className="catalog-pdp-story-stamp" aria-hidden="true">
                     <img src={goodTimesStampImage} alt="" />
