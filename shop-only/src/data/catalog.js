@@ -25,6 +25,7 @@ import jukeboxJavaMugBreakfastCounterImage from '../assets/catalog/jukebox-java-
 import jukeboxJavaMugKitchenShelfImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/08-lifestyle-kitchen-shelf.png'
 import jukeboxJavaMugMusicDeskImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/09-lifestyle-music-desk.png'
 import jukeboxJavaMugNightWindowImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/10-lifestyle-night-window.png'
+import jukeboxJavaMugMusicDeskCassettesImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/11-lifestyle-music-desk-cassettes.png'
 
 const afterHoursTeeVariants = ['S', 'M', 'L', 'XL'].map((size) => ({
   size,
@@ -98,7 +99,7 @@ export const products = [
     sku: 'SKU-1989-JJ-MUG',
     stockState: 'in-stock',
     image: jukeboxJavaMugFrontImage,
-    lifestyleImage: jukeboxJavaMugHeroDinerBoothImage,
+    lifestyleImage: jukeboxJavaMugMusicDeskCassettesImage,
     printDetailImage: jukeboxJavaMugPrintDetailImage,
     seoTitle: 'Jukebox Java Retro Diner Mug | 80s Coffee Mug Gift',
     metaDescription:

@@ -4383,8 +4383,8 @@
   align-self: start;
   justify-self: center;
   display: block;
-  width: 126px;
-  height: 126px;
+  width: 189px;
+  height: 189px;
   margin-top: 12px;
   transform: rotate(-8deg);
 }
@@ -4467,9 +4467,9 @@
 }
 
 .catalog-pdp-memory-row .catalog-pdp-story-stamp {
-  width: 140px;
-  height: 140px;
-  margin-top: 16px;
+  width: 156px;
+  height: 156px;
+  margin-top: 26px;
 }
 
 .catalog-pdp-info-tabs {
@@ -5738,8 +5738,8 @@
 
   .catalog-pdp-story-stamp {
     justify-self: start;
-    width: 104px;
-    height: 104px;
+    width: 156px;
+    height: 156px;
     margin-top: 4px;
   }
 
