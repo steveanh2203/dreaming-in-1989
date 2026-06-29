@@ -1,24 +1,15 @@
 import afterHoursTeeArtworkImage from '../assets/catalog/after-hours-video-club-tee/00-artwork-transparent.png'
 import afterHoursTeeFrontImage from '../assets/catalog/after-hours-video-club-tee/printful-white/01-front.png'
-import afterHoursTeeFlatFrontImage from '../assets/catalog/after-hours-video-club-tee/printful-white/02-flat-front.png'
-import afterHoursTeeProductDetailsImage from '../assets/catalog/after-hours-video-club-tee/printful-white/03-product-details.png'
-import afterHoursTeeLeftImage from '../assets/catalog/after-hours-video-club-tee/printful-white/04-left.png'
-import afterHoursTeeRightImage from '../assets/catalog/after-hours-video-club-tee/printful-white/05-right.png'
-import afterHoursTeeZoomFrontImage from '../assets/catalog/after-hours-video-club-tee/printful-white/06-zoom-front.png'
-import afterHoursTeeFlatBackImage from '../assets/catalog/after-hours-video-club-tee/printful-white/07-flat-back.png'
-import afterHoursTeeGhostBackImage from '../assets/catalog/after-hours-video-club-tee/printful-white/08-ghost-back.png'
-import afterHoursTeeProductDetailsAltImage from '../assets/catalog/after-hours-video-club-tee/printful-white/09-product-details-2.png'
-import afterHoursTeeFoldedFrontImage from '../assets/catalog/after-hours-video-club-tee/printful-white/10-folded-front.png'
-import afterHoursTeePrintfileFrontImage from '../assets/catalog/after-hours-video-club-tee/printful-white/11-printfile-front.png'
 import afterHoursTeeHeroVideoStoreWideImage from '../assets/catalog/after-hours-video-club-tee/12-hero-video-store-wide.png'
 import afterHoursTeeVideoStoreLifestyleImage from '../assets/catalog/after-hours-video-club-tee/12-lifestyle-video-store.png'
 import afterHoursTeeParkingLotLifestyleImage from '../assets/catalog/after-hours-video-club-tee/13-lifestyle-rental-parking-lot.png'
 import afterHoursTeeMovieNightLifestyleImage from '../assets/catalog/after-hours-video-club-tee/14-lifestyle-movie-night.png'
 import afterHoursTeeArcadeLifestyleImage from '../assets/catalog/after-hours-video-club-tee/15-lifestyle-arcade.png'
+import afterHoursTeeCheckoutCounterImage from '../assets/catalog/after-hours-video-club-tee/16-lifestyle-checkout-counter.png'
+import afterHoursTeeArcadeCounterImage from '../assets/catalog/after-hours-video-club-tee/17-lifestyle-arcade-counter.png'
+import afterHoursTeeMovieCouchImage from '../assets/catalog/after-hours-video-club-tee/18-lifestyle-movie-couch.png'
+import afterHoursTeeMallStorefrontImage from '../assets/catalog/after-hours-video-club-tee/19-lifestyle-mall-storefront.png'
 import jukeboxJavaMugFrontImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/01-front.png'
-import jukeboxJavaMugHandleRightImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/02-handle-right.png'
-import jukeboxJavaMugHandleLeftImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/03-handle-left.png'
-import jukeboxJavaMugFrontCloseupImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/04-front-closeup.png'
 import jukeboxJavaMugPrintDetailImage from '../assets/catalog/jukebox-java-retro-diner-mug/printful-white/05-print-detail.png'
 import jukeboxJavaMugHeroDinerBoothImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/06-hero-diner-booth.png'
 import jukeboxJavaMugBreakfastCounterImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/07-lifestyle-breakfast-counter.png'
@@ -26,6 +17,9 @@ import jukeboxJavaMugKitchenShelfImage from '../assets/catalog/jukebox-java-retr
 import jukeboxJavaMugMusicDeskImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/09-lifestyle-music-desk.png'
 import jukeboxJavaMugNightWindowImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/10-lifestyle-night-window.png'
 import jukeboxJavaMugMusicDeskCassettesImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/11-lifestyle-music-desk-cassettes.png'
+import jukeboxJavaMugDinerTableImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/12-lifestyle-diner-jukebox-table.png'
+import jukeboxJavaMugRadioDeskImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/13-lifestyle-radio-desk.png'
+import jukeboxJavaMugDinerCounterImage from '../assets/catalog/jukebox-java-retro-diner-mug/lifestyle/14-lifestyle-diner-counter-handheld.png'
 
 const afterHoursTeeVariants = ['S', 'M', 'L', 'XL'].map((size) => ({
   size,
@@ -65,22 +59,19 @@ export const products = [
     compareAtPrice: 38,
     sku: 'SKU-1989-AHVC-TEE',
     stockState: 'in-stock',
-    image: afterHoursTeeFrontImage,
-    backImage: afterHoursTeeFlatBackImage,
+    image: afterHoursTeeVideoStoreLifestyleImage,
+    productionImage: afterHoursTeeFrontImage,
     lifestyleImage: afterHoursTeeHeroVideoStoreWideImage,
     printDetailImage: afterHoursTeeArtworkImage,
     galleryImages: [
-      { label: '01 Front', image: afterHoursTeeFrontImage },
-      { label: '02 Flat Front', image: afterHoursTeeFlatFrontImage },
-      { label: '03 Product Details', image: afterHoursTeeProductDetailsImage },
-      { label: '04 Left', image: afterHoursTeeLeftImage },
-      { label: '05 Right', image: afterHoursTeeRightImage },
-      { label: '06 Zoom Front', image: afterHoursTeeZoomFrontImage },
-      { label: '07 Flat Back', image: afterHoursTeeFlatBackImage },
-      { label: '08 Ghost Back', image: afterHoursTeeGhostBackImage },
-      { label: '09 Details', image: afterHoursTeeProductDetailsAltImage },
-      { label: '10 Folded Front', image: afterHoursTeeFoldedFrontImage },
-      { label: '11 Print File', image: afterHoursTeePrintfileFrontImage },
+      { label: 'Video Store', image: afterHoursTeeVideoStoreLifestyleImage, kind: 'lifestyle' },
+      { label: 'Rental Lot', image: afterHoursTeeParkingLotLifestyleImage, kind: 'lifestyle' },
+      { label: 'Movie Night', image: afterHoursTeeMovieNightLifestyleImage, kind: 'lifestyle' },
+      { label: 'Arcade', image: afterHoursTeeArcadeLifestyleImage, kind: 'lifestyle' },
+      { label: 'Checkout Counter', image: afterHoursTeeCheckoutCounterImage, kind: 'lifestyle' },
+      { label: 'Arcade Counter', image: afterHoursTeeArcadeCounterImage, kind: 'lifestyle' },
+      { label: 'Movie Couch', image: afterHoursTeeMovieCouchImage, kind: 'lifestyle' },
+      { label: 'Mall Storefront', image: afterHoursTeeMallStorefrontImage, kind: 'lifestyle' },
     ],
     printful: {
       externalId: 'after-hours-video-club-tee',
@@ -98,7 +89,8 @@ export const products = [
     compareAtPrice: 24,
     sku: 'SKU-1989-JJ-MUG',
     stockState: 'in-stock',
-    image: jukeboxJavaMugFrontImage,
+    image: jukeboxJavaMugMusicDeskCassettesImage,
+    productionImage: jukeboxJavaMugFrontImage,
     lifestyleImage: jukeboxJavaMugMusicDeskCassettesImage,
     printDetailImage: jukeboxJavaMugPrintDetailImage,
     seoTitle: 'Jukebox Java Retro Diner Mug | 80s Coffee Mug Gift',
@@ -107,16 +99,14 @@ export const products = [
     productDescription:
       'Bring the booth-side soundtrack to your morning coffee with the Jukebox Java Retro Diner Mug. Inspired by American diners, tabletop jukeboxes, sugar packets, chrome trim, and the warm buzz of a late-night coffee refill, this glossy white mug turns an everyday cup into a small piece of 1980s nostalgia. The artwork features a playful Jukebox Java diner graphic designed for fans of retro coffee bars, vintage restaurant signs, old-school music culture, and giftable Americana.',
     galleryImages: [
-      { label: '01 Front', image: jukeboxJavaMugFrontImage },
-      { label: '02 Handle Right', image: jukeboxJavaMugHandleRightImage },
-      { label: '03 Handle Left', image: jukeboxJavaMugHandleLeftImage },
-      { label: '04 Front Closeup', image: jukeboxJavaMugFrontCloseupImage },
-      { label: '05 Print Detail', image: jukeboxJavaMugPrintDetailImage },
-      { label: '06 Diner Booth', image: jukeboxJavaMugHeroDinerBoothImage },
-      { label: '07 Breakfast Counter', image: jukeboxJavaMugBreakfastCounterImage },
-      { label: '08 Kitchen Shelf', image: jukeboxJavaMugKitchenShelfImage },
-      { label: '09 Music Desk', image: jukeboxJavaMugMusicDeskImage },
-      { label: '10 Night Window', image: jukeboxJavaMugNightWindowImage },
+      { label: 'Music Desk', image: jukeboxJavaMugMusicDeskCassettesImage, kind: 'lifestyle' },
+      { label: 'Diner Booth', image: jukeboxJavaMugHeroDinerBoothImage, kind: 'lifestyle' },
+      { label: 'Breakfast Counter', image: jukeboxJavaMugBreakfastCounterImage, kind: 'lifestyle' },
+      { label: 'Kitchen Shelf', image: jukeboxJavaMugKitchenShelfImage, kind: 'lifestyle' },
+      { label: 'Night Window', image: jukeboxJavaMugNightWindowImage, kind: 'lifestyle' },
+      { label: 'Jukebox Table', image: jukeboxJavaMugDinerTableImage, kind: 'lifestyle' },
+      { label: 'Radio Desk', image: jukeboxJavaMugRadioDeskImage, kind: 'lifestyle' },
+      { label: 'Diner Counter', image: jukeboxJavaMugDinerCounterImage, kind: 'lifestyle' },
     ],
     printful: {
       externalId: 'jukebox-java-retro-diner-mug',

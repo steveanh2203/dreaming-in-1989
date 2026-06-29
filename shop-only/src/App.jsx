@@ -109,6 +109,10 @@ const getCategoryFromSlug = (slug) =>
   categories.find((category) => getCategorySlug(category) === slug) ?? 'All'
 
 const getProductPath = (product) => `#/products/${product.id}`
+const customerFacingImageKinds = new Set(['lifestyle', 'catalog', 'hero'])
+const isCustomerFacingGalleryImage = (item) => (
+  item?.customerFacing !== false && (!item?.kind || customerFacingImageKinds.has(item.kind))
+)
 
 const paymentBadges = [
   { id: 'visa', label: 'Visa', mark: 'VISA' },
@@ -2186,14 +2190,14 @@ function App() {
   const selectedProductExperience = getProductDetailExperience(selectedProduct)
   const selectedProductGallery = selectedProduct
     ? selectedProduct.galleryImages?.length
-      ? selectedProduct.galleryImages
+      ? selectedProduct.galleryImages.filter(isCustomerFacingGalleryImage)
       : [
-          { label: 'Front', image: selectedProduct.image },
-          ...(selectedProduct.backImage ? [{ label: 'Back', image: selectedProduct.backImage }] : []),
-          ...(selectedProduct.lifestyleImage ? [{ label: 'Lifestyle', image: selectedProduct.lifestyleImage }] : []),
-          ...(selectedProduct.printDetailImage ? [{ label: 'Print Detail', image: selectedProduct.printDetailImage }] : []),
+          ...(selectedProduct.lifestyleImage ? [{ label: 'Lifestyle', image: selectedProduct.lifestyleImage, kind: 'lifestyle' }] : []),
+          { label: 'Catalog', image: selectedProduct.image, kind: selectedProduct.imageKind ?? 'catalog' },
         ]
     : []
+  const activeProductGalleryItem = selectedProductGallery[activeProductImageIndex]
+  const isActiveLifestyleImage = activeProductGalleryItem?.kind === 'lifestyle'
   const activeProductImage = selectedProductGallery[activeProductImageIndex]?.image ?? selectedProduct?.image
   const curatedRelatedProductIds = selectedProduct?.id === 'mall-weekend-hoodie'
     ? ['rewind-club-tee', '1999-varsity-hoodie', 'mall-run-dad-hat', 'food-court-poster']
@@ -4258,15 +4262,16 @@ function App() {
                   >
                     {selectedProductGallery.map((item, index) => (
                       <button
-                        className={activeProductImageIndex === index ? 'active' : ''}
+                        className={[
+                          activeProductImageIndex === index ? 'active' : '',
+                          item.kind === 'lifestyle' ? 'is-lifestyle' : '',
+                        ].filter(Boolean).join(' ')}
                         key={`${selectedProduct.id}-${item.label}`}
                         type="button"
+                        aria-label={`Show ${selectedProduct.name} ${item.label}`}
                         onClick={() => setActiveProductImageIndex(index)}
                       >
                         <img src={item.image} alt={`${selectedProduct.name} ${item.label}`} />
-                        <span>
-                          <b>{String(index + 1).padStart(2, '0')}</b> {item.label.replace('Catalog ', '')}
-                        </span>
                       </button>
                     ))}
                   </aside>
@@ -4277,7 +4282,7 @@ function App() {
                   <span className="catalog-pdp-bestseller-stamp" aria-hidden="true">{selectedProduct.tag}</span>
                   <button
                     type="button"
-                    className="catalog-pdp-zoom-trigger"
+                    className={`catalog-pdp-zoom-trigger${isActiveLifestyleImage ? ' catalog-pdp-zoom-trigger--lifestyle' : ''}`}
                     onClick={() => openImageInfo({ ...selectedProduct, image: activeProductImage }, 'Product image', 'product')}
                     aria-label={`Zoom in on ${selectedProduct.name}`}
                   >

@@ -1408,6 +1408,13 @@
   background: transparent;
 }
 
+.feature-product-card .feature-image-button img,
+.product-card .product-image-button img,
+.collection-product-card .product-image-button img {
+  object-fit: cover;
+  padding: 0;
+}
+
 .product-display-frame {
   position: relative;
   display: grid;
@@ -3442,7 +3449,7 @@
 .catalog-pdp-gallery button {
   display: grid;
   gap: 0;
-  padding: 5px 5px 0;
+  padding: 5px;
   color: var(--ink);
   font-family: var(--font-retro);
   font-size: 10px;
@@ -3475,29 +3482,21 @@
     0 2px 5px rgba(0, 0, 0, 0.34);
 }
 
+.catalog-pdp-gallery button.is-lifestyle {
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.025) 1px, transparent 1px),
+    #fff9ea;
+  background-size: 7px 100%, auto;
+  border-color: rgba(255, 247, 221, 0.72);
+}
+
 .catalog-pdp-gallery img {
   width: 100%;
-  aspect-ratio: 1 / 0.82;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   padding: 0;
   background: transparent;
   border: 0;
-}
-
-.catalog-pdp-gallery b {
-  color: var(--red);
-  font-size: 14px;
-}
-
-.catalog-pdp-gallery span {
-  display: block;
-  min-height: 28px;
-  padding: 6px 3px 5px;
-  color: #211713;
-  font-size: 9.5px;
-  line-height: 1.05;
-  background: rgba(255, 248, 230, 0.92);
-  border-top: 1px solid rgba(117, 70, 41, 0.24);
 }
 
 .catalog-pdp-main-frame {
@@ -3614,6 +3613,58 @@
 
 .catalog-pdp-zoom-trigger img {
   width: 100%;
+}
+
+.catalog-pdp-zoom-trigger--lifestyle {
+  width: min(100%, 486px);
+  padding: 14px 14px 23px;
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.025) 1px, transparent 1px),
+    #fff9ea;
+  background-size: 8px 100%, auto;
+  border: 1px solid rgba(117, 70, 41, 0.36);
+  border-radius: 4px;
+  box-shadow:
+    0 8px 0 rgba(31, 18, 13, 0.13),
+    0 18px 28px rgba(31, 18, 13, 0.16);
+  transform: rotate(-0.35deg);
+}
+
+.catalog-pdp-zoom-trigger--lifestyle::before {
+  position: absolute;
+  inset: 8px 8px 17px;
+  z-index: 2;
+  content: "";
+  pointer-events: none;
+  border: 1px solid rgba(117, 70, 41, 0.28);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(255, 247, 221, 0.58);
+}
+
+.catalog-pdp-zoom-trigger--lifestyle::after {
+  position: absolute;
+  right: 18px;
+  bottom: 9px;
+  left: 18px;
+  height: 3px;
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(27, 82, 68, 0.5), rgba(27, 82, 68, 0.5)) left center / 42px 1px no-repeat,
+    linear-gradient(90deg, rgba(189, 42, 37, 0.46), rgba(189, 42, 37, 0.46)) right center / 42px 1px no-repeat;
+}
+
+.catalog-pdp-zoom-trigger--lifestyle img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: rgba(255, 247, 221, 0.42);
+  border: 0;
+  border-radius: 2px;
+}
+
+.catalog-pdp-zoom-trigger--lifestyle .catalog-pdp-zoom-hint {
+  right: 26px;
+  bottom: 35px;
 }
 
 .catalog-pdp-zoom-trigger:focus-visible {
@@ -4422,14 +4473,16 @@
 }
 
 .catalog-pdp-memory-row .catalog-pdp-lifestyle-card {
+  align-self: stretch;
+  display: flex;
   padding: 0;
 }
 
 .catalog-pdp-memory-row .catalog-pdp-lifestyle-card img {
+  display: block;
   min-height: 0;
-  height: auto;
-  aspect-ratio: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   border-radius: 3px;
 }
 
@@ -4810,7 +4863,7 @@
   padding: 4px 6px;
 }
 
-/* --- Lookbook: nostalgic scene photos as scattered polaroids --- */
+/* --- Lookbook: reusable photo-lab lifestyle frames --- */
 .catalog-pdp-lookbook {
   margin-top: 18px;
 }
@@ -4825,30 +4878,32 @@
 .catalog-pdp-lookbook-card {
   position: relative;
   margin: 0;
-  padding: 8px 8px 10px;
-  background: #fff7df;
-  border: 1px solid rgba(117, 70, 41, 0.3);
-  border-radius: 3px;
-  box-shadow: 0 5px 0 rgba(31, 18, 13, 0.1);
-  transform: rotate(-1.1deg);
+  padding: 10px 10px 16px;
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.025) 1px, transparent 1px),
+    #fff9ea;
+  background-size: 8px 100%, auto;
+  border: 1px solid rgba(117, 70, 41, 0.34);
+  border-radius: 4px;
+  box-shadow:
+    0 6px 0 rgba(31, 18, 13, 0.1),
+    0 14px 22px rgba(31, 18, 13, 0.12);
+  transform: rotate(-0.45deg);
   transition: transform 180ms ease, box-shadow 180ms ease;
 }
 
 .catalog-pdp-lookbook-card:nth-child(even) {
-  transform: rotate(1.3deg);
+  transform: rotate(0.45deg);
 }
 
-/* Bit of scrapbook tape at the top */
 .catalog-pdp-lookbook-card::before {
-  content: "";
   position: absolute;
-  top: -8px;
-  left: 50%;
-  width: 54px;
-  height: 18px;
-  transform: translateX(-50%) rotate(-3deg);
-  background: rgba(222, 194, 139, 0.82);
-  box-shadow: 0 2px 6px rgba(31, 18, 13, 0.15);
+  inset: 7px 7px 34px;
+  z-index: 1;
+  content: "";
+  pointer-events: none;
+  border: 1px solid rgba(117, 70, 41, 0.24);
+  border-radius: 2px;
 }
 
 .catalog-pdp-lookbook-card:hover {
@@ -4861,11 +4916,12 @@
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border: 1px solid rgba(117, 70, 41, 0.2);
+  border: 0;
+  border-radius: 2px;
 }
 
 .catalog-pdp-lookbook-card figcaption {
-  margin-top: 9px;
+  margin-top: 10px;
   color: var(--muted);
   font-family: var(--font-retro);
   font-size: 11px;
@@ -15886,20 +15942,12 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   aspect-ratio: auto;
 }
 
-/*
- * The thumbnail strip opted out of the hero's stretch (align-self: start) and its inner
- * scroller was capped by a viewport-height formula, so on shorter browser windows it fell
- * short of the main image frame and buy panel. Stretch it to the same row height and let
- * it scroll internally instead of being limited by 100vh.
- */
 .product-route-page .catalog-pdp-gallery-shell {
-  align-self: stretch;
+  align-self: start;
 }
 
 .product-route-page .catalog-pdp-gallery {
-  height: 100%;
-  /* Flat cap (no viewport-height term) so the strip can't blow past the frame/panel's
-     natural size and force the whole row taller; extra thumbnails scroll internally. */
+  height: auto;
   max-height: 650px;
 }
 
