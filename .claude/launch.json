@@ -24,6 +24,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "shop-only", "run", "dev:api:doppler"],
       "port": 8789
+    },
+    {
+      "name": "Vite Preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "shop-only", "run", "preview"],
+      "port": 4173
     }
   ]
 }

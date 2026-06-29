@@ -1793,7 +1793,7 @@
 .empty-cart button,
 .success-state button,
 .department-card button,
-.gift-card button,
+.gift-card button:not(.gift-image-button),
 .mini-product-card button,
 .shelf-set-ticket button {
   position: relative;
@@ -1829,7 +1829,7 @@
 .empty-cart button::before,
 .success-state button::before,
 .department-card button::before,
-.gift-card button::before,
+.gift-card button:not(.gift-image-button)::before,
 .mini-product-card button::before,
 .shelf-set-ticket button::before,
 .category-bar button::before {
@@ -1848,7 +1848,7 @@
 .empty-cart button:hover,
 .success-state button:hover,
 .department-card button:hover,
-.gift-card button:hover,
+.gift-card button:not(.gift-image-button):hover,
 .mini-product-card button:hover,
 .shelf-set-ticket button:hover,
 .category-bar button:hover {
@@ -1864,7 +1864,7 @@
 .empty-cart button:active,
 .success-state button:active,
 .department-card button:active,
-.gift-card button:active,
+.gift-card button:not(.gift-image-button):active,
 .mini-product-card button:active,
 .shelf-set-ticket button:active,
 .category-bar button:active {
@@ -2243,17 +2243,34 @@
   color: var(--red);
 }
 
-.gift-card span {
+.gift-budget-tag {
   position: absolute;
-  top: var(--space-3);
-  left: var(--space-3);
+  top: 4px;
+  left: 4px;
   z-index: 2;
-  padding: 6px 9px;
-  color: var(--ink);
-  font-weight: 800;
-  background: var(--amber);
-  border: 1px solid var(--wood);
-  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  color: var(--red-dark);
+  font-family: var(--font-retro-signage);
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.05;
+  text-align: center;
+  letter-spacing: -0.01em;
+  background: radial-gradient(circle at 50% 42%, #ffd07a 0 42%, var(--amber) 42% 100%);
+  border: 0;
+  border-radius: 0;
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 3px 3px rgba(31, 18, 13, 0.4));
+  clip-path: polygon(
+    50% 0%, 60% 18%, 79% 10%, 75% 31%, 95% 35%, 80% 50%,
+    95% 65%, 75% 69%, 79% 90%, 60% 82%, 50% 100%, 40% 82%,
+    21% 90%, 25% 69%, 5% 65%, 20% 50%, 5% 35%, 25% 31%,
+    21% 10%, 40% 18%
+  );
 }
 
 .gift-counter-section .gift-card h3,
@@ -2422,15 +2439,19 @@
   width: min(100%, 390px);
   height: auto;
   aspect-ratio: 1 / 1;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 14px 18px rgba(62, 36, 24, 0.28));
-  transform: translateZ(0);
+  padding: 14px;
+  background: #fff9ea;
+  border: 1px solid rgba(117, 70, 41, 0.36);
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 247, 221, 0.65),
+    0 8px 0 rgba(31, 18, 13, 0.13),
+    0 18px 28px rgba(31, 18, 13, 0.16);
+  filter: contrast(1.05) saturate(1.04);
+  transform: translateZ(0) rotate(-0.35deg);
 }
 
 .featured-drop-image:hover img {
@@ -13888,13 +13909,25 @@
   .bundle-grid,
   .department-grid,
   .feature-product-grid,
-  .gift-grid,
   .mini-product-grid,
   .policy-grid,
   .policy-page-grid,
   .shelf-set-grid,
   .spotlight-grid {
     grid-template-columns: 1fr;
+  }
+
+  .gift-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .gift-counter-section .gift-card button:not(.gift-image-button) {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 10px;
+    font-size: 11px;
   }
 
   .policy-page {
@@ -18257,24 +18290,42 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   .products-section .product-buy,
   .collection-route-grid .product-buy {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 7px;
-    align-items: center;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    align-items: start;
     margin-top: 8px;
     padding-top: 8px;
   }
 
+  .products-section .product-price,
+  .collection-route-grid .product-price {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
   .products-section .product-card .product-buy strong,
   .collection-route-grid .product-card .product-buy strong {
+    flex-shrink: 0;
     min-width: 0;
     font-size: 16px;
     line-height: 1;
     white-space: nowrap;
   }
 
+  .products-section .product-price s,
+  .collection-route-grid .product-price s {
+    flex-shrink: 0;
+  }
+
   .products-section .buy-actions,
   .collection-route-grid .buy-actions {
     min-width: 0;
+    width: 100%;
+  }
+
+  .products-section .product-card .product-buy .buy-actions button:only-child,
+  .collection-route-grid .product-card .product-buy .buy-actions button:only-child {
+    width: 100%;
   }
 
   .products-section .product-card .product-buy button,

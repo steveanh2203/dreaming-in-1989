@@ -5228,8 +5228,8 @@ function App() {
                   }
                 >
                   <img src={guide.image} alt={`${guide.title} gift products`} />
+                  <span className="gift-budget-tag">{guide.budget}</span>
                 </button>
-                <span>{guide.budget}</span>
                 <h3>{guide.title}</h3>
                 <p>{guide.copy}</p>
                 <button
