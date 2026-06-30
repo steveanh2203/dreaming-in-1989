@@ -2243,6 +2243,13 @@
   color: var(--red);
 }
 
+/* Bleed the photo to the card's edges so it isn't inset by the card's own padding,
+   which left an ugly empty gap above the image. */
+.gift-counter-section .gift-card .gift-image-button {
+  width: calc(100% + var(--space-3) * 2);
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--space-3)) 0;
+}
+
 .gift-budget-tag {
   position: absolute;
   top: 4px;
@@ -3774,10 +3781,7 @@
   margin: 0;
   padding: 18px 20px 16px;
   overflow: visible;
-  background: url('./assets/pdp-generated/order-form-paper-bg-transparent.png');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), rgba(255, 241, 210, 0.25)), var(--paper);
   border: 2px solid rgba(117, 70, 41, 0.48);
   border-radius: 8px;
   box-shadow: 0 7px 18px rgba(31, 18, 13, 0.13);
@@ -4091,7 +4095,6 @@
   min-width: 0;
 }
 
-.catalog-pdp-inline-upsell-list strong,
 .catalog-pdp-inline-upsell-list small {
   min-width: 0;
   overflow: hidden;
@@ -4099,12 +4102,18 @@
   white-space: nowrap;
 }
 
+/* Wrap to 2 lines instead of single-line-ellipsis, which was cutting names mid-word. */
 .catalog-pdp-inline-upsell-list strong {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
   color: var(--ink);
   font-family: var(--font-ui);
   font-size: 11.5px;
   font-weight: 900;
-  line-height: 1.05;
+  line-height: 1.15;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .catalog-pdp-inline-upsell-list small {
@@ -5703,14 +5712,57 @@
     order: 2;
   }
 
+  /* Shopee-style swipeable filmstrip: one row, horizontal scroll with snap, no wrap. */
   .catalog-pdp-gallery {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-height: 380px;
+    display: flex;
+    flex-wrap: nowrap;
+    align-content: normal;
+    gap: 8px;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 10px;
+    -webkit-overflow-scrolling: touch;
     transform: none;
   }
 
+  /* Sprocket holes now run along the long (horizontal) edges instead of the sides. */
+  .catalog-pdp-gallery::after {
+    inset: 4px 10px;
+    background:
+      radial-gradient(circle, rgba(239, 213, 168, 0.24) 0 2px, transparent 2.7px) left top 1px / 21px 9px repeat-x,
+      radial-gradient(circle, rgba(239, 213, 168, 0.24) 0 2px, transparent 2.7px) left bottom 1px / 21px 9px repeat-x;
+  }
+
   .catalog-pdp-gallery button {
+    flex: 0 0 86px;
+    width: 86px;
+    scroll-snap-align: start;
     transform: none;
+  }
+
+  /* Section headings + their action button were forced onto one row (align-items:end,
+     no wrap), so longer titles squeezed into a narrow column and wrapped 4-5 lines
+     while the button floated awkwardly at the top. Stack them instead. */
+  .catalog-pdp-section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .catalog-pdp-section-title > div:first-child {
+    width: 100%;
+  }
+
+  .catalog-pdp-section-title button {
+    align-self: flex-start;
+  }
+
+  .catalog-pdp-backstory-card h2,
+  .catalog-pdp-section-title h2,
+  .catalog-pdp-era-grid h2 {
+    font-size: clamp(20px, 6vw, 26px);
   }
 
   .catalog-pdp-main-frame {
@@ -5721,7 +5773,7 @@
   }
 
   .catalog-pdp-buy-panel {
-    padding: 22px 18px 22px 28px;
+    padding: 22px 18px;
   }
 
   .catalog-pdp-conversion-grid {
@@ -5745,8 +5797,7 @@
   .catalog-pdp-trust-strip,
   .catalog-pdp-info-tabs,
   .catalog-pdp-bundle-save-grid,
-  .catalog-pdp-look-grid,
-  .catalog-pdp-related-grid {
+  .catalog-pdp-look-grid {
     grid-template-columns: 1fr;
   }
 
@@ -5820,6 +5871,16 @@
     margin-top: 4px;
   }
 
+  /* The memory-row instance kept its desktop-sized 26px margin-top and centered
+     justify-self from a higher-specificity rule, leaving a big dead gap below the
+     bullet list once the card stacked to 1 column. Pin it compact + left-aligned. */
+  .catalog-pdp-memory-row .catalog-pdp-story-stamp {
+    justify-self: start;
+    width: 108px;
+    height: 108px;
+    margin-top: 8px;
+  }
+
   .catalog-pdp-care-grid {
     grid-template-columns: 1fr;
   }
@@ -5829,6 +5890,110 @@
     border-left: 0;
   }
 
+}
+
+/*
+ * App-style sticky "Add to Cart" bar for mobile PDP. The desktop floating round
+ * cart bubble is force-hidden below 767px (see the .floating-cart-button rule in
+ * the max-width:767px block), which left mobile shoppers with no way to buy once
+ * they scrolled past the buy panel into the lookbook/bundle/reviews/FAQ content.
+ * This mirrors the bottom action bar pattern used by Shopee/Lazada-style apps:
+ * thumbnail + name/price + a single primary action, pinned to the bottom.
+ */
+.pdp-mobile-cta {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .pdp-mobile-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px calc(9px + env(safe-area-inset-bottom, 0px));
+    background: var(--paper);
+    border-top: 2px solid var(--wood);
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.22);
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 200ms ease, opacity 200ms ease;
+  }
+
+  .pdp-mobile-cta.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .pdp-mobile-cta img {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+    background: rgba(240, 213, 168, 0.4);
+    border: 1px solid rgba(117, 70, 41, 0.3);
+    border-radius: 4px;
+  }
+
+  .pdp-mobile-cta-info {
+    display: grid;
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .pdp-mobile-cta-info strong {
+    overflow: hidden;
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pdp-mobile-cta-info span {
+    color: var(--red);
+    font-family: var(--font-retro);
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .pdp-mobile-cta button {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 18px;
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 900;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, var(--red), var(--red-dark));
+    border: 2px solid var(--red-dark);
+    border-radius: 6px;
+    box-shadow: 0 3px 0 #3c0c0d;
+  }
+
+  .pdp-mobile-cta button:disabled {
+    color: rgba(43, 29, 20, 0.55);
+    background: rgba(117, 70, 41, 0.22);
+    border-color: rgba(117, 70, 41, 0.34);
+    box-shadow: none;
+  }
+
+  /* Keep the FAQ/footer content from sitting underneath the fixed bar. */
+  .shop-app.product-route-active.pdp-sticky-cart-visible main {
+    padding-bottom: 74px;
+  }
 }
 
 .product-catalog-shell {
@@ -14718,24 +14883,16 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   line-height: 1;
 }
 
-.payment-badge-mark span {
-  display: inline-block;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  white-space: nowrap;
-}
-
-.payment-badge--visa .payment-badge-mark span {
-  color: #1a4fa3;
-  font-size: 16px;
-  font-style: italic;
-  letter-spacing: -0.08em;
+/* Visa / PayPal now render as real brand-mark SVGs (see PaymentBadges in App.jsx). */
+.payment-badge-mark svg {
+  display: block;
+  height: 18px;
+  width: auto;
 }
 
 .payment-badge--mastercard .payment-badge-mark {
   width: 42px;
+  min-height: 20px;
 }
 
 .payment-badge--mastercard .payment-badge-mark::before,
@@ -14757,70 +14914,6 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   right: 5px;
   background: rgba(247, 158, 27, 0.88);
   mix-blend-mode: multiply;
-}
-
-.payment-badge--amex .payment-badge-mark {
-  min-width: 46px;
-  min-height: 22px;
-  color: #fff;
-  background: linear-gradient(180deg, #45a7d8, #1d62a8);
-  border: 1px solid #174b82;
-  border-radius: 2px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
-}
-
-.payment-badge--amex .payment-badge-mark span {
-  color: #fff;
-  font-size: 13px;
-  letter-spacing: -0.09em;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.32);
-}
-
-.payment-badge--apple-pay .payment-badge-mark {
-  gap: 4px;
-  color: #111;
-}
-
-.payment-badge--apple-pay .payment-badge-mark::before {
-  content: '';
-  width: 12px;
-  height: 15px;
-  background:
-    radial-gradient(circle at 62% 3px, #111 0 3px, transparent 3.5px),
-    radial-gradient(circle at 42% 10px, #111 0 7px, transparent 7.5px);
-  transform: rotate(-8deg);
-}
-
-.payment-badge--apple-pay .payment-badge-mark span {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.07em;
-}
-
-.payment-badge--google-pay .payment-badge-mark {
-  gap: 3px;
-}
-
-.payment-badge--google-pay .payment-badge-mark::before {
-  content: 'G';
-  color: #4285f4;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.payment-badge--google-pay .payment-badge-mark span {
-  color: #5f6368;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.07em;
-}
-
-.payment-badge--paypal .payment-badge-mark span {
-  color: #003087;
-  font-size: 15px;
-  font-style: italic;
-  letter-spacing: -0.08em;
 }
 
 /* --- Free shipping progress meter --- */
@@ -15952,15 +16045,12 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   /* Grow to fit all content so there is no internal scrollbar */
   height: auto;
   min-height: 560px;
-  padding: 12px 14px 12px 28px;
+  padding: 12px 14px;
   overflow: visible;
   /* Match the gallery / card height and spread the rows to fill */
   align-self: stretch;
   align-content: space-between;
-  background: url('./assets/pdp-generated/order-form-paper-bg-transparent.png');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.55), rgba(255, 241, 210, 0.25)), var(--paper);
   scrollbar-width: thin;
   scrollbar-color: rgba(117, 70, 41, 0.45) rgba(255, 247, 221, 0.42);
 }
@@ -16145,20 +16235,6 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   top: 3px;
   width: 15px;
   height: 15px;
-}
-
-.product-route-page .catalog-pdp-panel-bottom .payment-badge--amex .payment-badge-mark {
-  min-width: 34px;
-  min-height: 17px;
-}
-
-.product-route-page .catalog-pdp-panel-bottom .payment-badge--apple-pay .payment-badge-mark::before {
-  width: 9px;
-  height: 12px;
-}
-
-.product-route-page .catalog-pdp-panel-bottom .payment-badge--google-pay .payment-badge-mark::before {
-  font-size: 12px;
 }
 
 .product-route-page .secure-checkout-assurance {
@@ -16349,17 +16425,27 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     padding: 0 14px;
   }
 
-  .product-route-page .catalog-pdp-options button,
   .pdp-opt-btn {
     min-height: 44px;
   }
 
+  /* Compact size/color chips + quantity stepper: the across-the-board 44px tap
+     target made these feel oversized; 36px is still comfortably tappable. */
+  .product-route-page .catalog-pdp-options button {
+    min-height: 36px;
+    padding: 0 11px;
+    font-size: 12.5px;
+  }
+
   .product-route-page .catalog-pdp-quantity > div {
-    grid-template-columns: 44px 52px 44px;
+    grid-template-columns: 34px 42px 34px;
   }
 
   .product-route-page .catalog-pdp-quantity button,
-  .product-route-page .catalog-pdp-quantity strong,
+  .product-route-page .catalog-pdp-quantity strong {
+    min-height: 36px;
+  }
+
   .pdp-qty-stepper button {
     min-height: 44px;
   }
@@ -16538,6 +16624,8 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
     line-height: 0.98;
   }
 
+  /* Always 2 columns: keeps related cards at the compact "shelf" size instead of
+     stretching a lone item full-width; the second slot fills in once more items exist. */
   .catalog-pdp-related-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
