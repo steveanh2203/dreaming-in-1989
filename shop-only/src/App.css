@@ -3991,6 +3991,36 @@
   margin-left: 5px;
 }
 
+.catalog-pdp-option-select {
+  position: relative;
+  margin-top: 6px;
+}
+
+.catalog-pdp-option-select select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 34px 0 12px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: rgba(255, 247, 221, 0.78);
+  border: 2px solid rgba(117, 70, 41, 0.64);
+  border-radius: 5px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.catalog-pdp-option-select svg {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: var(--ink);
+  pointer-events: none;
+}
+
 .catalog-pdp-quantity {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -4332,8 +4362,7 @@
 .catalog-pdp-related img {
   width: 100%;
   aspect-ratio: 1 / 1;
-  object-fit: contain;
-  padding: 10px;
+  object-fit: cover;
 }
 
 .catalog-pdp-related span,
@@ -4875,6 +4904,7 @@
 
 /* --- Payment methods row inside the buy panel (icons only, below the CTAs) --- */
 .catalog-pdp-pay-row {
+  width: 100%;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px dashed rgba(117, 70, 41, 0.3);
@@ -4882,14 +4912,14 @@
 
 .catalog-pdp-pay-row .pay-badges {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   width: 100%;
 }
 
 .catalog-pdp-pay-row .payment-badge {
   min-width: 0;
-  min-height: 32px;
+  min-height: 36px;
   padding: 4px 6px;
 }
 
@@ -4969,7 +4999,16 @@
 
 @media (max-width: 480px) {
   .catalog-pdp-lookbook-grid {
-    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .catalog-pdp-lookbook-card {
+    padding: 6px 6px 12px;
+  }
+
+  .catalog-pdp-lookbook-card figcaption {
+    margin-top: 6px;
+    font-size: 9.5px;
   }
 }
 
@@ -5650,9 +5689,50 @@
   }
 
   .catalog-pdp-value-band,
-  .catalog-pdp-kit,
-  .catalog-pdp-reviews-grid {
+  .catalog-pdp-kit {
     grid-template-columns: 1fr;
+  }
+
+  /* Reviews become a Shopee-style swipeable filmstrip below desktop instead of
+     stacking full-width dashed cards, which made the section feel oversized. */
+  .catalog-pdp-reviews-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    margin-top: 16px;
+    padding: 0 0 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .catalog-pdp-reviews-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .catalog-pdp-reviews-grid > * {
+    flex: 0 0 78vw;
+    width: 78vw;
+    max-width: 300px;
+    scroll-snap-align: start;
+  }
+
+  .catalog-pdp-reviews-summary,
+  .catalog-pdp-live-review,
+  .catalog-pdp-sample-review {
+    padding: 14px;
+  }
+
+  .catalog-pdp-reviews-summary > strong {
+    font-size: 32px;
+  }
+
+  .catalog-pdp-reviews-summary p {
+    margin: 0;
   }
 
   .catalog-pdp-review-more {
@@ -5793,7 +5873,6 @@
   .catalog-pdp-kit,
   .catalog-pdp-kit-items,
   .catalog-pdp-inline-upsell-list,
-  .catalog-pdp-reviews-grid,
   .catalog-pdp-trust-strip,
   .catalog-pdp-info-tabs,
   .catalog-pdp-bundle-save-grid,
@@ -5873,12 +5952,10 @@
 
   /* The memory-row instance kept its desktop-sized 26px margin-top and centered
      justify-self from a higher-specificity rule, leaving a big dead gap below the
-     bullet list once the card stacked to 1 column. Pin it compact + left-aligned. */
+     bullet list once the card stacked to 1 column. It read as a stray sticker
+     with no content tying it down, so drop it on mobile instead of resizing it. */
   .catalog-pdp-memory-row .catalog-pdp-story-stamp {
-    justify-self: start;
-    width: 108px;
-    height: 108px;
-    margin-top: 8px;
+    display: none;
   }
 
   .catalog-pdp-care-grid {
@@ -16438,12 +16515,13 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   }
 
   .product-route-page .catalog-pdp-quantity > div {
-    grid-template-columns: 34px 42px 34px;
+    grid-template-columns: 26px 34px 26px;
   }
 
   .product-route-page .catalog-pdp-quantity button,
   .product-route-page .catalog-pdp-quantity strong {
-    min-height: 36px;
+    min-height: 26px;
+    font-size: 12px;
   }
 
   .pdp-qty-stepper button {
@@ -16647,9 +16725,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
   .catalog-pdp-related img {
     width: 100%;
     height: 100%;
-    max-height: 150px;
-    padding: 7px;
-    object-fit: contain;
+    object-fit: cover;
   }
 
   .catalog-pdp-related span {
@@ -16701,11 +16777,6 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 
   .catalog-pdp-related article {
     padding: 7px;
-  }
-
-  .catalog-pdp-related img {
-    max-height: 132px;
-    padding: 6px;
   }
 
   .catalog-pdp-related h3 {

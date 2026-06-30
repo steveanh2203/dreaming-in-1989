@@ -4365,26 +4365,51 @@ function App() {
                     {selectedOptionGroups.map((group) => (
                       <fieldset key={group.name}>
                         <legend>{group.name}</legend>
-                        <div>
-                          {group.options.map((option) => (
-                            <button
-                              className={selectedOptions[group.name] === option.label ? 'active' : ''}
-                              key={option.label}
-                              type="button"
-                              onClick={() => {
-                                setSelectedOptions((current) => ({ ...current, [group.name]: option.label }))
+                        {group.name === 'Size' || group.name === 'Format' ? (
+                          <div className="catalog-pdp-option-select">
+                            <select
+                              value={selectedOptions[group.name] ?? ''}
+                              onChange={(event) => {
+                                const optionLabel = event.target.value
+                                setSelectedOptions((current) => ({ ...current, [group.name]: optionLabel }))
                                 trackStoreEvent('select_product_option', {
                                   product_id: selectedProduct.id,
                                   option_group: group.name,
-                                  option: option.label,
+                                  option: optionLabel,
                                 })
                               }}
                             >
-                              {option.label}
-                              {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
-                            </button>
-                          ))}
-                        </div>
+                              {group.options.map((option) => (
+                                <option key={option.label} value={option.label}>
+                                  {option.label}
+                                  {option.priceDelta > 0 ? ` (+${formatPrice(option.priceDelta)})` : ''}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown size={15} aria-hidden="true" />
+                          </div>
+                        ) : (
+                          <div>
+                            {group.options.map((option) => (
+                              <button
+                                className={selectedOptions[group.name] === option.label ? 'active' : ''}
+                                key={option.label}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedOptions((current) => ({ ...current, [group.name]: option.label }))
+                                  trackStoreEvent('select_product_option', {
+                                    product_id: selectedProduct.id,
+                                    option_group: group.name,
+                                    option: option.label,
+                                  })
+                                }}
+                              >
+                                {option.label}
+                                {option.priceDelta > 0 && <small>+{formatPrice(option.priceDelta)}</small>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </fieldset>
                     ))}
                   </div>
@@ -4467,11 +4492,6 @@ function App() {
                     <Heart size={16} />
                     {activeWishlistIds.includes(selectedProduct.id) ? 'Saved to Wishlist' : 'Save for Later'}
                   </button>
-                  <div className="catalog-pdp-panel-trust" aria-label="Purchase guarantees">
-                    <span><ShieldCheck size={14} /> Secure checkout</span>
-                    <span><RefreshCcw size={14} /> 30-day returns</span>
-                    <span><Package size={14} /> Made to order</span>
-                  </div>
                   <div className="catalog-pdp-pay-row" aria-label="Accepted payments">
                     <PaymentBadges />
                   </div>
