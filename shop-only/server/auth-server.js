@@ -6,6 +6,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
+import { createIntegrationRoutes } from './integrations.js'
 
 const scrypt = promisify(scryptCallback)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -270,6 +271,8 @@ const routes = {
   },
 }
 
+Object.assign(routes, createIntegrationRoutes({ json, parseBody }))
+
 const server = createServer(async (req, res) => {
   const routeKey = `${req.method} ${new URL(req.url, `http://${req.headers.host}`).pathname}`
   const handler = routes[routeKey]
@@ -282,7 +285,10 @@ const server = createServer(async (req, res) => {
     return await handler(req, res, db)
   } catch (error) {
     console.error('[auth] request failed', error)
-    return json(res, 500, { error: 'Auth service failed.' })
+    return json(res, error.status || 500, {
+      error: error.message || 'API service failed.',
+      details: process.env.NODE_ENV === 'production' ? undefined : error.body,
+    })
   }
 })
 

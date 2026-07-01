@@ -22,4 +22,5 @@ mockup 1/featured-stories-fix*.png
 **/.git/
 **/.git-local-backup/
 **/.codex-run/
+shop-only/.codex-run-logs/
 shop-only/server/data/

@@ -2081,7 +2081,7 @@
 }
 
 .feature-product-card .bundle-buy {
-  margin-top: var(--space-4);
+  margin-top: auto;
   padding-top: var(--space-3);
   border-top: 1px solid rgba(117, 70, 41, 0.36);
 }
@@ -3399,7 +3399,7 @@
   display: grid;
   align-self: start;
   align-content: start;
-  gap: 8px;
+  gap: 12px;
   isolation: isolate;
   padding: 28px 10px 12px;
   background:
@@ -3479,7 +3479,10 @@
   grid-template-rows: minmax(0, 1fr);
   place-items: stretch;
   gap: 0;
+  width: 88px;
+  min-height: 88px;
   aspect-ratio: 1 / 1;
+  scroll-snap-align: start;
   overflow: hidden;
   padding: 5px;
   color: var(--ink);
@@ -5789,11 +5792,13 @@
   .catalog-pdp-main-frame {
     position: relative;
     top: auto;
+    order: 1;
     min-height: auto;
     padding: 28px 18px;
   }
 
   .catalog-pdp-buy-panel {
+    order: 3;
     padding: 22px 18px;
   }
 
@@ -9778,6 +9783,41 @@
   padding: var(--space-4);
 }
 
+.account-coupon-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  min-height: 150px;
+  margin: var(--space-4);
+  padding: 28px 20px;
+  color: var(--muted);
+  text-align: center;
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.08) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(117, 70, 41, 0.08) 1px, transparent 1px),
+    rgba(255, 247, 221, 0.68);
+  background-size: 8px 8px;
+  border: 2px dashed rgba(117, 70, 41, 0.45);
+  border-radius: 4px;
+}
+
+.account-coupon-empty svg {
+  color: var(--red);
+}
+
+.account-coupon-empty strong {
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.account-coupon-empty span {
+  max-width: 230px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 .account-coupon-ticket {
   position: relative;
   display: grid;
@@ -11166,7 +11206,7 @@
 
 .account-summary-progress i {
   display: block;
-  width: 72%;
+  width: 0;
   height: 100%;
   background: linear-gradient(90deg, var(--red), var(--amber));
 }
@@ -12409,9 +12449,9 @@
 .account-settings-hero-copy h2 {
   margin: 0 0 8px;
   color: #073329;
-  font-family: var(--font-retro-display);
-  font-size: clamp(30px, 3.1vw, 46px);
-  line-height: 1.05;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.45vw, 40px);
+  line-height: 1.08;
   text-transform: uppercase;
   border-bottom: 2px dotted rgba(117, 70, 41, 0.36);
 }
@@ -12437,9 +12477,10 @@
 .account-settings-hero-copy dt,
 .account-settings-info-card dt {
   color: #073329;
-  font-family: var(--font-retro-typewriter);
-  font-size: 12px;
+  font-family: var(--font-retro-grotesk);
+  font-size: 11px;
   font-weight: 900;
+  line-height: 1.1;
   text-transform: uppercase;
 }
 
@@ -12451,8 +12492,11 @@
   min-width: 0;
   margin: 0;
   color: var(--ink);
-  font-family: var(--font-retro-typewriter);
-  font-weight: 900;
+  font-family: var(--font-retro-grotesk);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .account-settings-hero-copy dd svg {
@@ -12482,7 +12526,7 @@
 
 .account-settings-progress i {
   display: block;
-  width: 75%;
+  width: 0;
   height: 100%;
   background: #d39b28;
 }
@@ -12506,9 +12550,9 @@
 .account-settings-section-title h3 {
   margin: 0;
   color: #073329;
-  font-family: var(--font-retro-typewriter);
-  font-size: 20px;
-  line-height: 1;
+  font-family: var(--font-retro-grotesk);
+  font-size: 18px;
+  line-height: 1.15;
   text-transform: uppercase;
 }
 
@@ -12537,8 +12581,10 @@
 .account-settings-tab .account-settings-form label {
   grid-template-columns: 164px minmax(0, 1fr);
   color: #23493f;
-  font-family: var(--font-retro-typewriter);
-  font-size: 12px;
+  font-family: var(--font-retro-grotesk);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.15;
   text-transform: uppercase;
 }
 
@@ -12550,8 +12596,9 @@
 }
 
 .account-settings-tab .account-settings-form .checkout-button {
-  justify-self: center;
-  width: min(320px, 100%);
+  justify-self: stretch;
+  width: auto;
+  margin-left: calc(164px + var(--space-3));
   min-height: 42px;
   margin-top: 4px;
   font-family: var(--font-retro-grotesk);
@@ -12829,6 +12876,11 @@
   .account-settings-tab .account-settings-form label {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .account-settings-tab .account-settings-form .checkout-button {
+    width: 100%;
+    margin-left: 0;
   }
 
   .account-settings-tab .account-reset-card {
@@ -16029,6 +16081,7 @@ details[open] .pdp-faq-chevron { transform: rotate(180deg); }
 .product-route-page .catalog-pdp-gallery {
   height: auto;
   max-height: 650px;
+  scroll-snap-type: y proximity;
 }
 
 .product-route-page .catalog-pdp-buy-panel h1 {

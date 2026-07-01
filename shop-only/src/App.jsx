@@ -1250,11 +1250,9 @@ const createReceiptPdfBlob = (order, customer) => {
 
 const emptyCustomerOrders = []
 
-const accountCoupons = [
-  { code: 'REWIND10', offer: '10% off', detail: 'Your order', expires: 'Jun 30, 2026', tone: 'red' },
-  { code: 'FREESHIP75', offer: 'Free shipping', detail: 'Over $75', expires: 'Jul 31, 2026', tone: 'blue' },
-  { code: 'MALLDROP15', offer: '15% off', detail: 'New drops', expires: 'Aug 15, 2026', tone: 'red' },
-]
+// Keep this empty until a real marketing campaign or coupon is ready to show customers.
+const activeMarketingCoupons = []
+const accountCoupons = activeMarketingCoupons
 
 const defaultAccountAddresses = [
   {
@@ -1597,6 +1595,27 @@ const requireSupabaseClient = () => {
   return supabase
 }
 
+const apiJson = async (path, options = {}) => {
+  const response = await fetch(path, {
+    method: options.method ?? (options.body ? 'POST' : 'GET'),
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+      ...(options.headers ?? {}),
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  })
+  const data = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(data.error || `API request failed with ${response.status}`)
+  return data
+}
+
+const getSupabaseAccessToken = async () => {
+  if (!isSupabaseConfigured || !supabase) return ''
+  const { data } = await supabase.auth.getSession()
+  return data.session?.access_token ?? ''
+}
+
 const formatJoinedMonth = (value) => {
   try {
     return new Date(value || Date.now()).toLocaleString('en-US', { month: 'long', year: 'numeric' })
@@ -1810,6 +1829,8 @@ function App() {
   const [checkoutDone, setCheckoutDone] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('paypal')
   const [paypalDemoState, setPaypalDemoState] = useState('idle')
+  const [paypalOrderId, setPaypalOrderId] = useState('')
+  const [paypalApprovalUrl, setPaypalApprovalUrl] = useState('')
   const [promoCode, setPromoCode] = useState('')
   const [promoState, setPromoState] = useState('idle')
   const [cartNotice, setCartNotice] = useState(null)
@@ -2116,7 +2137,13 @@ function App() {
   }, [collectionAvailability, collectionCategory, collectionMaxPrice, collectionSort])
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const discount = promoState === 'success' ? Math.round(subtotal * 0.1 * 100) / 100 : 0
+  const appliedPromoCoupon =
+    promoState === 'success'
+      ? activeMarketingCoupons.find((coupon) => coupon.code === promoCode.trim().toUpperCase())
+      : null
+  const discount = appliedPromoCoupon?.discountPercent
+    ? Math.round(subtotal * (appliedPromoCoupon.discountPercent / 100) * 100) / 100
+    : 0
   const shipping = subtotal - discount >= 75 || subtotal === 0 ? 0 : 7.95
   const total = Math.max(subtotal - discount + shipping, 0)
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0)
@@ -2270,6 +2297,19 @@ function App() {
     return orderMatchesStatus && orderMatchesDate
   })
 
+  const customerTotalSpent = customerOrders.reduce((sum, order) => sum + Number(order.total ?? 0), 0)
+  const rewardThreshold = 75
+  const hasRewardProgress = customerTotalSpent > 0
+  const nextRewardRemaining = hasRewardProgress
+    ? Math.max(rewardThreshold - (customerTotalSpent % rewardThreshold || rewardThreshold), 0)
+    : rewardThreshold
+  const rewardProgressPercent = hasRewardProgress
+    ? Math.min(100, Math.round(((customerTotalSpent % rewardThreshold || rewardThreshold) / rewardThreshold) * 100))
+    : 0
+  const rewardPoints = Math.floor(customerTotalSpent * 10)
+  const rewardPointsGoal = 1000
+  const rewardPointsProgressPercent = Math.min(100, Math.round((rewardPoints / rewardPointsGoal) * 100))
+  const rewardPointsLabel = `${rewardPoints.toLocaleString('en-US')} / ${rewardPointsGoal.toLocaleString('en-US')} pts`
 
   const ordersForCurrentView = displayedAccountTab === 'orders' ? filteredCustomerOrders : customerOrders
   const hasOrderToggle = ordersForCurrentView.length > 3
@@ -2288,6 +2328,7 @@ function App() {
   const recentlyViewedProducts = products.filter((product) => recentlyViewedIds.includes(product.id))
   const activeWishlistIds = customer ? (customer.wishlistIds ?? []) : guestWishlistIds
   const wishlistProducts = products.filter((product) => activeWishlistIds.includes(product.id))
+  const hasActiveMarketingCoupons = activeMarketingCoupons.length > 0
   const visibleAccountCoupons = couponsExpanded ? accountCoupons : accountCoupons.slice(0, 2)
   const hasAccountCouponToggle = accountCoupons.length > 2
   const accountRouteOpen = Boolean(routeAccountTab)
@@ -2470,26 +2511,25 @@ function App() {
         createdAt: new Date().toISOString(),
       }
 
-      if (customer?.id && isSupabaseConfigured && supabase) {
-        const client = requireSupabaseClient()
-        const { data, error } = await client
-          .from('support_tickets')
-          .insert({
-            user_id: customer.id,
-            email,
-            order_number: orderId || null,
-            topic: issueType,
-            message,
-            status: 'open',
-          })
-          .select('id, email, order_number, topic, message, status, created_at')
-          .single()
-
-        if (error) throw error
-        nextTicket = {
-          ...mapSupabaseSupportTicket(data),
-          action: selectedSupportAction.title,
-        }
+      const token = await getSupabaseAccessToken()
+      const { ticket } = await apiJson('/api/support-tickets', {
+        token,
+        body: {
+          email,
+          issueType,
+          orderId,
+          message,
+        },
+      })
+      nextTicket = {
+        id: ticket.id,
+        action: selectedSupportAction.title,
+        email: ticket.email,
+        issueType: ticket.issueType,
+        orderId: ticket.orderId,
+        message: ticket.message,
+        status: ticket.status,
+        createdAt: ticket.createdAt,
       }
 
       setSupportTickets((currentTickets) => [nextTicket, ...currentTickets].slice(0, 4))
@@ -2659,10 +2699,12 @@ function App() {
   }
 
   const applyPromo = () => {
-    setPromoState(promoCode.trim().toUpperCase() === 'REWIND10' ? 'success' : 'invalid')
+    const normalizedCode = promoCode.trim().toUpperCase()
+    const matchingCoupon = activeMarketingCoupons.find((coupon) => coupon.code === normalizedCode)
+    setPromoState(matchingCoupon ? 'success' : 'invalid')
   }
 
-  const submitEmailSignup = (event) => {
+  const submitEmailSignup = async (event) => {
     event.preventDefault()
     const form = event.currentTarget
     const formData = new FormData(form)
@@ -2673,10 +2715,14 @@ function App() {
       return
     }
 
-    setSignupNotice('Code unlocked: REWIND10 for 10% off.')
-    setPromoCode('REWIND10')
-    trackStoreEvent('email_signup', { email_domain: email.split('@')[1] ?? 'unknown' })
-    form.reset()
+    try {
+      await apiJson('/api/email/signup', { body: { email } })
+      setSignupNotice('You are on the drop list. We will email campaign codes when they are live.')
+      trackStoreEvent('email_signup', { email_domain: email.split('@')[1] ?? 'unknown' })
+      form.reset()
+    } catch (error) {
+      setSignupNotice(error.message || 'Could not save the signup right now. Please try again soon.')
+    }
   }
 
   const openAuth = (mode = 'sign-in') => {
@@ -3348,8 +3394,45 @@ function App() {
     setCheckoutDone(false)
     setPaymentMethod('paypal')
     setPaypalDemoState('idle')
+    setPaypalOrderId('')
+    setPaypalApprovalUrl('')
     setCheckoutOpen(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const startPayPalCheckout = async () => {
+    setPaypalDemoState('loading')
+    setPaypalApprovalUrl('')
+
+    try {
+      const { order } = await apiJson('/api/paypal/create-order', {
+        body: {
+          total,
+          currency: 'USD',
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      })
+
+      setPaypalOrderId(order.id)
+      setPaypalApprovalUrl(order.approvalUrl || '')
+      if (order.approvalUrl) {
+        window.open(order.approvalUrl, '_blank', 'noopener,noreferrer')
+      }
+      setPaypalDemoState('approved')
+    } catch (error) {
+      setPaypalOrderId('')
+      setPaypalDemoState('error')
+      setCartNotice({
+        key: Date.now(),
+        message: error.message || 'Could not start PayPal checkout.',
+        placement: 'above',
+      })
+    }
   }
 
   const submitCheckout = async (event) => {
@@ -3401,55 +3484,52 @@ function App() {
 
     try {
       let savedOrder = completedOrder
+      let paymentStatus = 'pending_review'
+      let paypalCaptureId = ''
 
-      if (customer?.id && isSupabaseConfigured && supabase) {
-        const client = requireSupabaseClient()
-        const orderResult = await client
-          .from('orders')
-          .insert({
-            user_id: customer.id,
-            order_number: completedOrder.id,
-            customer_email: email,
-            customer_name: name,
-            status: 'order_received',
-            payment_provider: 'paypal',
-            payment_status: 'pending_review',
-            fulfillment_status: 'production_pending',
-            subtotal,
-            discount,
-            shipping,
-            total,
-            currency: 'USD',
-            shipping_address: {
-              address: shippingAddressParts[0] || '',
-              city: shippingAddressParts[1] || '',
-              zip: shippingAddressParts[2] || '',
-              country: 'United States',
-              items: cart.map((item) => ({
-                product_id: String(item.id ?? '').split(':')[0] || null,
-                name: item.name,
-                quantity: item.quantity,
-                price: item.price,
-                option_summary: item.optionSummary || null,
-              })),
-            },
-            timeline: completedOrder.timeline,
-          })
-          .select('id, order_number, status, payment_provider, payment_status, fulfillment_status, subtotal, discount, shipping, total, shipping_address, tracking_number, tracking_url, timeline, created_at')
-          .single()
+      if (paypalOrderId) {
+        const { capture } = await apiJson('/api/paypal/capture-order', {
+          body: { orderId: paypalOrderId },
+        })
+        paymentStatus = String(capture.status ?? '').toUpperCase() === 'COMPLETED' ? 'captured' : 'pending_review'
+        paypalCaptureId = capture.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? ''
+      }
 
-        if (orderResult.error) throw orderResult.error
-
-        savedOrder = mapSupabaseOrder({
-          ...orderResult.data,
-          order_items: cart.map((item) => ({
-            product_id: String(item.id ?? '').split(':')[0] || null,
+      const token = await getSupabaseAccessToken()
+      const orderResult = await apiJson('/api/orders', {
+        token,
+        body: {
+          orderNumber: completedOrder.id,
+          email,
+          name,
+          paymentProvider: paymentMethod,
+          paymentStatus,
+          paypalOrderId,
+          paypalCaptureId,
+          subtotal,
+          discount,
+          shipping,
+          total,
+          currency: 'USD',
+          shippingAddress: {
+            address: shippingAddressParts[0] || '',
+            city: shippingAddressParts[1] || '',
+            zip: shippingAddressParts[2] || '',
+            country: 'United States',
+          },
+          items: cart.map((item) => ({
+            productId: String(item.id ?? '').split(':')[0] || null,
             name: item.name,
             quantity: item.quantity,
             price: item.price,
-            option_summary: item.optionSummary || null,
+            optionSummary: item.optionSummary || null,
           })),
-        })
+        },
+      })
+
+      savedOrder = {
+        ...orderResult.order,
+        date: orderResult.order?.date ? formatOrderDate(orderResult.order.date) : completedOrder.date,
       }
 
       const existingOrders = customer && Array.isArray(customer.orders) ? customer.orders : []
@@ -3473,6 +3553,8 @@ function App() {
       setAccountTab('orders')
       setCheckoutDone(true)
       setCart([])
+      setPaypalOrderId('')
+      setPaypalApprovalUrl('')
       setPromoCode('')
       setPromoState('idle')
     } catch (error) {
@@ -3720,7 +3802,6 @@ function App() {
               <span className="promo-marquee-star">★</span>
               <span>Made to order in the USA</span>
               <span className="promo-marquee-star">★</span>
-              <span>Use code REWIND10 for 10% off</span>
               <span className="promo-marquee-star">★</span>
             </span>
           ))}
@@ -4013,13 +4094,26 @@ function App() {
                         <button
                           className="paypal-demo-button"
                           type="button"
-                          onClick={() => setPaypalDemoState('approved')}
+                          disabled={paypalDemoState === 'loading'}
+                          onClick={startPayPalCheckout}
                         >
-                          {paypalDemoState === 'approved' ? 'PayPal Approved' : 'Continue with PayPal'}
+                          {paypalDemoState === 'loading'
+                            ? 'Opening PayPal...'
+                            : paypalDemoState === 'approved'
+                              ? 'PayPal Ready'
+                              : 'Continue with PayPal'}
                         </button>
                       </div>
+                      {paypalApprovalUrl && (
+                        <p className="payment-warning">
+                          PayPal opened in a new tab. <a href={paypalApprovalUrl} target="_blank" rel="noreferrer">Open again</a>
+                        </p>
+                      )}
                       {paypalDemoState === 'required' && (
                         <p className="payment-warning">Please approve PayPal before placing the order.</p>
+                      )}
+                      {paypalDemoState === 'error' && (
+                        <p className="payment-warning">PayPal API is not ready. Check Doppler secrets and try again.</p>
                       )}
                     </section>
                   </div>
@@ -5424,9 +5518,6 @@ function App() {
 
       <footer id="footer" className="site-footer">
         <div className="footer-stickers" aria-hidden="true">
-          <span className="footer-sticker footer-sticker--rewind">
-            <Sparkles size={15} /> REWIND10
-          </span>
           <span className="footer-sticker footer-sticker--drop">
             <Tags size={15} /> New drop
           </span>
@@ -5504,7 +5595,7 @@ function App() {
 
           <form className="signup-form" onSubmit={submitEmailSignup}>
             <label htmlFor="email-signup">Drop alerts</label>
-            <p>Get restock notes, gift runs, and 10% off your first order.</p>
+            <p>Get restock notes, gift runs, and campaign codes when they are live.</p>
             <div>
               <input id="email-signup" name="email" type="email" placeholder="you@example.com" />
               <button type="submit">Sign Up</button>
@@ -5514,7 +5605,7 @@ function App() {
         </div>
 
         <div className="footer-receipt-strip">
-          <span>Use REWIND10 for 10% off</span>
+          <span>Campaign codes appear when a promotion is live.</span>
           <span>Made to order after checkout.</span>
           <span>Production and shipping times are shown at checkout.</span>
           <span>Support: support@1989supply.co</span>
@@ -5645,32 +5736,38 @@ function App() {
         )}
 
         <div className="cart-summary">
-          <label htmlFor="promo-code">Promo code</label>
-          <div className="promo-row">
-            <input
-              id="promo-code"
-              value={promoCode}
-              onChange={(event) => {
-                setPromoCode(event.target.value)
-                setPromoState('idle')
-              }}
-              placeholder="REWIND10"
-            />
-            <button type="button" onClick={applyPromo}>
-              Apply
-            </button>
-          </div>
-          <p className={`promo-state ${promoState}`}>
-            {promoState === 'success' && 'Promo applied: 10% off.'}
-            {promoState === 'invalid' && 'Code not found.'}
-          </p>
+          {activeMarketingCoupons.length > 0 && (
+            <>
+              <label htmlFor="promo-code">Promo code</label>
+              <div className="promo-row">
+                <input
+                  id="promo-code"
+                  value={promoCode}
+                  onChange={(event) => {
+                    setPromoCode(event.target.value)
+                    setPromoState('idle')
+                  }}
+                  placeholder={activeMarketingCoupons[0]?.code ?? 'CODE'}
+                />
+                <button type="button" onClick={applyPromo}>
+                  Apply
+                </button>
+              </div>
+              <p className={`promo-state ${promoState}`}>
+                {promoState === 'success' && `Promo applied: ${appliedPromoCoupon?.offer ?? 'discount'}.`}
+                {promoState === 'invalid' && 'Code not found.'}
+              </p>
+            </>
+          )}
           <div className="summary-lines">
             <span>
               Subtotal <strong>{formatPrice(subtotal)}</strong>
             </span>
-            <span>
-              Discount <strong>-{formatPrice(discount)}</strong>
-            </span>
+            {discount > 0 && (
+              <span>
+                Discount <strong>-{formatPrice(discount)}</strong>
+              </span>
+            )}
             <span>
               Shipping <strong>{shipping ? formatPrice(shipping) : 'Free'}</strong>
             </span>
@@ -5804,8 +5901,8 @@ function App() {
                           </div>
                           <div>
                             <dt>Reward Progress</dt>
-                            <dd>750 / 1,000 pts</dd>
-                            <span className="account-settings-progress"><i /></span>
+                            <dd>{rewardPointsLabel}</dd>
+                            <span className="account-settings-progress"><i style={{ width: `${rewardPointsProgressPercent}%` }} /></span>
                           </div>
                         </dl>
                       </div>
@@ -5881,10 +5978,10 @@ function App() {
                             </div>
                             <div>
                               <dt>Reward Progress</dt>
-                              <dd>750 / 1,000 pts</dd>
+                              <dd>{rewardPointsLabel}</dd>
+                              <span className="account-settings-progress"><i style={{ width: `${rewardPointsProgressPercent}%` }} /></span>
                             </div>
                           </dl>
-                          <span className="account-settings-progress"><i /></span>
                         </section>
                       </div>
                     </div>
@@ -6164,14 +6261,14 @@ function App() {
                       </div>
                       <div className="account-summary-stat">
                         <Wallet size={28} />
-                        <strong>{formatPrice(customerOrders.reduce((sum, order) => sum + order.total, 0))}</strong>
+                        <strong>{formatPrice(customerTotalSpent)}</strong>
                         <span>Total spent</span>
                       </div>
                       <div className="account-summary-stat account-summary-progress">
                         <Gift size={28} />
                         <strong>Rewind Club</strong>
-                        <span>$40.88 to next reward</span>
-                        <div><i /></div>
+                        <span>{hasRewardProgress ? `${formatPrice(nextRewardRemaining)} to next reward` : 'No rewards yet'}</span>
+                        <div><i style={{ width: `${rewardProgressPercent}%` }} /></div>
                       </div>
                     </section>
 
@@ -6261,32 +6358,40 @@ function App() {
                     <div className="account-panel-title">
                       Coupons
                     </div>
-                    <div className="account-coupon-stack">
-                      {visibleAccountCoupons.map((coupon) => (
-                        <article className={`account-coupon-ticket ${coupon.tone}`} key={coupon.code}>
-                          <div>
-                            <strong>{coupon.code}</strong>
-                            <span>Active</span>
-                          </div>
-                          <div>
-                            <b>{coupon.offer}</b>
-                            <small>{coupon.detail}</small>
-                            <em>Exp. {coupon.expires}</em>
-                          </div>
-                          <button type="button" onClick={() => copyCouponCode(coupon.code)}>
+                    {hasActiveMarketingCoupons ? (
+                      <div className="account-coupon-stack">
+                        {visibleAccountCoupons.map((coupon) => (
+                          <article className={`account-coupon-ticket ${coupon.tone}`} key={coupon.code}>
+                            <div>
+                              <strong>{coupon.code}</strong>
+                              <span>Active</span>
+                            </div>
+                            <div>
+                              <b>{coupon.offer}</b>
+                              <small>{coupon.detail}</small>
+                              <em>Exp. {coupon.expires}</em>
+                            </div>
+                            <button type="button" onClick={() => copyCouponCode(coupon.code)}>
                             {copiedCoupon === coupon.code ? 'Copied' : 'Copy'}
                           </button>
                         </article>
                       ))}
-                    </div>
-                    {hasAccountCouponToggle && (
-                      <button
-                        className="account-coupon-toggle"
-                        type="button"
-                        onClick={() => setCouponsExpanded((isExpanded) => !isExpanded)}
-                      >
-                        {couponsExpanded ? 'Show less' : 'Show more'}
-                      </button>
+                        {hasAccountCouponToggle && (
+                          <button
+                            className="account-coupon-toggle"
+                            type="button"
+                            onClick={() => setCouponsExpanded((isExpanded) => !isExpanded)}
+                          >
+                            {couponsExpanded ? 'Show less' : 'Show more'}
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="account-coupon-empty">
+                        <Tags size={22} />
+                        <strong>Oops, no coupons yet.</strong>
+                        <span>Campaign codes will appear here when a promotion is live.</span>
+                      </div>
                     )}
                   </section>
 
