@@ -1,0 +1,30 @@
+name: Product Package Prep
+
+on:
+  workflow_dispatch:
+    inputs:
+      product_slug:
+        description: Product slug to prepare
+        required: true
+        type: string
+      product_type:
+        description: Product type, such as mug, tee, poster, or tote
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  guardrails:
+    name: Product Workflow Guardrails
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain manual product workflow boundary
+        run: |
+          echo "Product slug: ${{ inputs.product_slug }}"
+          echo "Product type: ${{ inputs.product_type }}"
+          echo "This workflow is intentionally prep-only."
+          echo "It must not publish Printful products, create orders, change pricing, or replace live print files."
+          echo "Use a separate approval-gated workflow for any store-changing action."
+

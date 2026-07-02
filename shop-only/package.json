@@ -17,6 +17,8 @@
     "cost:check": "node scripts/check-cost-guardrails.mjs",
     "build": "npm run cost:check && vite build",
     "lint": "eslint .",
+    "test": "node --test \"api/*.test.js\" \"server/*.test.js\" \"src/**/*.test.js\"",
+    "test:ci": "npm run test",
     "qa": "playwright test qa.spec.js --config=browser-check --reporter=line",
     "preview": "vite preview"
   },
