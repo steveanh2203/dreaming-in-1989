@@ -11002,6 +11002,65 @@
   z-index: 134;
 }
 
+.auth-success-backdrop {
+  z-index: 136;
+}
+
+.auth-success-modal {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: min(480px, calc(100vw - 32px));
+  padding: 32px;
+  color: var(--ink);
+  text-align: center;
+  background:
+    linear-gradient(90deg, rgba(117, 70, 41, 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, #fff0cf 0%, #e8c994 100%);
+  background-size: 7px 100%, auto;
+  border: 2px solid var(--wood);
+  border-radius: 6px;
+  box-shadow: 0 8px 0 rgba(0, 0, 0, 0.24), 0 18px 34px var(--shadow);
+}
+
+.auth-success-modal > svg {
+  box-sizing: content-box;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 12px;
+  padding: 13px;
+  color: var(--green);
+  background: rgba(21, 79, 65, 0.1);
+  border: 2px solid rgba(21, 79, 65, 0.25);
+  border-radius: 50%;
+}
+
+.auth-success-modal h2 {
+  margin: 4px 0 10px;
+  color: var(--ink);
+  font-size: clamp(34px, 7vw, 48px);
+  line-height: 0.95;
+}
+
+.auth-success-modal p:not(.receipt-label) {
+  max-width: 360px;
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-family: var(--font-editorial);
+  font-weight: 900;
+  line-height: 1.45;
+}
+
+.auth-success-modal .checkout-button {
+  width: min(100%, 320px);
+  min-height: 50px;
+  color: var(--cream);
+  font-size: 15px;
+  background: linear-gradient(180deg, var(--green), #07382e);
+  border-color: #052a23;
+  box-shadow: 0 4px 0 #052a23;
+}
+
 .logout-confirm-modal {
   position: relative;
   display: grid;
@@ -11618,6 +11677,21 @@
   line-height: 1.4;
 }
 
+.order-detail-item-action {
+  justify-self: start;
+  min-height: 28px;
+  margin-top: 5px;
+  padding: 0 9px;
+  color: var(--pine);
+  font-family: var(--font-retro);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  background: rgba(255, 247, 221, 0.7);
+  border: 1px dashed rgba(117, 70, 41, 0.58);
+  border-radius: 3px;
+}
+
 .order-detail-item-row > span,
 .order-detail-item-row b {
   font-weight: 900;
@@ -12188,7 +12262,7 @@
 
 .order-detail-footer {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
   gap: 10px;
   padding: 16px 20px;
   border-top: 2px dotted rgba(117, 70, 41, 0.4);
@@ -12224,6 +12298,12 @@
   color: #fff8e8;
   background: var(--red);
   border-color: var(--red-dark);
+}
+
+.order-detail-footer .order-detail-refund {
+  color: #fff8e8;
+  background: var(--pine);
+  border-color: #052d28;
 }
 
 @media (max-width: 920px) {

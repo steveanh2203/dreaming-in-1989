@@ -231,6 +231,25 @@ const getSupabaseUser = async (req) => {
   }
 }
 
+const findSupabaseAuthUserByEmail = async (email) => {
+  const normalizedEmail = cleanString(email).toLowerCase()
+  if (!normalizedEmail) return null
+  if (!isSupabaseServerConfigured()) return null
+
+  const body = await fetchJson(
+    `${supabaseUrl()}/auth/v1/admin/users?page=1&per_page=1000&email=${encodeURIComponent(normalizedEmail)}`,
+    {
+      headers: {
+        apikey: supabaseServiceRoleKey(),
+        Authorization: `Bearer ${supabaseServiceRoleKey()}`,
+      },
+    },
+  )
+
+  const users = Array.isArray(body.users) ? body.users : Array.isArray(body) ? body : []
+  return users.find((user) => cleanString(user.email).toLowerCase() === normalizedEmail) ?? null
+}
+
 const buildOrderTimeline = (paymentStatus = 'pending_review') => [
   { label: 'Order received', detail: 'Checkout was received by the store API.', done: true },
   {
@@ -570,6 +589,15 @@ export const createIntegrationRoutes = ({ json, parseBody }) => ({
     const body = await parseBody(req)
     const result = await processPayPalWebhook(req, body)
     return json(res, 200, result)
+  },
+
+  'POST /api/auth/check-email': async (req, res) => {
+    const body = await parseBody(req)
+    const email = cleanString(body.email).toLowerCase()
+    if (!email) return json(res, 400, { error: 'Email is required.' })
+
+    const user = await findSupabaseAuthUserByEmail(email)
+    return json(res, 200, { exists: Boolean(user) })
   },
 
   'POST /api/orders': async (req, res) => {

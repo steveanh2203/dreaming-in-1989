@@ -1616,6 +1616,15 @@ const getSupabaseAccessToken = async () => {
   return data.session?.access_token ?? ''
 }
 
+const checkAccountEmailExists = async (email) => {
+  try {
+    const { exists } = await apiJson('/api/auth/check-email', { body: { email } })
+    return Boolean(exists)
+  } catch {
+    return false
+  }
+}
+
 const formatJoinedMonth = (value) => {
   try {
     return new Date(value || Date.now()).toLocaleString('en-US', { month: 'long', year: 'numeric' })
@@ -1825,6 +1834,7 @@ function App() {
   const [authPasswordDraft, setAuthPasswordDraft] = useState('')
   const [authPasswordTouched, setAuthPasswordTouched] = useState(false)
   const [authPasswordNotice, setAuthPasswordNotice] = useState('')
+  const [authSuccessModal, setAuthSuccessModal] = useState(null)
   const [authResetPath, setAuthResetPath] = useState('')
   const [checkoutDone, setCheckoutDone] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState('paypal')
@@ -1880,6 +1890,7 @@ function App() {
   const [pdpReviewNotice, setPdpReviewNotice] = useState('')
   const [activeSupportAction, setActiveSupportAction] = useState('help')
   const [supportTicketNotice, setSupportTicketNotice] = useState('')
+  const [supportTicketDraft, setSupportTicketDraft] = useState({ orderId: '', issueType: '', message: '' })
   const [supportTickets, setSupportTickets] = useState([])
   const [selectedProduct, setSelectedProduct] = useState(null)
   const [selectedProductQuantity, setSelectedProductQuantity] = useState(1)
@@ -2534,6 +2545,7 @@ function App() {
 
       setSupportTickets((currentTickets) => [nextTicket, ...currentTickets].slice(0, 4))
       setSupportTicketNotice(`Ticket ${nextTicket.id} received. We'll reply to ${email}.`)
+      setSupportTicketDraft({ orderId: '', issueType: '', message: '' })
       form.reset()
     } catch (error) {
       setSupportTicketNotice(error.message || 'Could not send support request.')
@@ -2728,11 +2740,21 @@ function App() {
   const openAuth = (mode = 'sign-in') => {
     setCartOpen(false)
     setCheckoutOpen(false)
+    setAuthSuccessModal(null)
     setAuthPasswordDraft('')
     setAuthPasswordTouched(false)
     setAuthPasswordNotice('')
     setAuthResetPath('')
     navigateToPath(mode === 'sign-up' ? createAccountPath : mode === 'forgot-password' ? forgotPasswordPath : signInPath)
+  }
+
+  const closeAuthSuccessModal = () => {
+    const nextMode = authSuccessModal?.nextMode
+    setAuthSuccessModal(null)
+
+    if (nextMode) {
+      openAuth(nextMode)
+    }
   }
 
   const openAccountDashboard = (tab = 'orders') => {
@@ -2897,6 +2919,12 @@ function App() {
         setAuthPasswordNotice('Confirm password needs to match the password field.')
         return
       }
+
+      if (await checkAccountEmailExists(email)) {
+        openAuth('sign-in')
+        setAuthPasswordNotice('This email already has an account. Please sign in instead.')
+        return
+      }
     }
 
     try {
@@ -2918,7 +2946,15 @@ function App() {
       if (authResult.error) throw authResult.error
 
       if (!authResult.data.session && activeAuthMode === 'sign-up') {
-        setAuthPasswordNotice('Account created. Check your email to confirm the account, then sign in.')
+        setAuthPasswordNotice('')
+        setAuthSuccessModal({
+          tone: 'mail',
+          label: 'Customer counter',
+          title: 'Check your email',
+          message: 'Account created. Check your email to confirm the account, then come back to sign in.',
+          actionLabel: 'Go to sign in',
+          nextMode: 'sign-in',
+        })
         return
       }
 
@@ -2937,6 +2973,16 @@ function App() {
       setAccountTab('orders')
       setSelectedOrderId(nextCustomer.orders[0]?.id ?? null)
       navigateToAccount('orders')
+      setAuthSuccessModal({
+        tone: 'success',
+        label: activeAuthMode === 'sign-up' ? 'Customer counter' : 'Member file',
+        title: activeAuthMode === 'sign-up' ? 'Account ready' : 'Welcome back',
+        message:
+          activeAuthMode === 'sign-up'
+            ? 'Your account is ready. Orders, support history, and saved picks now have a home.'
+            : 'You are signed in. Your orders, support history, and saved picks are ready.',
+        actionLabel: 'Continue',
+      })
     } catch (error) {
       setAuthPasswordNotice(error.message || 'Could not complete account sign in.')
     }
@@ -3357,6 +3403,42 @@ function App() {
     setOrderDetailNotice('Items were added to your cart.')
   }
 
+  const getOrderItemSupportLabel = (item) => {
+    if (!item) return 'Order item'
+    if (typeof item === 'string') return item
+    return [item.name, item.optionSummary].filter(Boolean).join(' / ')
+  }
+
+  const buildRefundRequestMessage = (order, item = null) => {
+    const itemSummary = item
+      ? getOrderItemSupportLabel(item)
+      : (order?.items ?? []).map(getOrderItemSupportLabel).join(', ')
+
+    return [
+      `Refund/claim request for order #${order?.id ?? ''}.`,
+      `Item: ${itemSummary || 'Please review the order items.'}`,
+      'Issue: ',
+      'Evidence: I can provide photos if the item is damaged, misprinted, defective, incorrect, or lost.',
+      'Requested resolution: refund or replacement review.',
+    ].join('\n')
+  }
+
+  const openRefundRequest = (order, item = null) => {
+    if (!order) return
+
+    setActiveSupportAction('order')
+    setSupportTicketDraft({
+      orderId: order.id,
+      issueType: 'Refund request',
+      message: buildRefundRequestMessage(order, item),
+    })
+    setSupportTicketNotice(`Refund request draft started for #${order.id}. Add the issue details and send it.`)
+    setOrderDetailOpen(false)
+    setAccountTab('support')
+    navigateToPath(getAccountPath('support'))
+    setSelectedOrderId(order.id)
+  }
+
   const showOrderActionNotice = (message) => {
     setOrderDetailNotice(message)
   }
@@ -3570,18 +3652,49 @@ function App() {
 
   const isRevenueDashboard = window.location.pathname === '/dashboard' || window.location.hash === '#revenue-dashboard'
 
+  const renderAuthSuccessModal = () => {
+    if (!authSuccessModal) return null
+
+    const SuccessIcon = authSuccessModal.tone === 'mail' ? Mail : CheckCircle2
+
+    return (
+      <div className="modal-backdrop auth-success-backdrop" role="presentation" onClick={closeAuthSuccessModal}>
+        <section
+          className="auth-success-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-success-title"
+          aria-describedby="auth-success-message"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button className="modal-close" type="button" aria-label="Close account confirmation" onClick={closeAuthSuccessModal}>
+            <X size={22} />
+          </button>
+          <SuccessIcon size={34} aria-hidden="true" />
+          <p className="receipt-label">{authSuccessModal.label}</p>
+          <h2 id="auth-success-title">{authSuccessModal.title}</h2>
+          <p id="auth-success-message">{authSuccessModal.message}</p>
+          <button className="checkout-button" type="button" onClick={closeAuthSuccessModal}>
+            {authSuccessModal.actionLabel}
+          </button>
+        </section>
+      </div>
+    )
+  }
+
   if (isRevenueDashboard) {
     return <RevenueDashboard />
   }
 
   if (authPageOpen) {
     return (
-      <main className={`auth-page auth-page--${activeAuthMode}`} aria-labelledby="auth-title">
-        <button className="auth-page-brand" type="button" onClick={() => navigateToPath('/')}>
-          <img src={dreaming1989LogoImage} alt="1989 Supply Co." />
-        </button>
-        <div className="auth-page-shell">
-          <section className="auth-page-panel" aria-labelledby="auth-title">
+      <>
+        <main className={`auth-page auth-page--${activeAuthMode}`} aria-labelledby="auth-title">
+          <button className="auth-page-brand" type="button" onClick={() => navigateToPath('/')}>
+            <img src={dreaming1989LogoImage} alt="1989 Supply Co." />
+          </button>
+          <div className="auth-page-shell">
+            <section className="auth-page-panel" aria-labelledby="auth-title">
             <p className="receipt-label">Customer counter</p>
             <h1 id="auth-title">
               {activeAuthMode === 'sign-up'
@@ -3772,10 +3885,12 @@ function App() {
                 {activeAuthMode === 'sign-in' ? 'Create account' : 'Sign in'}
               </button>
             </div>
-          </section>
+            </section>
 
-        </div>
-      </main>
+          </div>
+        </main>
+        {renderAuthSuccessModal()}
+      </>
     )
   }
 
@@ -3790,6 +3905,7 @@ function App() {
 
   return (
     <div className={appClassName}>
+      {renderAuthSuccessModal()}
       <div className="promo-marquee" role="region" aria-label="Store announcements">
         <div className="promo-marquee-track" aria-hidden="true">
           {Array.from({ length: 2 }).map((_, group) => (
@@ -6077,7 +6193,11 @@ function App() {
                           </div>
                         </section>
 
-                        <form className="account-support-ticket-form" onSubmit={submitSupportTicket}>
+                        <form
+                          className="account-support-ticket-form"
+                          key={`${activeSupportAction}-${supportTicketDraft.orderId}-${supportTicketDraft.issueType}-${supportTicketDraft.message}`}
+                          onSubmit={submitSupportTicket}
+                        >
                           <div className="account-settings-section-title">
                             <Mail size={18} />
                             <h3>Open Support Ticket</h3>
@@ -6088,7 +6208,7 @@ function App() {
                           </label>
                           <label>
                             Order
-                            <select name="orderId" defaultValue={activeSupportAction === 'order' ? selectedAccountOrder?.id ?? '' : ''}>
+                            <select name="orderId" defaultValue={supportTicketDraft.orderId || (activeSupportAction === 'order' ? selectedAccountOrder?.id ?? '' : '')}>
                               <option value="">No order selected</option>
                               {customerOrders.map((order) => (
                                 <option key={order.id} value={order.id}>
@@ -6099,7 +6219,7 @@ function App() {
                           </label>
                           <label>
                             Issue Type
-                            <select name="issueType" defaultValue={selectedSupportAction.issueType}>
+                            <select name="issueType" defaultValue={supportTicketDraft.issueType || selectedSupportAction.issueType}>
                               <option>General question</option>
                               <option>Order issue</option>
                               <option>Tracking question</option>
@@ -6113,10 +6233,16 @@ function App() {
                             <textarea
                               name="message"
                               rows="5"
+                              defaultValue={supportTicketDraft.message}
                               placeholder="Tell us what happened. Include photos later if the item arrived damaged or misprinted."
                               required
                             />
                           </label>
+                          {supportTicketDraft.orderId && (
+                            <small className="account-inline-notice">
+                              Refund requests are reviewed first. Approved refunds are completed through Shopify, not automatically from this form.
+                            </small>
+                          )}
                           <button className="checkout-button" type="submit">Send Support Request</button>
                           {supportTicketNotice && <small className="account-inline-notice">{supportTicketNotice}</small>}
                         </form>
@@ -6656,6 +6782,9 @@ function App() {
                         <div>
                           <strong>{itemName}</strong>
                           <small>{typeof item === 'string' ? 'Demo item' : item.optionSummary}</small>
+                          <button className="order-detail-item-action" type="button" onClick={() => openRefundRequest(detailOrder, item)}>
+                            Report item
+                          </button>
                         </div>
                         <span>{itemQuantity}</span>
                         <span>{formatPrice(itemPrice)}</span>
@@ -6802,6 +6931,9 @@ function App() {
               </button>
               <button type="button" onClick={() => showOrderActionNotice('Tracking demo is ready for production carrier links.')}>
                 <Truck size={17} /> Track Package
+              </button>
+              <button className="order-detail-refund" type="button" onClick={() => openRefundRequest(detailOrder)}>
+                <RefreshCcw size={17} /> Request Refund
               </button>
               <button type="button" onClick={() => {
                 setOrderDetailOpen(false)
