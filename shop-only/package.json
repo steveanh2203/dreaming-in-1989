@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "node server/auth-server.js",
-    "dev:all": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Start-Process -WindowStyle Hidden -FilePath node -ArgumentList 'server/auth-server.js'; npm.cmd run dev\"",
+    "dev:all": "node scripts/dev-all.mjs",
     "dev:doppler": "doppler run -- npm run dev",
     "dev:api:doppler": "doppler run -- npm run dev:api",
     "dev:all:doppler": "doppler run -- npm run dev:all",

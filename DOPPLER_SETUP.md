@@ -16,6 +16,23 @@ dev
 
 ## New Machine Setup
 
+Fast path:
+
+```bash
+./START
+```
+
+On Windows PowerShell:
+
+```powershell
+.\START.ps1
+```
+
+Use `./START --setup-only` if you only want to prepare the machine without
+starting the local dev servers.
+
+Manual setup:
+
 Install Doppler CLI:
 
 ```bash
@@ -84,6 +101,9 @@ Optional: pull secrets into a local `.env.local` file:
 ```bash
 npm run env:pull
 ```
+
+Avoid writing `.env.local` on public PCs. Prefer `npm run dev:all:doppler`
+because secrets stay injected through Doppler at runtime.
 
 ## Secret Names
 
