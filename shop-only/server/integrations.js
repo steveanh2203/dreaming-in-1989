@@ -155,6 +155,42 @@ const capturePayPalOrder = async (orderId) => {
   })
 }
 
+const verifyPayPalWebhookSignature = async (req, webhookEvent) => {
+  const webhookId = env('PAYPAL_WEBHOOK_ID')
+  if (!webhookId) {
+    const error = new Error('PayPal webhook is not configured. Add PAYPAL_WEBHOOK_ID after creating the live webhook in PayPal.')
+    error.status = 503
+    throw error
+  }
+
+  const accessToken = await getPayPalAccessToken()
+  const verification = await fetchJson(`${paypalBaseUrl()}/v1/notifications/verify-webhook-signature`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      auth_algo: cleanString(req.headers['paypal-auth-algo']),
+      cert_url: cleanString(req.headers['paypal-cert-url']),
+      transmission_id: cleanString(req.headers['paypal-transmission-id']),
+      transmission_sig: cleanString(req.headers['paypal-transmission-sig']),
+      transmission_time: cleanString(req.headers['paypal-transmission-time']),
+      webhook_id: webhookId,
+      webhook_event: webhookEvent,
+    }),
+  })
+
+  if (verification.verification_status !== 'SUCCESS') {
+    const error = new Error('PayPal webhook signature verification failed.')
+    error.status = 401
+    error.body = verification
+    throw error
+  }
+
+  return verification
+}
+
 const supabaseUrl = () => env('VITE_SUPABASE_URL').replace(/\/$/, '')
 const supabaseAnonKey = () => env('VITE_SUPABASE_ANON_KEY')
 const supabaseServiceRoleKey = () => env('SUPABASE_SERVICE_ROLE_KEY')
@@ -207,6 +243,26 @@ const buildOrderTimeline = (paymentStatus = 'pending_review') => [
   { label: 'Tracking', detail: 'Carrier tracking appears here after shipment.', done: false },
 ]
 
+const updateTimelinePaymentStep = (timeline = [], paymentStatus = 'pending_review') => {
+  const nextTimeline = Array.isArray(timeline) && timeline.length ? [...timeline] : buildOrderTimeline(paymentStatus)
+  const paymentIndex = nextTimeline.findIndex((entry) => String(entry?.label ?? '').toLowerCase().includes('payment'))
+  const paymentDone = ['captured', 'paid'].includes(paymentStatus)
+  const paymentEntry = {
+    label: 'Payment review',
+    detail: paymentDone
+      ? 'Payment was confirmed by PayPal.'
+      : paymentStatus === 'payment_failed'
+        ? 'PayPal reported that payment did not complete.'
+        : 'Payment awaits provider confirmation.',
+    done: paymentDone,
+  }
+
+  if (paymentIndex >= 0) nextTimeline[paymentIndex] = paymentEntry
+  else nextTimeline.splice(1, 0, paymentEntry)
+
+  return nextTimeline
+}
+
 const normalizeOrderItems = (items = []) =>
   Array.isArray(items)
     ? items.slice(0, 50).map((item) => ({
@@ -241,7 +297,7 @@ const createStoreOrder = async (req, payload) => {
   let dbOrder = null
   if (user && isSupabaseServerConfigured()) {
     const [insertedOrder] = await supabaseRest(
-      'orders?select=id,order_number,status,payment_provider,payment_status,fulfillment_status,subtotal,discount,shipping,total,shipping_address,tracking_number,tracking_url,timeline,created_at',
+      'orders?select=id,order_number,status,payment_provider,payment_status,paypal_order_id,paypal_capture_id,fulfillment_status,subtotal,discount,shipping,total,shipping_address,tracking_number,tracking_url,timeline,created_at',
       {
         method: 'POST',
         headers: { Prefer: 'return=representation' },
@@ -253,6 +309,8 @@ const createStoreOrder = async (req, payload) => {
           status: 'order_received',
           payment_provider: paymentProvider,
           payment_status: paymentStatus,
+          paypal_order_id: cleanString(payload.paypalOrderId) || null,
+          paypal_capture_id: cleanString(payload.paypalCaptureId) || null,
           fulfillment_status: 'production_pending',
           subtotal,
           discount,
@@ -305,6 +363,141 @@ const createStoreOrder = async (req, payload) => {
     tracking: 'Tracking appears after shipment',
     shippingAddress: [shippingAddress.address, shippingAddress.city, shippingAddress.zip, shippingAddress.country].filter(Boolean).join(', '),
     timeline,
+  }
+}
+
+const getPayPalIdsFromWebhook = (event) => {
+  const resource = event?.resource ?? {}
+  const supplementary = resource.supplementary_data?.related_ids ?? {}
+  const purchaseUnit = resource.purchase_units?.[0] ?? {}
+  const capture = purchaseUnit.payments?.captures?.[0] ?? resource
+  const eventType = String(event?.event_type ?? '')
+
+  return {
+    orderId: cleanString(
+      supplementary.order_id
+        ?? (eventType.startsWith('CHECKOUT.ORDER') ? resource.id : ''),
+    ),
+    captureId: cleanString(
+      supplementary.capture_id
+        ?? (eventType.startsWith('PAYMENT.CAPTURE') ? resource.id : capture.id),
+    ),
+  }
+}
+
+const paymentStatusFromWebhook = (eventType) => {
+  switch (eventType) {
+    case 'CHECKOUT.ORDER.APPROVED':
+      return 'approved'
+    case 'PAYMENT.CAPTURE.COMPLETED':
+      return 'captured'
+    case 'PAYMENT.CAPTURE.PENDING':
+      return 'pending_review'
+    case 'PAYMENT.CAPTURE.DENIED':
+    case 'CHECKOUT.PAYMENT-APPROVAL.REVERSED':
+      return 'payment_failed'
+    case 'PAYMENT.CAPTURE.REFUNDED':
+      return 'refunded'
+    default:
+      return ''
+  }
+}
+
+const findOrderByPayPalIds = async ({ orderId, captureId }) => {
+  if (!isSupabaseServerConfigured()) return null
+
+  const select = 'id,order_number,payment_status,paypal_order_id,paypal_capture_id,timeline'
+  const queries = [
+    captureId ? `orders?paypal_capture_id=eq.${encodeURIComponent(captureId)}&select=${select}&limit=1` : '',
+    orderId ? `orders?paypal_order_id=eq.${encodeURIComponent(orderId)}&select=${select}&limit=1` : '',
+  ].filter(Boolean)
+
+  for (const query of queries) {
+    const [order] = await supabaseRest(query)
+    if (order) return order
+  }
+
+  return null
+}
+
+const recordPayPalWebhookEvent = async ({ event, ids, verificationStatus, processingStatus, matchedOrderId = null }) => {
+  if (!isSupabaseServerConfigured()) return null
+
+  try {
+    const [storedEvent] = await supabaseRest('paypal_webhook_events?select=id,processing_status,matched_order_id', {
+      method: 'POST',
+      headers: {
+        Prefer: 'resolution=merge-duplicates,return=representation',
+      },
+      body: JSON.stringify({
+        id: cleanString(event.id, randomUUID()),
+        event_type: cleanString(event.event_type, 'unknown'),
+        paypal_order_id: ids.orderId || null,
+        paypal_capture_id: ids.captureId || null,
+        verification_status: verificationStatus,
+        processing_status: processingStatus,
+        payload: event,
+        matched_order_id: matchedOrderId,
+        processed_at: processingStatus === 'processed' ? isoNow() : null,
+      }),
+    })
+    return storedEvent
+  } catch (error) {
+    console.warn('[paypal-webhook] could not record event', error.message)
+    return null
+  }
+}
+
+const processPayPalWebhook = async (req, event) => {
+  await verifyPayPalWebhookSignature(req, event)
+
+  const eventType = cleanString(event.event_type)
+  const ids = getPayPalIdsFromWebhook(event)
+  const paymentStatus = paymentStatusFromWebhook(eventType)
+  const matchedOrder = await findOrderByPayPalIds(ids)
+
+  if (!matchedOrder || !paymentStatus) {
+    await recordPayPalWebhookEvent({
+      event,
+      ids,
+      verificationStatus: 'SUCCESS',
+      processingStatus: matchedOrder ? 'ignored' : 'unmatched',
+      matchedOrderId: matchedOrder?.id ?? null,
+    })
+
+    return {
+      ok: true,
+      eventType,
+      status: matchedOrder ? 'ignored' : 'unmatched',
+    }
+  }
+
+  const [updatedOrder] = await supabaseRest(`orders?id=eq.${encodeURIComponent(matchedOrder.id)}&select=id,order_number,payment_status,paypal_order_id,paypal_capture_id`, {
+    method: 'PATCH',
+    headers: {
+      Prefer: 'return=representation',
+    },
+    body: JSON.stringify({
+      payment_status: paymentStatus,
+      paypal_order_id: ids.orderId || matchedOrder.paypal_order_id || null,
+      paypal_capture_id: ids.captureId || matchedOrder.paypal_capture_id || null,
+      timeline: updateTimelinePaymentStep(matchedOrder.timeline, paymentStatus),
+    }),
+  })
+
+  await recordPayPalWebhookEvent({
+    event,
+    ids,
+    verificationStatus: 'SUCCESS',
+    processingStatus: 'processed',
+    matchedOrderId: updatedOrder?.id ?? matchedOrder.id,
+  })
+
+  return {
+    ok: true,
+    eventType,
+    status: 'processed',
+    orderNumber: updatedOrder?.order_number ?? matchedOrder.order_number,
   }
 }
 
@@ -371,6 +564,12 @@ export const createIntegrationRoutes = ({ json, parseBody }) => ({
     const body = await parseBody(req)
     const capture = await capturePayPalOrder(body.orderId)
     return json(res, 200, { capture })
+  },
+
+  'POST /api/paypal/webhook': async (req, res) => {
+    const body = await parseBody(req)
+    const result = await processPayPalWebhook(req, body)
+    return json(res, 200, result)
   },
 
   'POST /api/orders': async (req, res) => {
