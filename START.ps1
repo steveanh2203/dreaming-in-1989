@@ -10,6 +10,7 @@ $RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ShopDir = Join-Path $RepoRoot "shop-only"
 $DopplerProject = if ($env:DOPPLER_PROJECT) { $env:DOPPLER_PROJECT } else { "dreaming-in-1989" }
 $DopplerConfig = if ($env:DOPPLER_CONFIG) { $env:DOPPLER_CONFIG } else { "dev" }
+$NpmCommand = if ($env:OS -eq "Windows_NT") { "npm.cmd" } else { "npm" }
 
 function Write-Step($Message) {
   Write-Host ""
@@ -45,7 +46,7 @@ function Install-Doppler-IfNeeded {
 
 function Verify-Node {
   Require-Command "node" "Install Node.js 20+ first: https://nodejs.org"
-  Require-Command "npm" "Install npm with Node.js 20+ first."
+  Require-Command $NpmCommand "Install npm with Node.js 20+ first."
 
   $major = [int](& node -p "process.versions.node.split('.')[0]")
   if ($major -lt 20) {
@@ -55,13 +56,27 @@ function Verify-Node {
 }
 
 function Doppler-Login-IfNeeded {
-  & doppler me *> $null
-  if ($LASTEXITCODE -eq 0) {
-    return
+  $previousErrorActionPreference = $ErrorActionPreference
+  $ErrorActionPreference = "Continue"
+  try {
+    & doppler me *> $null
+    if ($LASTEXITCODE -eq 0) {
+      return
+    }
+  } finally {
+    $ErrorActionPreference = $previousErrorActionPreference
   }
 
   Write-Step "Doppler is installed but not logged in. Opening Doppler login."
   & doppler login
+  if ($LASTEXITCODE -ne 0) {
+    throw "Doppler login did not complete successfully."
+  }
+
+  & doppler me *> $null
+  if ($LASTEXITCODE -ne 0) {
+    throw "Doppler login finished, but no usable token is available. Run 'doppler login' in an interactive terminal, then rerun .\START.ps1."
+  }
 }
 
 function Doppler-Setup-Folder($Dir) {
@@ -69,6 +84,9 @@ function Doppler-Setup-Folder($Dir) {
   Push-Location $Dir
   try {
     & doppler setup --project $DopplerProject --config $DopplerConfig --no-interactive
+    if ($LASTEXITCODE -ne 0) {
+      throw "Doppler setup failed in $Dir."
+    }
   } finally {
     Pop-Location
   }
@@ -84,9 +102,12 @@ function Install-Dependencies {
   Push-Location $ShopDir
   try {
     if (Test-Path "package-lock.json") {
-      & npm ci
+      & $NpmCommand ci
     } else {
-      & npm install
+      & $NpmCommand install
+    }
+    if ($LASTEXITCODE -ne 0) {
+      throw "npm dependency installation failed."
     }
   } finally {
     Pop-Location
@@ -97,7 +118,10 @@ function Verify-Doppler-Secrets {
   Write-Step "Verifying required API secret names without printing secret values."
   Push-Location $ShopDir
   try {
-    & npm run doppler:verify
+    & $NpmCommand run doppler:verify
+    if ($LASTEXITCODE -ne 0) {
+      throw "Doppler secret verification failed."
+    }
   } finally {
     Pop-Location
   }
@@ -111,7 +135,10 @@ function Pull-Env-IfRequested {
   Write-Step "Writing shop-only/.env.local from Doppler. Do not use -PullEnv on public PCs."
   Push-Location $ShopDir
   try {
-    & npm run env:pull
+    & $NpmCommand run env:pull
+    if ($LASTEXITCODE -ne 0) {
+      throw "Doppler env pull failed."
+    }
   } finally {
     Pop-Location
   }
@@ -125,7 +152,10 @@ function Start-App {
 
   Write-Step "Starting storefront and local API with Doppler-injected secrets."
   Set-Location $ShopDir
-  & npm run dev:all:doppler
+  & $NpmCommand run dev:all:doppler
+  if ($LASTEXITCODE -ne 0) {
+    throw "Doppler-backed dev server exited with an error."
+  }
 }
 
 if (-not (Test-Path $ShopDir)) {

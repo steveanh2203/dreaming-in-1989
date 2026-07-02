@@ -3,6 +3,8 @@ dist/
 .vite/
 .tools/
 .codex-tools/
+.vercel/
+shop-only/.vercel/
 shop-only/.local-tools/
 mockup-output/
 .env
